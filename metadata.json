@@ -1,0 +1,16 @@
+{
+    "name": "SBOPF",
+    "creator": "RolexDE, D4rkswift",
+    "description": "SBOPF is a sub module of SBO wich adds an ingame party finder for many diffrent aspects of the game",
+    "version": "0.4.9",
+    "entry": "index.js",
+    "requires": [
+      "requestV2",
+      "Vigilance",
+      "PogData",
+      "HypixelModAPI",
+      "FileUtilities",
+      "DocGuiLib"
+    ]
+  }
+  
