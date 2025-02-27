@@ -54,6 +54,11 @@ export default class GuiHandler {
             this._create();
             this._registers();
         }
+
+        addHoverEffect(baseColor, hoverColor = [50, 50, 50, 200]) {
+            GuiHandler.addHoverEffect(this.Object, baseColor, hoverColor);
+            return this;
+        }
         
         setOnClick(callback) {
             this.callback = callback;
