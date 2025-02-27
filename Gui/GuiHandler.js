@@ -1,4 +1,4 @@
-import { CenterConstraint, UIBlock, UIText, UIWrappedText } from "../../Elementa";
+import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle } from "../../Elementa";
 
 export default class GuiHandler {
     static JavaColor = java.awt.Color
@@ -32,10 +32,11 @@ export default class GuiHandler {
      * @param {string} textColor // The color of the text
      * @param {...} outline // The outline of the button
      * @param {...} comp // The component the button should be a child of
+     * @param {boolean} rounded // If the button should be rounded
      * @param {boolean} wrapped // If the text should be wrapped
      */
     static Button = class {
-        constructor(text, x, y, width, height, color, textColor = false, outline = false, comp = false, wrapped = false) {
+        constructor(text, x, y, width, height, color, textColor = false, outline = false, comp = false, rounded = false, wrapped = false) {
             this.text = text;
             this.x = x;
             this.y = y;
@@ -47,34 +48,24 @@ export default class GuiHandler {
             this.comp = comp;
             this.callback = undefined;
     
-            this.Object = new UIBlock();
+            this.Object = rounded ? new UIRoundedRectangle(10) : new UIBlock();
             this.textObject = wrapped ? new UIWrappedText(text) : new UIText(text);
+            
             this._create();
+            this._registers();
         }
         
         setOnClick(callback) {
             this.callback = callback;
             return this;
         }
-        
-        click(mouseX, mouseY, button) {
-            if (typeof this.callback === "function") {
-                return this.callback(mouseX, mouseY, button);
-            }
-            return false;
-        }
-        
-        isClicked(mouseX, mouseY) {
-            const absX = this.Object.getLeft();
-            const absY = this.Object.getTop();
-            const absWidth = this.Object.getWidth();
-            const absHeight = this.Object.getHeight();
-            return (
-                mouseX >= absX &&
-                mouseX <= absX + absWidth &&
-                mouseY >= absY &&
-                mouseY <= absY + absHeight
-            );
+
+        _registers() {
+            this.Object.onMouseClick(() => {
+                if (this.callback) {
+                    this.callback();
+                }
+            });
         }
         
         _create() {
@@ -100,6 +91,33 @@ export default class GuiHandler {
             }
         }
     }    
+
+    static UILine = class {
+        constructor(x, y, width, height, color, comp = false) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.comp = comp;
+
+            this.Object = new UIBlock();
+
+            this._create();
+        }
+
+        _create() {
+            this.Object
+                .setX(this.x)
+                .setY(this.y)
+                .setWidth(this.width)
+                .setHeight(this.height)
+                .setColor(GuiHandler.Color(this.color))
+            if (this.comp) {
+                this.Object.setChildOf(this.comp)
+            }
+        }
+    }
 }
 
 // === Fixes Overlapping Hover Effects ===
