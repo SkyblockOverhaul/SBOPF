@@ -52,25 +52,34 @@ export default class GuiHandler {
             this.textObject = wrapped ? new UIWrappedText(text) : new UIText(text);
             
             this._create();
-            this._registers();
         }
 
         addHoverEffect(baseColor, hoverColor = [50, 50, 50, 200]) {
             GuiHandler.addHoverEffect(this.Object, baseColor, hoverColor);
             return this;
         }
+
+        addTextHoverEffect(baseColor, hoverColor = [50, 50, 50, 200]) {
+            GuiHandler.addHoverEffect(this.textObject, baseColor, hoverColor);
+            return this;
+        }
         
         setOnClick(callback) {
-            this.callback = callback;
+            this.Object.onMouseClick(() => {
+                if (callback) {
+                    callback();
+                }
+            });
             return this;
         }
 
-        _registers() {
-            this.Object.onMouseClick(() => {
-                if (this.callback) {
-                    this.callback();
+        setTextOnClick(callback) {
+            this.textObject.onMouseClick(() => {
+                if (callback) {
+                    callback();
                 }
             });
+            return this;
         }
         
         _create() {

@@ -1,10 +1,11 @@
 import GuiHandler from "./GuiHandler";
 import HandleGui from "../../DocGuiLib/core/Gui";
-import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../Elementa";
+import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
 //---> new SiblingConstraint() will position the element on the right side of the previous element.
 //---> new SiblingConstraint(0, true) will position the element on the left side of the previous element.
+const File = Java.type("java.io.File");
 
 
 export default class PartyFinderGUI {
@@ -47,8 +48,15 @@ export default class PartyFinderGUI {
             }
             ChatLib.chat("Clicked " + pageTitle);
         });
-        block.addChild(text);
-        this.CategoryBlock.addChild(block);
+        block.addChild(text)
+        this.CategoryBlock.addChild(block)
+        .addChild((new GuiHandler.UILine(
+            new CenterConstraint(), 
+            new SiblingConstraint(), 
+            (70).percent(), 
+            (0.3).percent(), 
+            [0, 110, 250, 255])).Object
+        )
     }
 
     reloadSelectedPageOnOpen() {
@@ -61,18 +69,17 @@ export default class PartyFinderGUI {
 
     _registers() {
         this.registers.onOpen(() => {
-            this.reloadPageOnOpen();
+            this.reloadSelectedPageOnOpen();
         })
     }
 
     _diana() {
-        new GuiHandler.UILine(
+        this.ContentBlock.addChild((new GuiHandler.UILine(
             (0).percent(), 
             (5).percent(), 
             (100).percent(), 
             (0.3).percent(), 
-            [255, 255, 255, 255], 
-            this.ContentBlock
+            [0, 110, 250, 255])).Object
         )
     }
 
@@ -90,7 +97,7 @@ export default class PartyFinderGUI {
             (5).percent(), 
             (100).percent(), 
             (0.3).percent(), 
-            [255, 255, 255, 255], 
+            [0, 110, 250, 255], 
             this.base
         )
         this.titleBlock = new UIBlock()
@@ -99,7 +106,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
             .addChild(new UIBlock()
-                .setWidth((50).percent())
+                .setWidth((55).percent())
                 .setHeight((100).percent())
                 .setX(new CenterConstraint())
                 .setY(new CenterConstraint())
@@ -112,7 +119,7 @@ export default class PartyFinderGUI {
             )
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
-                .setWidth((12).percent())
+                .setWidth((10).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(
@@ -124,34 +131,58 @@ export default class PartyFinderGUI {
                         (60).percent(),
                         [0, 0, 0, 0],
                         [255, 255, 255, 255],
-                        new OutlineEffect(GuiHandler.Color([255, 255, 255, 255]), 0.5),
                     )
-                    .addHoverEffect([0, 0, 0, 0], [50, 50, 50, 200])
-                    .setOnClick(() => {
-                        ChatLib.chat("Discord")
+                    .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
+                    .setTextOnClick(() => {
+                        java.awt.Desktop.getDesktop().browse(new java.net.URI("https://discord.gg/QvM6b9jsJD"));
                     })).Object
+                    .addChild((new GuiHandler.UILine(
+                        new CenterConstraint(), 
+                        (100).percent(), 
+                        (70).percent(), 
+                        (7).percent(), 
+                        [0, 110, 250, 255])).Object
+                    )
+                    .addChild(UIImage.ofFile(new File("config/ChatTriggers/modules/SBOPF/Gui/Images/discord.png"))
+                        .setX(new SiblingConstraint(0, true))
+                        .setY(new CenterConstraint())
+                        .setWidth((25).percent())
+                        .setHeight((100).percent())
+                    )
                 )
             )
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
-                .setWidth((12).percent())
+                .setWidth((10).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(
                     (new GuiHandler.Button(
-                        "Github",
+                        "GitHub",
                         new CenterConstraint(),
                         new CenterConstraint(),
                         (80).percent(),
                         (60).percent(),
                         [0, 0, 0, 0],
                         [255, 255, 255, 255],
-                        new OutlineEffect(GuiHandler.Color([255, 255, 255, 255]), 0.5),
                     )
-                    .addHoverEffect([0, 0, 0, 0], [50, 50, 50, 200])
-                    .setOnClick(() => {
-                        ChatLib.chat("Github")
+                    .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
+                    .setTextOnClick(() => {
+                        java.awt.Desktop.getDesktop().browse(new java.net.URI("https://github.com/SkyblockOverhaul/SBOPF"));
                     })).Object
+                    .addChild((new GuiHandler.UILine(
+                        new CenterConstraint(), 
+                        (100).percent(), 
+                        (60).percent(), 
+                        (7).percent(), 
+                        [0, 110, 250, 255])).Object
+                    )
+                    .addChild(UIImage.ofFile(new File("config/ChatTriggers/modules/SBOPF/Gui/Images/git.png"))
+                    .setX(new SiblingConstraint(0, true))
+                    .setY(new CenterConstraint())
+                    .setWidth((25).percent())
+                    .setHeight((100).percent())
+                )
                 )
             )
         //-----------------Category Block-----------------
@@ -160,7 +191,7 @@ export default class PartyFinderGUI {
             (5).percent(), 
             (0.2).percent(), 
             (95).percent(), 
-            [255, 255, 255, 255], 
+            [0, 110, 250, 255], 
             this.base
         )
         this.CategoryBlock = new UIBlock()
