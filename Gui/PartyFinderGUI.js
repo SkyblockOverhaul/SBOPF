@@ -25,7 +25,6 @@ export default class PartyFinderGUI {
     }
 
     addPage(pageTitle, pageContent) {
-        //-----------------Title Block-----------------
         this.pages[pageTitle] = pageContent
         let block = new UIBlock()
             .setX(new CenterConstraint())
