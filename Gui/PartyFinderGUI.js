@@ -66,7 +66,6 @@ export default class PartyFinderGUI {
     }
 
     _diana() {
-        //-----------------Title Block-----------------
         new GuiHandler.UILine(
             (0).percent(), 
             (5).percent(), 
