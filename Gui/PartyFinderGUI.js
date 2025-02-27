@@ -51,7 +51,7 @@ export default class PartyFinderGUI {
         this.CategoryBlock.addChild(block);
     }
 
-    reloadPage() {
+    reloadSelectedPageOnOpen() {
         if (PartyFinderGUI.selectedPage && this.pages[PartyFinderGUI.selectedPage]) {
             this.ContentBlock.clearChildren();
             this.pages[PartyFinderGUI.selectedPage]();
@@ -61,7 +61,7 @@ export default class PartyFinderGUI {
 
     _registers() {
         this.registers.onOpen(() => {
-            this.reloadPage();
+            this.reloadPageOnOpen();
         })
     }
 
