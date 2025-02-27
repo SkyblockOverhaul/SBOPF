@@ -2,7 +2,7 @@
     "name": "SBOPF",
     "creator": "RolexDE, D4rkswift",
     "description": "SBOPF is a sub module of SBO wich adds an ingame party finder for many diffrent aspects of the game",
-    "version": "0.4.9",
+    "version": "0.1.0",
     "entry": "index.js",
     "requires": [
       "requestV2",
