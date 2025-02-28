@@ -40,7 +40,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([255, 255, 255, 255]));
 
         GuiHandler.addHoverEffect(text, [255, 255, 255, 255], [50, 50, 255, 200]);
-        text.onMouseClick(() => {
+        block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
             PartyFinderGUI.selectedPage = pageTitle;
@@ -75,7 +75,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([255, 255, 255, 255]));
 
         GuiHandler.addHoverEffect(text, [255, 255, 255, 255], [50, 50, 255, 200]);
-        text.onMouseClick(() => {
+        block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
             PartyFinderGUI.selectedPage = pageTitle;
@@ -315,11 +315,11 @@ export default class PartyFinderGUI {
         // hier eine intro seite einfügen in contentblock!!
 
         //-----------------Pages-----------------
-        this.addSubPage("Home", () => this._home(), (93).percent())
-        this.addSubPage("Help", () => this._help())
-        this.addPage("Diana", () => this._diana(), (0).percent())
+        this.addPage("Diana", () => this._diana())
         this.addPage("Dungeons")
         this.addPage("Kuudra")
         this.addPage("Fishing")
+        this.addSubPage("Home", () => this._home(), (93).percent())
+        this.addSubPage("Help", () => this._help())
     }
 }
