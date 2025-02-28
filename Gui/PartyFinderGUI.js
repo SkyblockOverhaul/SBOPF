@@ -1,12 +1,11 @@
 import GuiHandler from "./GuiHandler";
 import HandleGui from "../../DocGuiLib/core/Gui";
-import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage } from "../../Elementa";
+import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage, SVGComponent } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
 //---> new SiblingConstraint() will position the element on the right side of the previous element.
 //---> new SiblingConstraint(0, true) will position the element on the left side of the previous element.
 const File = Java.type("java.io.File");
-
 
 export default class PartyFinderGUI {
     static clickableElements = []
@@ -67,9 +66,14 @@ export default class PartyFinderGUI {
         }
     }
 
+    updateOnlineUsers(user) {
+        this.Onlineusers.setText("Online: " + user)
+    }
+
     _registers() {
         this.registers.onOpen(() => {
             this.reloadSelectedPageOnOpen();
+            this.updateOnlineUsers(1576)
         })
     }
 
@@ -100,15 +104,34 @@ export default class PartyFinderGUI {
             [0, 110, 250, 255], 
             this.base
         )
+        this.OnlineuserBlock = new UIBlock()
+            .setX((10).percent())
+            .setY(new CenterConstraint())
+            .setWidth((40).percent())
+            .setHeight((80).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        this.Onlineusers = new UIText("Online: 0")
+            .setX((0).percent())
+            .setY(new CenterConstraint())
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .setChildOf(this.OnlineuserBlock)
         this.titleBlock = new UIBlock()
             .setWidth((100).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
             .addChild(new UIBlock()
-                .setWidth((55).percent())
+                .setWidth((25).percent())
                 .setHeight((100).percent())
-                .setX(new CenterConstraint())
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(this.OnlineuserBlock)
+            )
+            .addChild(new UIBlock()
+                .setWidth((50).percent())
+                .setHeight((100).percent())
+                .setX(new SiblingConstraint())
                 .setY(new CenterConstraint())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(new UIText("SBO Party Finder")
@@ -119,7 +142,7 @@ export default class PartyFinderGUI {
             )
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
-                .setWidth((10).percent())
+                .setWidth((11).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(
@@ -143,17 +166,11 @@ export default class PartyFinderGUI {
                         (7).percent(), 
                         [0, 110, 250, 255])).Object
                     )
-                    .addChild(UIImage.ofFile(new File("config/ChatTriggers/modules/SBOPF/Gui/Images/discord.png"))
-                        .setX(new SiblingConstraint(0, true))
-                        .setY(new CenterConstraint())
-                        .setWidth((25).percent())
-                        .setHeight((100).percent())
-                    )
                 )
             )
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
-                .setWidth((10).percent())
+                .setWidth((11).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(
@@ -177,12 +194,6 @@ export default class PartyFinderGUI {
                         (7).percent(), 
                         [0, 110, 250, 255])).Object
                     )
-                    .addChild(UIImage.ofFile(new File("config/ChatTriggers/modules/SBOPF/Gui/Images/git.png"))
-                    .setX(new SiblingConstraint(0, true))
-                    .setY(new CenterConstraint())
-                    .setWidth((25).percent())
-                    .setHeight((100).percent())
-                )
                 )
             )
         //-----------------Category Block-----------------

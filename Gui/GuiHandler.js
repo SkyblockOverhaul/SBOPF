@@ -1,4 +1,5 @@
-import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle } from "../../Elementa";
+import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser } from "../../Elementa";
+
 
 export default class GuiHandler {
     static JavaColor = java.awt.Color
@@ -11,6 +12,19 @@ export default class GuiHandler {
 
     static percentToPixel(percent, value) {
         return (percent / 100) * value
+    }
+
+    static svg(path) {
+        let SAXReader = Java.type("gg.essential.elementa.impl.dom4j.io.SAXReader")
+        let Document = Java.type("gg.essential.elementa.impl.dom4j.Document").class
+        let FileInputStream = Java.type("java.io.FileInputStream")
+        let parseDocument = SVGParser.getClass().getDeclaredMethod("parseDocument", Document)
+        parseDocument.setAccessible(true)
+        
+        let reader = new SAXReader()
+        let stream = new FileInputStream(path)
+        let document = reader.read(stream)
+        return parseDocument.invoke(SVGParser, document)
     }
 
     static addHoverEffect(comp, baseColor, hoverColor = [50, 50, 50, 200]) {
