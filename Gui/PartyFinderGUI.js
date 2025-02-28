@@ -80,7 +80,8 @@ export default class PartyFinderGUI {
     
         block.addChild(text)
             .onMouseEnter(() => {
-                block.setColor(GuiHandler.Color([50, 50, 50, 100]));
+                if (this.selectedPage === pageTitle) return;
+                block.setColor(GuiHandler.Color([50, 50, 50, 150]));
             })
             .onMouseLeave(() => {
                 if (this.selectedPage === pageTitle) return;
