@@ -54,7 +54,6 @@ export default class PartyFinderGUI {
                 if (PartyFinderGUI.selectedPage === pageTitle) return;
                 text.setColor(GuiHandler.Color([255, 255, 255, 255]))
             });
-        block.onMouseCl
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
@@ -66,6 +65,7 @@ export default class PartyFinderGUI {
             ChatLib.chat("Clicked " + pageTitle);
         });
         block.addChild(text)
+        GuiHandler.addHoverEffect(block, [0, 0, 0, 0], [50, 50, 50, 200])
         this.CategoryBlock.addChild(block)
         .addChild((new GuiHandler.UILine(
             new CenterConstraint(), 
@@ -107,6 +107,7 @@ export default class PartyFinderGUI {
             ChatLib.chat("Clicked " + pageTitle);
         });
         block.addChild(text)
+        GuiHandler.addHoverEffect(block, [0, 0, 0, 0], [50, 50, 50, 200])
         this.CategoryBlock.addChild(block)
         .addChild((new GuiHandler.UILine(
             new CenterConstraint(), 
@@ -134,6 +135,7 @@ export default class PartyFinderGUI {
         this.registers.onOpen(() => {
             this.reloadSelectedPageOnOpen();
             this.updateOnlineUsers(1576)
+            this.updatePageHighlight();
         })
     }
 
