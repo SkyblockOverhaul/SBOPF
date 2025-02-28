@@ -45,9 +45,10 @@ export default class PartyFinderGUI {
         })
     }
 
-    addPage(pageTitle, pageContent, y = false) {
-        this.pages[pageTitle] = pageContent
-        y = y ? y : new SiblingConstraint()
+    addPage(pageTitle, pageContent, isSubPage = false, y = false) {
+        this.pages[pageTitle] = pageContent;
+        y = y ? y : (isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint());
+    
         let block = new UIBlock()
             .setX(new CenterConstraint())
             .setY(y)
@@ -58,50 +59,7 @@ export default class PartyFinderGUI {
         let text = new UIText("・ " + pageTitle)
             .setY(new CenterConstraint())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
-            .setTextScale((1.0).pixels());
-        block.onMouseClick(() => {
-            if (PartyFinderGUI.selectedPage === pageTitle) return;
-            this.ContentBlock.clearChildren();
-            PartyFinderGUI.selectedPage = pageTitle;
-            this.updatePageHighlight();
-            if (pageContent) {
-                pageContent();
-            }
-            ChatLib.chat("Clicked " + pageTitle);
-        });
-        block.addChild(text)
-        .onMouseEnter(() => {
-            block.setColor(GuiHandler.Color([50, 50, 50, 200]))
-        })
-        .onMouseLeave(() => {
-            if (PartyFinderGUI.selectedPage === pageTitle) return;
-            block.setColor(GuiHandler.Color([0, 0, 0, 0]))
-        })
-        this.CategoryBlock.addChild(block)
-        .addChild((new GuiHandler.UILine(
-            new CenterConstraint(), 
-            new SiblingConstraint(), 
-            (75).percent(), 
-            (0.3).percent(), 
-            [0, 110, 250, 255])).Object
-        )
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"})
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"})
-    }
-
-    addSubPage(pageTitle, pageContent, y = false) {
-        this.pages[pageTitle] = pageContent
-        y = y ? y : new SiblingConstraint(0, true)
-        let block = new UIBlock()
-            .setX(new CenterConstraint())
-            .setY(y)
-            .setWidth((75).percent())
-            .setHeight((5).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
-        let text = new UIText("・ " + pageTitle)
-            .setY(new CenterConstraint())
-            .setColor(GuiHandler.Color([255, 255, 255, 255]))
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
@@ -112,24 +70,27 @@ export default class PartyFinderGUI {
             }
             ChatLib.chat("Clicked " + pageTitle);
         });
+    
         block.addChild(text)
-        .onMouseEnter(() => {
-            block.setColor(GuiHandler.Color([50, 50, 50, 200]))
-        })
-        .onMouseLeave(() => {
-            if (PartyFinderGUI.selectedPage === pageTitle) return;
-            block.setColor(GuiHandler.Color([0, 0, 0, 0]))
-        })
+             .onMouseEnter(() => {
+                 block.setColor(GuiHandler.Color([50, 50, 50, 200]));
+             })
+             .onMouseLeave(() => {
+                 if (PartyFinderGUI.selectedPage === pageTitle) return;
+                 block.setColor(GuiHandler.Color([0, 0, 0, 0]));
+             });
+    
         this.CategoryBlock.addChild(block)
-        .addChild((new GuiHandler.UILine(
-            new CenterConstraint(), 
-            new SiblingConstraint(0, true), 
-            (75).percent(), 
-            (0.3).percent(), 
-            [0, 110, 250, 255])).Object
-        )
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"})
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"})
+             .addChild((new GuiHandler.UILine(
+                 new CenterConstraint(),
+                 isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint(),
+                 (75).percent(),
+                 (0.3).percent(),
+                 [0, 110, 250, 255])).Object
+             );
+    
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"});
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
     reloadSelectedPageOnOpen() {
@@ -363,11 +324,11 @@ export default class PartyFinderGUI {
         // hier eine intro seite einfügen in contentblock!!
 
         //-----------------Pages-----------------
-        this.addPage("Diana", () => this._diana())
+        this.addPage("Home", () => this._home(), true, (93).percent())
+        this.addPage("Help", () => this._help(), true)
+        this.addPage("Diana", () => this._diana(), false, (0).percent())
         this.addPage("Dungeons")
         this.addPage("Kuudra")
         this.addPage("Fishing")
-        this.addSubPage("Home", () => this._home(), (93).percent())
-        this.addSubPage("Help", () => this._help())
     }
 }
