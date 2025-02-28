@@ -145,36 +145,7 @@ export default class GuiHandler {
                 this.Object.setChildOf(this.comp)
             }
         }
-    }
-
-    static BasicState = class {
-        constructor(initialValue) {
-            this.value = initialValue;
-            this.listeners = [];
-        }
-        
-        get() {
-            return this.value;
-        }
-        
-        set(newValue) {
-            this.value = newValue;
-            this.notify();
-        }
-        
-        subscribe(listener) {
-            this.listeners.push(listener);
-        }
-        
-        notify() {
-            this.listeners.forEach(listener => listener(this.value));
-        }
-        
-        pixels() {
-            return this.get().pixels();
-        }
-    }
-    
+    }    
 }
 
 // === Fixes Overlapping Hover Effects ===
