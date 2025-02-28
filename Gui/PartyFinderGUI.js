@@ -3,13 +3,13 @@ import HandleGui from "../../DocGuiLib/core/Gui";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage, SVGComponent } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
-//---> new SiblingConstraint() will position the element on the right side of the previous element.
-//---> new SiblingConstraint(0, true) will position the element on the left side of the previous element.
+//---> new SiblingConstraint() will position the element next to the previous element.
+//---> new SiblingConstraint(0, true) will position the element before the previous element.
 const File = Java.type("java.io.File");
 
 export default class PartyFinderGUI {
     static clickableElements = []
-    static selectedPage = undefined
+    static selectedPage = "Home"
 
     constructor() {
         this.gui = new HandleGui()
@@ -22,13 +22,15 @@ export default class PartyFinderGUI {
 
         this._create()
         this._registers()
+        this._home()
     }
 
-    addPage(pageTitle, pageContent) {
+    addPage(pageTitle, pageContent, y = false) {
         this.pages[pageTitle] = pageContent
+        y = y ? y : new SiblingConstraint()
         let block = new UIBlock()
             .setX(new CenterConstraint())
-            .setY(new SiblingConstraint())
+            .setY(y)
             .setWidth((60).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
@@ -58,6 +60,41 @@ export default class PartyFinderGUI {
         )
     }
 
+    addSubPage(pageTitle, pageContent, y = false) {
+        this.pages[pageTitle] = pageContent
+        y = y ? y : new SiblingConstraint(0, true)
+        let block = new UIBlock()
+            .setX(new CenterConstraint())
+            .setY(y)
+            .setWidth((60).percent())
+            .setHeight((5).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]));
+    
+        let text = new UIText("・ " + pageTitle)
+            .setY(new CenterConstraint())
+            .setColor(GuiHandler.Color([255, 255, 255, 255]));
+
+        GuiHandler.addHoverEffect(text, [255, 255, 255, 255], [50, 50, 255, 200]);
+        text.onMouseClick(() => {
+            if (PartyFinderGUI.selectedPage === pageTitle) return;
+            this.ContentBlock.clearChildren();
+            PartyFinderGUI.selectedPage = pageTitle;
+            if (pageContent) {
+                pageContent();
+            }
+            ChatLib.chat("Clicked " + pageTitle);
+        });
+        block.addChild(text)
+        this.CategoryBlock.addChild(block)
+        .addChild((new GuiHandler.UILine(
+            new CenterConstraint(), 
+            new SiblingConstraint(0, true), 
+            (70).percent(), 
+            (0.3).percent(), 
+            [0, 110, 250, 255])).Object
+        )
+    }
+
     reloadSelectedPageOnOpen() {
         if (PartyFinderGUI.selectedPage && this.pages[PartyFinderGUI.selectedPage]) {
             this.ContentBlock.clearChildren();
@@ -75,6 +112,59 @@ export default class PartyFinderGUI {
             this.reloadSelectedPageOnOpen();
             this.updateOnlineUsers(1576)
         })
+    }
+
+    _home() {
+        this.ContentBlock.addChild(new UIBlock()
+            .setWidth((100).percent())
+            .setHeight((9).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIWrappedText("Welcome to the SBO Party Finder!")
+                .setX((2).percent())
+                .setY(new CenterConstraint())
+                .setWidth((100).percent())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale((1.5).pixels())
+            )
+        )
+        .addChild(new UIWrappedText(
+            "・ Find parties with custom requirements that Hypixel doesn't offer.\n\n" +
+            "・ Create your own party or join others.\n\n" +
+            "・ Set custom requirements and wait for players to join.\n\n" +
+            "・ Made and maintained by the Skyblock Overhaul team.\n\n" +
+            "・ We rely on a server and appreciate any support to keep it running.")
+            .setX((2).percent())
+            .setY(new SiblingConstraint())
+            .setWidth((100).percent())
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+        )
+        
+    }
+
+    _help() {
+        this.ContentBlock.addChild(new UIBlock()
+            .setWidth((100).percent())
+            .setHeight((9).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIWrappedText("Help Page!")
+                .setX((2).percent())
+                .setY(new CenterConstraint())
+                .setWidth((100).percent())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale((1.5).pixels())
+            )
+        )
+        .addChild(new UIWrappedText(
+            "・ Not Getting any Join Requests?.\n\n" +
+            "   ・ Enable private Messages!\n\n" +
+            "   ・ /settings -> Social Settings.\n\n" +
+            "・ Requirements dont update?\n\n" +
+            "   ・ Wait 10mins and do /ct reload.")
+            .setX((2).percent())
+            .setY(new SiblingConstraint())
+            .setWidth((100).percent())
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+        )
     }
 
     _diana() {
@@ -140,62 +230,63 @@ export default class PartyFinderGUI {
                     .setColor(GuiHandler.Color([255, 255, 255, 255]))
                 )
             )
-            .addChild(new UIBlock()
-                .setX(new SiblingConstraint())
-                .setWidth((11).percent())
-                .setHeight((100).percent())
-                .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                .addChild(
-                    (new GuiHandler.Button(
-                        "Discord",
-                        new CenterConstraint(),
-                        new CenterConstraint(),
-                        (80).percent(),
-                        (60).percent(),
-                        [0, 0, 0, 0],
-                        [255, 255, 255, 255],
-                    )
-                    .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
-                    .setTextOnClick(() => {
-                        java.awt.Desktop.getDesktop().browse(new java.net.URI("https://discord.gg/QvM6b9jsJD"));
-                    })).Object
-                    .addChild((new GuiHandler.UILine(
-                        new CenterConstraint(), 
-                        (100).percent(), 
-                        (70).percent(), 
-                        (7).percent(), 
-                        [0, 110, 250, 255])).Object
-                    )
-                )
+        let block1 = new UIBlock()
+            .setX(new SiblingConstraint())
+            .setWidth((11).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.titleBlock)
+        let discord = new GuiHandler.Button(
+                "Discord",
+                new CenterConstraint(),
+                new CenterConstraint(),
+                (80).percent(),
+                (60).percent(),
+                [0, 0, 0, 0],
+                [255, 255, 255, 255],
+                null,
+                block1
             )
-            .addChild(new UIBlock()
-                .setX(new SiblingConstraint())
-                .setWidth((11).percent())
-                .setHeight((100).percent())
-                .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                .addChild(
-                    (new GuiHandler.Button(
-                        "GitHub",
-                        new CenterConstraint(),
-                        new CenterConstraint(),
-                        (80).percent(),
-                        (60).percent(),
-                        [0, 0, 0, 0],
-                        [255, 255, 255, 255],
-                    )
-                    .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
-                    .setTextOnClick(() => {
-                        java.awt.Desktop.getDesktop().browse(new java.net.URI("https://github.com/SkyblockOverhaul/SBOPF"));
-                    })).Object
-                    .addChild((new GuiHandler.UILine(
-                        new CenterConstraint(), 
-                        (100).percent(), 
-                        (60).percent(), 
-                        (7).percent(), 
-                        [0, 110, 250, 255])).Object
-                    )
-                )
+            .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
+            .setTextOnClick(() => {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI("https://discord.gg/QvM6b9jsJD"));
+            })
+        discord.Object.addChild((new GuiHandler.UILine(
+            new CenterConstraint(), 
+            (100).percent(), 
+            (discord.textObject.getWidth() + 10).pixels(), 
+            (10).percent(), 
+            [0, 110, 250, 255])).Object
+        )
+        let block2 = new UIBlock()
+            .setX(new SiblingConstraint())
+            .setWidth((11).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.titleBlock)
+        let github = new GuiHandler.Button(
+                "GitHub",
+                new CenterConstraint(),
+                new CenterConstraint(),
+                (80).percent(),
+                (60).percent(),
+                [0, 0, 0, 0],
+                [255, 255, 255, 255],
+                null,
+                block2
             )
+            .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
+            .setTextOnClick(() => {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI("https://github.com/SkyblockOverhaul/SBOPF"));
+            })
+        github.Object.addChild((new GuiHandler.UILine(
+            new CenterConstraint(), 
+            (100).percent(), 
+            (github.textObject.getWidth() + 10).pixels(), 
+            (10).percent(), 
+            [0, 110, 250, 255])).Object
+        )
+            
         //-----------------Category Block-----------------
         new GuiHandler.UILine(
             (15).percent(), 
@@ -224,7 +315,9 @@ export default class PartyFinderGUI {
         // hier eine intro seite einfügen in contentblock!!
 
         //-----------------Pages-----------------
-        this.addPage("Diana", () => this._diana())
+        this.addSubPage("Home", () => this._home(), (93).percent())
+        this.addSubPage("Help", () => this._help())
+        this.addPage("Diana", () => this._diana(), (0).percent())
         this.addPage("Dungeons")
         this.addPage("Kuudra")
         this.addPage("Fishing")
