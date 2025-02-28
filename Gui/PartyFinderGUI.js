@@ -6,9 +6,10 @@ import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoun
 //---> new SiblingConstraint() will position the element next to the previous element.
 //---> new SiblingConstraint(0, true) will position the element before the previous element.
 const File = Java.type("java.io.File");
+const elementaPath = Java.type("gg.essential.elementa");
 
 export default class PartyFinderGUI {
-    static clickableElements = []
+    static elementToHighlight = []
     static selectedPage = "Home"
 
     constructor() {
@@ -16,8 +17,6 @@ export default class PartyFinderGUI {
         this.CtGui = this.gui.ctGui
         this.window = this.gui.window
         this.registers = this.gui.registers
-        this.guiScale = Client.settings.video.getGuiScale();
-        this.fixedScale = new GuiHandler.BasicState(1.0 * (2.0 / this.guiScale));
         this.gui.setCommand("pftest")
 
         this.pages = {}
@@ -28,11 +27,20 @@ export default class PartyFinderGUI {
     }
 
     updatePageHighlight() {
-        PartyFinderGUI.clickableElements.forEach(element => {
-            if (element.page === PartyFinderGUI.selectedPage) {
-                element.obj.setColor(GuiHandler.Color([50, 50, 255, 200]))
-            } else {
-                element.obj.setColor(GuiHandler.Color([255, 255, 255, 255]))
+        PartyFinderGUI.elementToHighlight.forEach(element => {
+            if (element.obj instanceof elementaPath.components.UIBlock) {
+                if (element.page === PartyFinderGUI.selectedPage) {
+                    element.obj.setColor(GuiHandler.Color([50, 50, 50, 200]))
+                } else {
+                    element.obj.setColor(GuiHandler.Color([0, 0, 0, 0]))
+                }
+            }
+            else {
+                if (element.page === PartyFinderGUI.selectedPage) {
+                    element.obj.setColor(GuiHandler.Color([50, 50, 255, 200]))
+                } else {
+                    element.obj.setColor(GuiHandler.Color([255, 255, 255, 255]))
+                }
             }
         })
     }
@@ -47,11 +55,10 @@ export default class PartyFinderGUI {
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
-        let text = new UIWrappedText("・ " + pageTitle)
+        let text = new UIText("・ " + pageTitle)
             .setY(new CenterConstraint())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
-            .setTextScale(this.fixedScale.pixels())
-        this.fixedScale.subscribe(newScale => text.setTextScale(newScale.pixels()))
+            .setTextScale((1.0).pixels());
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
@@ -63,7 +70,13 @@ export default class PartyFinderGUI {
             ChatLib.chat("Clicked " + pageTitle);
         });
         block.addChild(text)
-        GuiHandler.addHoverEffect(block, [0, 0, 0, 0], [50, 50, 50, 200])
+        .onMouseEnter(() => {
+            block.setColor(GuiHandler.Color([50, 50, 50, 200]))
+        })
+        .onMouseLeave(() => {
+            if (PartyFinderGUI.selectedPage === pageTitle) return;
+            block.setColor(GuiHandler.Color([0, 0, 0, 0]))
+        })
         this.CategoryBlock.addChild(block)
         .addChild((new GuiHandler.UILine(
             new CenterConstraint(), 
@@ -72,7 +85,8 @@ export default class PartyFinderGUI {
             (0.3).percent(), 
             [0, 110, 250, 255])).Object
         )
-        PartyFinderGUI.clickableElements.push({page: pageTitle, obj: text})
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"})
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"})
     }
 
     addSubPage(pageTitle, pageContent, y = false) {
@@ -99,16 +113,23 @@ export default class PartyFinderGUI {
             ChatLib.chat("Clicked " + pageTitle);
         });
         block.addChild(text)
-        GuiHandler.addHoverEffect(block, [0, 0, 0, 0], [50, 50, 50, 200])
+        .onMouseEnter(() => {
+            block.setColor(GuiHandler.Color([50, 50, 50, 200]))
+        })
+        .onMouseLeave(() => {
+            if (PartyFinderGUI.selectedPage === pageTitle) return;
+            block.setColor(GuiHandler.Color([0, 0, 0, 0]))
+        })
         this.CategoryBlock.addChild(block)
         .addChild((new GuiHandler.UILine(
             new CenterConstraint(), 
             new SiblingConstraint(0, true), 
-            (70).percent(), 
+            (75).percent(), 
             (0.3).percent(), 
             [0, 110, 250, 255])).Object
         )
-        PartyFinderGUI.clickableElements.push({page: pageTitle, obj: text})
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"})
+        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"})
     }
 
     reloadSelectedPageOnOpen() {
@@ -128,8 +149,16 @@ export default class PartyFinderGUI {
             this.reloadSelectedPageOnOpen();
             this.updateOnlineUsers(1576)
             this.updatePageHighlight();
-            this.guiScale = Client.settings.video.getGuiScale();
-            this.fixedScale.set(1.0 * (2.0 / this.guiScale));
+
+            if (Client.getMinecraft().field_71474_y.field_74335_Z === 2) return
+            this.GuiScale = Client.getMinecraft().field_71474_y.field_74335_Z
+            Client.getMinecraft().field_71474_y.field_74335_Z = 2
+        })
+        this.registers.onClose(() => {
+            if (Client.getMinecraft().field_71474_y.field_74335_Z !== 2 || this.GuiScale == null) return
+            if (this.GuiScale === 2) return
+            Client.getMinecraft().field_71474_y.field_74335_Z = this.GuiScale
+            this.GuiScale = null
         })
     }
 
