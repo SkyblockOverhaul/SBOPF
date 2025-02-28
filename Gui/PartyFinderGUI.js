@@ -72,22 +72,22 @@ export default class PartyFinderGUI {
         });
     
         block.addChild(text)
-             .onMouseEnter(() => {
-                 block.setColor(GuiHandler.Color([50, 50, 50, 200]));
-             })
-             .onMouseLeave(() => {
-                 if (PartyFinderGUI.selectedPage === pageTitle) return;
-                 block.setColor(GuiHandler.Color([0, 0, 0, 0]));
-             });
+            .onMouseEnter(() => {
+                block.setColor(GuiHandler.Color([50, 50, 50, 200]));
+            })
+            .onMouseLeave(() => {
+                if (PartyFinderGUI.selectedPage === pageTitle) return;
+                block.setColor(GuiHandler.Color([0, 0, 0, 0]));
+            });
     
         this.CategoryBlock.addChild(block)
-             .addChild((new GuiHandler.UILine(
-                 new CenterConstraint(),
-                 isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint(),
-                 (75).percent(),
-                 (0.3).percent(),
-                 [0, 110, 250, 255])).Object
-             );
+            .addChild((new GuiHandler.UILine(
+                new CenterConstraint(),
+                isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint(),
+                (75).percent(),
+                (0.3).percent(),
+                [0, 110, 250, 255])).Object
+            );
     
         PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"});
         PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
