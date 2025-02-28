@@ -16,6 +16,8 @@ export default class PartyFinderGUI {
         this.CtGui = this.gui.ctGui
         this.window = this.gui.window
         this.registers = this.gui.registers
+        this.guiScale = Client.settings.video.getGuiScale();
+        this.fixedScale = new GuiHandler.BasicState(1.0 * (2.0 / this.guiScale));
         this.gui.setCommand("pftest")
 
         this.pages = {}
@@ -41,19 +43,15 @@ export default class PartyFinderGUI {
         let block = new UIBlock()
             .setX(new CenterConstraint())
             .setY(y)
-            .setWidth((70).percent())
+            .setWidth((75).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
-        let text = new UIText("・ " + pageTitle)
+        let text = new UIWrappedText("・ " + pageTitle)
             .setY(new CenterConstraint())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
-            .onMouseEnter(() => {
-                text.setColor(GuiHandler.Color([50, 50, 255, 200]))
-            }).onMouseLeave(() => {
-                if (PartyFinderGUI.selectedPage === pageTitle) return;
-                text.setColor(GuiHandler.Color([255, 255, 255, 255]))
-            });
+            .setTextScale(this.fixedScale.pixels())
+        this.fixedScale.subscribe(newScale => text.setTextScale(newScale.pixels()))
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
@@ -70,7 +68,7 @@ export default class PartyFinderGUI {
         .addChild((new GuiHandler.UILine(
             new CenterConstraint(), 
             new SiblingConstraint(), 
-            (70).percent(), 
+            (75).percent(), 
             (0.3).percent(), 
             [0, 110, 250, 255])).Object
         )
@@ -83,19 +81,13 @@ export default class PartyFinderGUI {
         let block = new UIBlock()
             .setX(new CenterConstraint())
             .setY(y)
-            .setWidth((70).percent())
+            .setWidth((75).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
         let text = new UIText("・ " + pageTitle)
             .setY(new CenterConstraint())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
-            .onMouseEnter(() => {
-                text.setColor(GuiHandler.Color([50, 50, 255, 200]))
-            }).onMouseLeave(() => {
-                if (PartyFinderGUI.selectedPage === pageTitle) return;
-                text.setColor(GuiHandler.Color([255, 255, 255, 255]))
-            });
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
@@ -136,6 +128,8 @@ export default class PartyFinderGUI {
             this.reloadSelectedPageOnOpen();
             this.updateOnlineUsers(1576)
             this.updatePageHighlight();
+            this.guiScale = Client.settings.video.getGuiScale();
+            this.fixedScale.set(1.0 * (2.0 / this.guiScale));
         })
     }
 

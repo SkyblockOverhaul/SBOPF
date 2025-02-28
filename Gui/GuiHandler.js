@@ -20,7 +20,7 @@ export default class GuiHandler {
         let FileInputStream = Java.type("java.io.FileInputStream")
         let parseDocument = SVGParser.getClass().getDeclaredMethod("parseDocument", Document)
         parseDocument.setAccessible(true)
-        
+
         let reader = new SAXReader()
         let stream = new FileInputStream(path)
         let document = reader.read(stream)
@@ -146,6 +146,35 @@ export default class GuiHandler {
             }
         }
     }
+
+    static BasicState = class {
+        constructor(initialValue) {
+            this.value = initialValue;
+            this.listeners = [];
+        }
+        
+        get() {
+            return this.value;
+        }
+        
+        set(newValue) {
+            this.value = newValue;
+            this.notify();
+        }
+        
+        subscribe(listener) {
+            this.listeners.push(listener);
+        }
+        
+        notify() {
+            this.listeners.forEach(listener => listener(this.value));
+        }
+        
+        pixels() {
+            return this.get().pixels();
+        }
+    }
+    
 }
 
 // === Fixes Overlapping Hover Effects ===
