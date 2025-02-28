@@ -44,6 +44,14 @@ export default class PartyFinderGUI {
         })
     }
 
+    reloadSelectedPage() {
+        if (this.selectedPage && this.pages[this.selectedPage]) {
+            this.ContentBlock.clearChildren();
+            this.pages[this.selectedPage]();
+            ChatLib.chat("Reloaded " + this.selectedPage);
+        }
+    }
+
     addPage(pageTitle, pageContent, isSubPage = false, y = false) {
         this.pages[pageTitle] = pageContent;
         y = y ? y : (isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint());
@@ -92,21 +100,13 @@ export default class PartyFinderGUI {
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
-    reloadSelectedPageOnOpen() {
-        if (this.selectedPage && this.pages[this.selectedPage]) {
-            this.ContentBlock.clearChildren();
-            this.pages[this.selectedPage]();
-            ChatLib.chat("Reloaded " + this.selectedPage);
-        }
-    }
-
     updateOnlineUsers(user) {
         this.Onlineusers.setText("Online: " + user)
     }
 
     _registers() {
         this.registers.onOpen(() => {
-            this.reloadSelectedPageOnOpen();
+            this.reloadSelectedPage();
             this.updateOnlineUsers(1576)
             this.updatePageHighlight();
 
