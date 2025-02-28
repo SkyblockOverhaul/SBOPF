@@ -25,25 +25,41 @@ export default class PartyFinderGUI {
         this._home()
     }
 
+    updatePageHighlight() {
+        PartyFinderGUI.clickableElements.forEach(element => {
+            if (element.page === PartyFinderGUI.selectedPage) {
+                element.obj.setColor(GuiHandler.Color([50, 50, 255, 200]))
+            } else {
+                element.obj.setColor(GuiHandler.Color([255, 255, 255, 255]))
+            }
+        })
+    }
+
     addPage(pageTitle, pageContent, y = false) {
         this.pages[pageTitle] = pageContent
         y = y ? y : new SiblingConstraint()
         let block = new UIBlock()
             .setX(new CenterConstraint())
             .setY(y)
-            .setWidth((60).percent())
+            .setWidth((70).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
         let text = new UIText("・ " + pageTitle)
             .setY(new CenterConstraint())
-            .setColor(GuiHandler.Color([255, 255, 255, 255]));
-
-        GuiHandler.addHoverEffect(text, [255, 255, 255, 255], [50, 50, 255, 200]);
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .onMouseEnter(() => {
+                text.setColor(GuiHandler.Color([50, 50, 255, 200]))
+            }).onMouseLeave(() => {
+                if (PartyFinderGUI.selectedPage === pageTitle) return;
+                text.setColor(GuiHandler.Color([255, 255, 255, 255]))
+            });
+        block.onMouseCl
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
             PartyFinderGUI.selectedPage = pageTitle;
+            this.updatePageHighlight();
             if (pageContent) {
                 pageContent();
             }
@@ -58,6 +74,7 @@ export default class PartyFinderGUI {
             (0.3).percent(), 
             [0, 110, 250, 255])).Object
         )
+        PartyFinderGUI.clickableElements.push({page: pageTitle, obj: text})
     }
 
     addSubPage(pageTitle, pageContent, y = false) {
@@ -66,19 +83,24 @@ export default class PartyFinderGUI {
         let block = new UIBlock()
             .setX(new CenterConstraint())
             .setY(y)
-            .setWidth((60).percent())
+            .setWidth((70).percent())
             .setHeight((5).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
     
         let text = new UIText("・ " + pageTitle)
             .setY(new CenterConstraint())
-            .setColor(GuiHandler.Color([255, 255, 255, 255]));
-
-        GuiHandler.addHoverEffect(text, [255, 255, 255, 255], [50, 50, 255, 200]);
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .onMouseEnter(() => {
+                text.setColor(GuiHandler.Color([50, 50, 255, 200]))
+            }).onMouseLeave(() => {
+                if (PartyFinderGUI.selectedPage === pageTitle) return;
+                text.setColor(GuiHandler.Color([255, 255, 255, 255]))
+            });
         block.onMouseClick(() => {
             if (PartyFinderGUI.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
             PartyFinderGUI.selectedPage = pageTitle;
+            this.updatePageHighlight();
             if (pageContent) {
                 pageContent();
             }
@@ -93,6 +115,7 @@ export default class PartyFinderGUI {
             (0.3).percent(), 
             [0, 110, 250, 255])).Object
         )
+        PartyFinderGUI.clickableElements.push({page: pageTitle, obj: text})
     }
 
     reloadSelectedPageOnOpen() {
