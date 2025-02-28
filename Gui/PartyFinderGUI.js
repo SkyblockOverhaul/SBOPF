@@ -9,9 +9,6 @@ const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
 
 export default class PartyFinderGUI {
-    static elementToHighlight = []
-    static selectedPage = "Home"
-
     constructor() {
         this.gui = new HandleGui()
         this.CtGui = this.gui.ctGui
@@ -19,6 +16,8 @@ export default class PartyFinderGUI {
         this.registers = this.gui.registers
         this.gui.setCommand("pftest")
 
+        this.elementToHighlight = []
+        this.selectedPage = "Home"
         this.pages = {}
 
         this._create()
@@ -27,16 +26,16 @@ export default class PartyFinderGUI {
     }
 
     updatePageHighlight() {
-        PartyFinderGUI.elementToHighlight.forEach(element => {
+        this.elementToHighlight.forEach(element => {
             if (element.obj instanceof elementaPath.components.UIBlock) {
-                if (element.page === PartyFinderGUI.selectedPage) {
-                    element.obj.setColor(GuiHandler.Color([50, 50, 50, 200]))
+                if (element.page === this.selectedPage) {
+                    element.obj.setColor(GuiHandler.Color([50, 50, 50, 255]))
                 } else {
                     element.obj.setColor(GuiHandler.Color([0, 0, 0, 0]))
                 }
             }
             else {
-                if (element.page === PartyFinderGUI.selectedPage) {
+                if (element.page === this.selectedPage) {
                     element.obj.setColor(GuiHandler.Color([50, 50, 255, 200]))
                 } else {
                     element.obj.setColor(GuiHandler.Color([255, 255, 255, 255]))
@@ -61,9 +60,9 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
     
         block.onMouseClick(() => {
-            if (PartyFinderGUI.selectedPage === pageTitle) return;
+            if (this.selectedPage === pageTitle) return;
             this.ContentBlock.clearChildren();
-            PartyFinderGUI.selectedPage = pageTitle;
+            this.selectedPage = pageTitle;
             this.updatePageHighlight();
             if (pageContent) {
                 pageContent();
@@ -73,10 +72,10 @@ export default class PartyFinderGUI {
     
         block.addChild(text)
             .onMouseEnter(() => {
-                block.setColor(GuiHandler.Color([50, 50, 50, 200]));
+                block.setColor(GuiHandler.Color([50, 50, 50, 100]));
             })
             .onMouseLeave(() => {
-                if (PartyFinderGUI.selectedPage === pageTitle) return;
+                if (this.selectedPage === pageTitle) return;
                 block.setColor(GuiHandler.Color([0, 0, 0, 0]));
             });
     
@@ -89,15 +88,15 @@ export default class PartyFinderGUI {
                 [0, 110, 250, 255])).Object
             );
     
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"});
-        PartyFinderGUI.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
+        this.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"});
+        this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
     reloadSelectedPageOnOpen() {
-        if (PartyFinderGUI.selectedPage && this.pages[PartyFinderGUI.selectedPage]) {
+        if (this.selectedPage && this.pages[this.selectedPage]) {
             this.ContentBlock.clearChildren();
-            this.pages[PartyFinderGUI.selectedPage]();
-            ChatLib.chat("Reloaded " + PartyFinderGUI.selectedPage);
+            this.pages[this.selectedPage]();
+            ChatLib.chat("Reloaded " + this.selectedPage);
         }
     }
 
