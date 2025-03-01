@@ -1,8 +1,7 @@
 import GuiHandler from "./GuiHandler";
 import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
-import { getAllParties } from "../Main/PartyFinder";
-import { configState } from "../Main/Data";
+import { getAllParties, createParty } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage, SVGComponent, ScrollComponent } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
@@ -30,6 +29,8 @@ export default class PartyFinderGUI {
         this.elementToHighlight = []
         this.selectedPage = "Diana"
         this.pages = {}
+        this.partyCache = {}
+        this.lastRefreshTime = 0;
 
         this._create()
         this._registers()
@@ -133,7 +134,7 @@ export default class PartyFinderGUI {
         this.partyCount.setText(" " + count)
     }
 
-    addPartyListFunctions(listName, createParty = () => {}, unqueueParty = () => {}, refresh = () => {}, partyCount = 0) {
+    addPartyListFunctions(listName, createParty = () => {}, unqueueParty = () => {}, partyCount = 0) {
         this.partyCount = new UIText(" " + partyCount)
             .setX(new SiblingConstraint())
             .setY(new CenterConstraint())
@@ -177,7 +178,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.refreshSvgComp)
             .onMouseClick(() => {
-                refresh()
+                this.refreshCurrentPartyList()
             })
             .onMouseEnter(() => {
                 this.refreshSvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -231,36 +232,22 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-
-        // this.unqueueParty = new GuiHandler.Button(
-        //     "-",
-        //     new SiblingConstraint(),
-        //     new CenterConstraint(),
-        //     (3).percent(),
-        //     (70).percent(),
-        //     [0, 0, 0, 0],
-        //     [255, 0, 0, 255]
-        // )
-        // this.unqueueParty.textObject.setTextScale(this.getTextScale(2.2))
-        // this.unqueueParty.Object.onMouseClick(() => {
-        //     unqueueParty()
-        // })
-        // this.unqueueParty.addTextHoverEffect([255, 0, 0, 255], [50, 50, 255, 200], this.unqueueParty.Object)
-
-        // this.createParty = new GuiHandler.Button(
-        //     "+",
-        //     new SiblingConstraint(),
-        //     new CenterConstraint(),
-        //     (3).percent(),
-        //     (70).percent(),
-        //     [0, 0, 0, 0],
-        //     [0, 255, 0, 255]
-        // )
-        // this.createParty.textObject.setTextScale(this.getTextScale(2.2))
-        // this.createParty.Object.onMouseClick(() => {
-        //     createParty()
-        // })
-        // this.createParty.addTextHoverEffect([0, 255, 0, 255], [50, 50, 255, 200], this.createParty.Object)
+        this.createPartyContainer = new UIBlock()
+            .setX((0).percent())
+            .setY((7.3).percent())
+            .setWidth((100).percent())
+            .setHeight((92.3).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 255]))
+            .setChildOf(this.ContentBlock)
+            .hide()
+            
+        this.partyListContainer = new ScrollComponent()
+            .setX((0).percent())
+            .setY((7.3).percent())
+            .setWidth((100).percent())
+            .setHeight((92.3).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.ContentBlock);
         
         this.ContentBlock
         .addChild((new GuiHandler.UILine(
@@ -312,26 +299,30 @@ export default class PartyFinderGUI {
 
     addPartyList(partyList) {
         this.updatePartyCount(partyList.length)
-        let scroll = new ScrollComponent()
-        .setX((0).percent())
-        .setY((7.3).percent())
-        .setWidth((100).percent())
-        .setHeight((92.3).percent())
-        .setColor(GuiHandler.Color([0, 0, 0, 0]))
-        .setChildOf(this.ContentBlock);
-
-        partyList.forEach(party => {
-            new UIBlock()
-                .setY(new SiblingConstraint())
-                .setWidth((100).percent())
-                .setHeight((15).percent())
-                .setColor(GuiHandler.Color([0, 0, 0, 150]))
-                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
-                .setChildOf(scroll)
-        });
+        this.partyListContainer.clearChildren()
+        switch (this.selectedPage) {
+            case "Diana":
+                this._addDianaPartyList(partyList)
+                break;
+            default:
+                return
+        }
     }
     
+    refreshCurrentPartyList() {
+        let now = new Date().getTime()
+        if (this.lastRefreshTime && (now - this.lastRefreshTime) < 10000) {
+            ChatLib.chat("Please wait 10 seconds before refreshing again.")
+            return
+        }
+        this.lastRefreshTime = now
 
+        this.partyListContainer.clearChildren()
+        getAllParties((partyList) => {
+            this.partyCache[this.selectedPage] = partyList
+            this.addPartyList(partyList)
+        }, this.selectedPage)
+    }
 
     _registers() {
         this.registers.onOpen(() => {
@@ -344,6 +335,7 @@ export default class PartyFinderGUI {
             Client.getMinecraft().field_71474_y.field_74335_Z = 2
         })
         this.registers.onClose(() => {
+            this.partyCache = {}
             if (Client.getMinecraft().field_71474_y.field_74335_Z !== 2 || this.GuiScale == null) return
             if (this.GuiScale === 2) return
             Client.getMinecraft().field_71474_y.field_74335_Z = this.GuiScale
@@ -423,18 +415,62 @@ export default class PartyFinderGUI {
         )
     }
 
+    _addDianaPartyList(partyList) {
+        partyList.forEach(party => {
+            let partyBlock = new UIBlock()
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((15).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 150]))
+                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
+                .setChildOf(this.partyListContainer)
+                .addChild(new UIText("Leader: " + party.leaderName)
+                    .setX((2).percent())
+                    .setY((2).percent())
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+                .addChild(new UIText("Members: " + party.partymembers + "/6")
+                    .setX((2).percent())
+                    .setY(new SiblingConstraint())
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+                .addChild(new UIText("Note: " + party.note)
+                    .setX((2).percent())
+                    .setY(new SiblingConstraint())
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+                Object.entries(party.reqs).forEach(([key, value]) => {
+                    partyBlock.addChild(new UIText(key + ": " + value)
+                        .setX((2).percent())
+                        .setY(new SiblingConstraint())
+                        .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                        .setTextScale(this.getTextScale())
+                    )
+                })
+
+        });
+    }
+
     _diana() {
         function createParty() {
-            ChatLib.chat("Create Party")
+            this.partyListContainer.hide()
+            this.createPartyContainer.show()
         }
         function unqueueParty() {
             ChatLib.chat("Unqueue Party")
         }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
+        this.addPartyListFunctions("Diana Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+        if (this.partyCache["Diana"]) {
+            this.addPartyList(this.partyCache["Diana"])
+        } else {
+            getAllParties((partyList) => {
+                this.partyCache["Diana"] = partyList
+                this.addPartyList(partyList)
+            }, "Diana")
         }
-        this.addPartyListFunctions("Diana Party List", createParty, unqueueParty, refresh, 5)
-        // this.addPartyList(this.testlist)
         // this.eman9Checkbox = new GuiHandler.Checkbox(
         //     "diana",
         //     "eman9",
@@ -456,10 +492,7 @@ export default class PartyFinderGUI {
         function unqueueParty() {
             ChatLib.chat("Unqueue Party")
         }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
-        }
-        this.addPartyListFunctions("Dungeons Party List", createParty, unqueueParty, refresh, 5)
+        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), unqueueParty.bind(this), 5)
     }
 
     _kuudra() {
@@ -472,7 +505,7 @@ export default class PartyFinderGUI {
         function refresh() {
             ChatLib.chat("Refresh Party List")
         }
-        this.addPartyListFunctions("Kuudra Party List", createParty, unqueueParty, refresh, 5)
+        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), unqueueParty.bind(this), 5)
     }
 
     _fishing() {
@@ -485,7 +518,7 @@ export default class PartyFinderGUI {
         function refresh() {
             ChatLib.chat("Refresh Party List")
         }
-        this.addPartyListFunctions("Fishing Party List", createParty, unqueueParty, refresh, 5)
+        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), unqueueParty.bind(this), 5)
     }
 
     _create() {
