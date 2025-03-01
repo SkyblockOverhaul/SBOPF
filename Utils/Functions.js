@@ -3,14 +3,14 @@ import { data } from "../Main/Data";
 
 let playerStats = undefined;
 let loadingPlayerStats = false;
-export function getPlayerStats(useCallback = false, callback = null) {
+export function getPlayerStats(useCallback = false, callback = null, forceRefresh = false) {
     if (loadingPlayerStats) return;
     if (playerStats != undefined) {
         return playerStats;
     }
     else {
         loadingPlayerStats = true;
-        if (data.playerStatsUpdated && Date.now() - data.playerStatsUpdated < 600000) { // 10 minutes
+        if (data.playerStatsUpdated && Date.now() - data.playerStatsUpdated < 600000 && !forceRefresh) { // 10 minutes
             playerStats = data.playerStats;
             loadingPlayerStats = false;
             if (useCallback && callback) {
@@ -73,3 +73,39 @@ export function setTimeout(callback, delay, ...args) {
 export function cancelTimeout(timer) {
     timer.cancel(true);
 }
+
+
+let registers = [];
+let openVA = false;
+/**
+ * Adds a trigger with its associated dependency to the list of registered triggers.
+ *
+ * @param {Trigger} trigger - The trigger to be added.
+ * @param {function} dependency - The function representing the dependency of the trigger.
+ */
+export function registerWhen(trigger, dependency) {
+    registers.push([trigger.unregister(), dependency, false]);
+}
+
+export function setRegisters() {
+    registers.forEach(trigger => {
+        if ((!trigger[1]() && trigger[2]) || !Scoreboard.getTitle().removeFormatting().includes("SKYBLOCK")) {
+            trigger[0].unregister();
+            trigger[2] = false;
+        } else if (trigger[1]() && !trigger[2]) {
+            trigger[0].register();
+            trigger[2] = true;
+        }
+    });
+}
+delay(() => setRegisters(), 1000);
+
+export function opened() {
+    openVA = true;
+}
+
+register("guiClosed", (event) => {
+    if (event.toString().includes("vigilance")) {
+        setRegisters()
+    }
+});

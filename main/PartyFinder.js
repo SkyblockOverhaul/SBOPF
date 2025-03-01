@@ -1,5 +1,5 @@
 import { request } from "../../requestV2";
-import { getplayername, getPlayerStats, setTimeout } from "../utils/functions";
+import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../utils/functions";
 import { HypixelModAPI } from "./../../HypixelModAPI";
 import settings from "../settings";
 
@@ -85,14 +85,14 @@ export function sendJoinRequest(partyLeader, partyReqs) {
     }
 }
 
-register("chat", (player) => {
+registerWhen(register("chat", (player) => {
     player = getplayername(player).toLowerCase().trim();
     if (playersSendRequest.includes(player)) {
         ChatLib.chat("&6[SBO] &eJoining party: " + player);
         playersSendRequest = [];
         ChatLib.command("p accept " + player);
     }
-}).setCriteria("${player} &r&ehas invited you to join their party!").setContains();
+}).setCriteria("${player} &r&ehas invited you to join their party!").setContains(), () => pfDisabled);
 
 let ghostParty = false;
 export function removePartyFromQueue(useCallback = false, callback = null) {
@@ -134,7 +134,7 @@ function updatePartyInQueue() {
 }
 
 let lastUpdated = 0;
-register("step", () => {
+registerWhen(register("step", () => {
     if (inQueue) {
         if (Date.now() - lastUpdated > 240000) {
             lastUpdated = Date.now();
@@ -159,7 +159,7 @@ register("step", () => {
             });
         }
     }
-}).setFps(1);
+}).setFps(1), () => pfDisabled);
 
 let partyCount = 0;
 function trackMemberCount(number) {
@@ -204,7 +204,7 @@ const memberLeft = [
     /^(.+) &r&ewas removed from your party because they disconnected.&r$/,
     /^&eKicked (.+) because they were offline.&r$/
 ] 
-register("chat", (event) => {
+registerWhen(register("chat", (event) => {
     let formatted = ChatLib.getChatMessage(event, true)
     leaderMessages.forEach(regex => {
         let match = formatted.match(regex)
@@ -236,7 +236,7 @@ register("chat", (event) => {
             inParty = true;
         }
     })
-})
+}), () => pfDisabled);
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
@@ -267,7 +267,7 @@ function invitePlayerIfMeetsReqs(player) {
     });
 }
 
-register("chat", (toFrom, player, id, event) => {
+registerWhen(register("chat", (toFrom, player, id, event) => {
     if (inQueue && toFrom.includes("From")) {
         if (partyCount < 6) {
             player = getplayername(player);
@@ -285,13 +285,13 @@ register("chat", (toFrom, player, id, event) => {
         }
     }
     cancel(event);
-}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBO] join party request - ${id}");
+}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBO] join party request - ${id}") , () => pfDisabled);
 
-register("chat", (profile, event) => {
+registerWhen(register("chat", (profile, event) => {
     setTimeout(() => {
-        checkPlayer(Player.getName(), true, false);
+        getPlayerStats(false, null, true);
     }, 10000);
-}).setCriteria("&r&7Switching to profile ${profile}&r");
+}).setCriteria("&r&7Switching to profile ${profile}&r"), () => pfDisabled);
 
 register("gameUnload", () => {
     if (inQueue) {
