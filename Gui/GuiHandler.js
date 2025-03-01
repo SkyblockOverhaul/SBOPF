@@ -1,9 +1,9 @@
-import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser } from "../../Elementa";
+import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser, RelativeConstraint } from "../../Elementa";
+import { configState } from "../Main/Data";
 
 
 export default class GuiHandler {
     static JavaColor = java.awt.Color
-    static myComponentList = []
 
     static Color(color = [255, 255, 255, 255]) {
         const [r, g, b, a] = color
@@ -28,7 +28,6 @@ export default class GuiHandler {
     }
 
     static addHoverEffect(comp, baseColor, hoverColor = [50, 50, 50, 200]) {
-        GuiHandler.myComponentList.push([comp, baseColor, hoverColor]);
         comp.onMouseEnter((comp, event) => {
             comp.setColor(GuiHandler.Color(hoverColor));
         }).onMouseLeave((comp, event) => {
@@ -36,19 +35,6 @@ export default class GuiHandler {
         });
     }
 
-    /**
-     * @param {string} text // The text of the button
-     * @param {number} x // The x position of the button
-     * @param {number} y // The y position of the button
-     * @param {number} width // The width of the button
-     * @param {number} height // The height of the button
-     * @param {string} color // The color of the button
-     * @param {string} textColor // The color of the text
-     * @param {...} outline // The outline of the button
-     * @param {...} comp // The component the button should be a child of
-     * @param {boolean} rounded // If the button should be rounded
-     * @param {boolean} wrapped // If the text should be wrapped
-     */
     static Button = class {
         constructor(text, x, y, width, height, color, textColor = false, outline = false, comp = false, rounded = false, wrapped = false) {
             this.text = text;
@@ -73,8 +59,12 @@ export default class GuiHandler {
             return this;
         }
 
-        addTextHoverEffect(baseColor, hoverColor = [50, 50, 50, 200]) {
-            GuiHandler.addHoverEffect(this.textObject, baseColor, hoverColor);
+        addTextHoverEffect(baseColor, hoverColor = [50, 50, 50, 200], comp = this.textObject) {
+            comp.onMouseEnter(() => {
+                this.textObject.setColor(GuiHandler.Color(hoverColor));
+            }).onMouseLeave(() => {
+                this.textObject.setColor(GuiHandler.Color(baseColor));
+            });
             return this;
         }
         
@@ -146,27 +136,41 @@ export default class GuiHandler {
             }
         }
     }    
+
+    static Checkbox = class {
+        constructor(list, key, x, y, width, height, color, checkedColor, rounded = false, roundness = 10) {
+            this.list = list;
+            this.key = key;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.checkedColor = checkedColor;
+            this.rounded = rounded;
+            this.checked = configState.checkboxes[list][key];
+            this.Checkbox = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
+            this.outlineBlock = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
+        }
+
+        _create() {
+            this.Checkbox.setX(this.x)
+                .setY(this.y)
+                .setWidth(this.width)
+                .setHeight(this.height)
+                .setColor(GuiHandler.Color(this.checked ? this.checkedColor : this.color));
+
+            this.Checkbox.onMouseClick(() => {
+                this.checked = !this.checked;
+                
+                if (this.checked) {
+                    this.Checkbox.setColor(GuiHandler.Color(this.checkedColor));
+                } else {
+                    this.Checkbox.setColor(GuiHandler.Color(this.color));
+                }
+                configState.update("checkboxes", this.list, this.key, this.checked);
+            });
+            return this.Checkbox;
+        }
+    }
 }
-
-// === Fixes Overlapping Hover Effects ===
-
-// register("tick", () => {
-//     const hoveredComponents = GuiHandler.myComponentList.filter(
-//         ([comp, baseColor, hoverColor]) => comp.isHovered()
-//     );
-
-//     let topComp = null;
-//     if (hoveredComponents.length > 0) {
-//         topComp = hoveredComponents.reduce((prev, curr) => {
-//             return curr[0].depth() > prev[0].depth() ? curr : prev;
-//         })[0];
-//     }
-
-//     GuiHandler.myComponentList.forEach(([comp, baseColor, hoverColor]) => {
-//         if (comp.isHovered() && comp === topComp) {
-//             comp.setColor(GuiHandler.Color(hoverColor));
-//         } else {
-//             comp.setColor(GuiHandler.Color(baseColor));
-//         }
-//     });
-// });
