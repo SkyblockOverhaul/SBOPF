@@ -22,6 +22,11 @@ export let configState = new PogObject("../../../config/sbopf", {
     }
 }, "configState.json")
 
+export let data = new PogObject("../../../config/sbopf", {
+    playerStats: undefined,
+    playerStatsUpdated: 0
+}, "data.json");
+
 configState.update = function(category, list, key, value) {
     if (this[category] && this[category][list] && this[category][list][key] !== undefined) {
         if (this[category][list][key] === value) return;

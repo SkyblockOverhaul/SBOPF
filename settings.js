@@ -44,6 +44,13 @@ class Settings {
         increment: 1,
     })
     scaleIcon = 0;
+
+    @SwitchProperty({
+        name: 'Auto Invite',
+        description: 'Auto invites players that send you a join request and meet the party requirements',
+        category: 'Partyfinder',
+    })
+    autoInvite = false;
 }
 
 
