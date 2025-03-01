@@ -1,6 +1,7 @@
 import GuiHandler from "./GuiHandler";
 import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
+import { getAllParties } from "../Main/PartyFinder";
 import { configState } from "../Main/Data";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage, SVGComponent, ScrollComponent } from "../../Elementa";
 
@@ -23,8 +24,6 @@ export default class PartyFinderGUI {
         this.window = this.gui.window
         this.registers = this.gui.registers
         this.gui.setCommand("pftest")
-
-        this.testlist = ["party1", "party2", "party3", "party4", "party5", "party6", "party7", "party8", "party9", "party10", "party11", "party12", "party13", "party14", "party15"]
 
         this.settings = settings
         this.openGui = false
@@ -321,18 +320,14 @@ export default class PartyFinderGUI {
         .setColor(GuiHandler.Color([0, 0, 0, 0]))
         .setChildOf(this.ContentBlock);
 
-        let verticalScrollBar = new ScrollComponent.DefaultScrollBar(false);
-        scroll.setVerticalScrollBarComponent(verticalScrollBar, false);
-        scroll.addChild(verticalScrollBar);
-
         partyList.forEach(party => {
-            let block = new UIBlock()
+            new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
-                .setHeight((10).percent())
+                .setHeight((15).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
-                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1));
-            scroll.addChild(block);
+                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
+                .setChildOf(scroll)
         });
     }
     
@@ -439,7 +434,7 @@ export default class PartyFinderGUI {
             ChatLib.chat("Refresh Party List")
         }
         this.addPartyListFunctions("Diana Party List", createParty, unqueueParty, refresh, 5)
-        this.addPartyList(this.testlist)
+        // this.addPartyList(this.testlist)
         // this.eman9Checkbox = new GuiHandler.Checkbox(
         //     "diana",
         //     "eman9",
