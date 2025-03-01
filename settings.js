@@ -24,6 +24,19 @@ class Settings {
     constructor() {
         this.initialize(this);
     } 
+    @SwitchProperty({
+        name: 'Enable Partyfinder',
+        description: 'Enables the partyfinder registers',
+        category: 'Partyfinder',
+    })
+    pfEnabled = true;
+
+    @SwitchProperty({
+        name: 'Auto Invite',
+        description: 'Auto invites players that send you a join request and meet the party requirements',
+        category: 'Partyfinder',
+    })
+    autoInvite = false;
     
     @DecimalSliderProperty({
         name: 'Text Scale',
@@ -44,13 +57,6 @@ class Settings {
         increment: 1,
     })
     scaleIcon = 0;
-
-    @SwitchProperty({
-        name: 'Auto Invite',
-        description: 'Auto invites players that send you a join request and meet the party requirements',
-        category: 'Partyfinder',
-    })
-    autoInvite = false;
 }
 
 
