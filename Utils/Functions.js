@@ -1,5 +1,6 @@
 import { request } from "../../requestV2";
 import { data } from "../Main/Data";
+import { delay } from "./threads";
 
 let playerStats = undefined;
 let loadingPlayerStats = false;
@@ -73,7 +74,6 @@ export function setTimeout(callback, delay, ...args) {
 export function cancelTimeout(timer) {
     timer.cancel(true);
 }
-
 
 let registers = [];
 let openVA = false;
