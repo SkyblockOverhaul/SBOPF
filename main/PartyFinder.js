@@ -27,7 +27,7 @@ export function createParty(reqs, note, type) {
     }
 }
 
-export function getAllParties(type, callback) {
+export function getAllParties(callback, type) {
     request({
         url: "https://api.skyblockoverhaul.com/getAllParties?partytype=" + type,
         json: true
