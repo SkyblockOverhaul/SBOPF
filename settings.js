@@ -25,11 +25,11 @@ class Settings {
         this.initialize(this);
     } 
     @SwitchProperty({
-        name: 'Disable Partyfinder',
-        description: 'Disables all partyfinder register',
+        name: 'Enable Partyfinder',
+        description: 'Enables the partyfinder registers',
         category: 'Partyfinder',
     })
-    pfDisabled = false;
+    pfEnabled = true;
 
     @SwitchProperty({
         name: 'Auto Invite',
