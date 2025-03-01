@@ -27,6 +27,27 @@ export function createParty(reqs, note, type) {
     }
 }
 
+export function getAllParties(type, callback) {
+    request({
+        url: "https://api.skyblockoverhaul.com/getAllParties?partytype=" + type,
+        json: true
+    }).then((response)=> {
+        if (response.Success) {
+            callback(response.Parties);
+        } else {
+            ChatLib.chat("&6[SBO] &4Error: " + response.Error);
+        }
+    }).catch((error)=> {
+        if (error.detail) {
+            ChatLib.chat("&6[SBO] &4Error: " + error.detail);
+        } else {
+            console.error(JSON.stringify(error));
+            ChatLib.chat("&6[SBO] &4Unexpected error occurred while getting all parties");
+        }
+    }
+    );
+}
+
 export function isInParty() {
     return inParty;
 }
