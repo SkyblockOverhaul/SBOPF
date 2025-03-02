@@ -104,7 +104,6 @@ export function removePartyFromQueue(useCallback = false, callback = null) {
             url: api + "/unqueueParty?leaderId=" + Player.getUUID().replaceAll("-", ""),
             json: true
         }).then((response)=> {
-            ChatLib.chat("&6[SBO] &eYou have been removed from the queue");
             if (useCallback && callback) {
                 callback(true);
             }

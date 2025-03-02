@@ -3,7 +3,7 @@ import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
 import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
-import { getAllParties, createParty } from "../Main/PartyFinder";
+import { getAllParties, createParty, getInQueue, removePartyFromQueue } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
@@ -36,8 +36,10 @@ export default class PartyFinderGUI {
         this.lastRefreshTime = 0;
         this.cpWindowOpened = false
 
+        this.dequeued = false
+
         EventBus.on("refreshPartyList", () => {
-            this.refreshCurrentPartyList();
+            this.refreshCurrentPartyList(true);
         });
 
         this._create()
@@ -329,10 +331,9 @@ export default class PartyFinderGUI {
         }
     }
     
-    refreshCurrentPartyList() {
-        print("Refreshing party list")
+    refreshCurrentPartyList(ignoreCooldown = false) {
         let now = new Date().getTime()
-        if (this.lastRefreshTime && (now - this.lastRefreshTime) < 1000) {
+        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
             ChatLib.chat("Please wait 10 seconds before refreshing again.")
             return
         }
@@ -644,6 +645,11 @@ export default class PartyFinderGUI {
             )
             .addHoverEffect([50, 50, 50, 200], [100, 100, 100, 220])
             .setOnClick(() => {
+                if (getInQueue()) {
+                    ChatLib.chat("&6[SBOPF] &eYou are already in queue.")
+                    this.closeCpWindow()
+                    return
+                }
                 let reqs = {
                     "lvl": configState.inputs["diana"]["lvl"],
                     "kills": configState.inputs["diana"]["kills"]
@@ -654,15 +660,19 @@ export default class PartyFinderGUI {
                 })
                 let note = configState.inputs["diana"]["note"]
                 let partyType = "Diana"
-                print(reqString)
-                print(note)
                 this.partyCreate(reqString, note, partyType)
                 this.closeCpWindow()
             })
             createButton.textObject.setTextScale(this.getTextScale())
         }
         function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
+            if (getInQueue()) {
+                removePartyFromQueue(true, (response) => {
+                    this.dequeued = response
+                    if (this.dequeued) this.refreshCurrentPartyList(true)
+                    else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
+                });
+            }
         }
         this.addPartyListFunctions("Diana Party List", createParty.bind(this), unqueueParty.bind(this), 5)
         if (this.partyCache["Diana"]) {
