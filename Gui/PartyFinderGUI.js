@@ -334,7 +334,7 @@ export default class PartyFinderGUI {
     refreshCurrentPartyList(ignoreCooldown = false) {
         let now = new Date().getTime()
         if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
-            ChatLib.chat("Please wait 10 seconds before refreshing again.")
+            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
             return
         }
         this.lastRefreshTime = now
