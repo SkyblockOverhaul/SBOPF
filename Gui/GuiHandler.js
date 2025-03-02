@@ -1,4 +1,4 @@
-import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser, UITextInput } from "../../Elementa";
+import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser, UITextInput, SiblingConstraint, ChildBasedSizeConstraint } from "../../Elementa";
 import { configState } from "../Main/Data";
 
 
@@ -153,7 +153,7 @@ export default class GuiHandler {
     }    
 
     static Checkbox = class {
-        constructor(list, key, x, y, width, height, color, checkedColor, rounded = false, roundness = 10) {
+        constructor(list, key, x, y, width, height, color, checkedColor, text = "",rounded = false, roundness = 10) {
             this.list = list;
             this.key = key;
             this.x = x;
@@ -162,30 +162,65 @@ export default class GuiHandler {
             this.height = height;
             this.color = color;
             this.checkedColor = checkedColor;
+            this.text = text;
             this.rounded = rounded;
             this.checked = configState.checkboxes[list][key] || false;
+
+            this.bgbox = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
             this.Checkbox = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
             this.outlineBlock = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
         }
 
+        setBgBoxColor(color) {
+            this.bgbox.setColor(GuiHandler.Color(color));
+            return this;
+        }
+
+        setCheckBoxDimensions(width, height) {
+            this.Checkbox.setWidth(width).setHeight(height);
+            return this;
+        }
+
+        setTextColor(color) {
+            this.text.setColor(GuiHandler.Color(color));
+            return this;
+        }
+
         _create() {
-            this.Checkbox.setX(this.x)
+            this.bgbox.setX(this.x)
                 .setY(this.y)
                 .setWidth(this.width)
                 .setHeight(this.height)
-                .setColor(GuiHandler.Color(this.checked ? this.checkedColor : this.color));
-
+                .setColor(GuiHandler.Color([0, 0, 0, 0]));
+        
+            let groupContainer = new UIBlock();
+            groupContainer.setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setWidth(new ChildBasedSizeConstraint())
+                .setHeight(new ChildBasedSizeConstraint())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.bgbox);
+        
+            this.text = new UIText(this.text)
+                .setX((0).pixels())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setChildOf(groupContainer);
+        
+            this.Checkbox.setX(new SiblingConstraint(5))
+                .setY(new CenterConstraint())
+                .setWidth((16).pixels())
+                .setHeight((16).pixels())
+                .setColor(GuiHandler.Color(this.checked ? this.checkedColor : this.color))
+                .setChildOf(groupContainer);
+    
             this.Checkbox.onMouseClick(() => {
                 this.checked = !this.checked;
-                
-                if (this.checked) {
-                    this.Checkbox.setColor(GuiHandler.Color(this.checkedColor));
-                } else {
-                    this.Checkbox.setColor(GuiHandler.Color(this.color));
-                }
+                this.Checkbox.setColor(GuiHandler.Color(this.checked ? this.checkedColor : this.color));
                 configState.update("checkboxes", this.list, this.key, this.checked);
             });
-            return this.Checkbox;
+        
+            return this.bgbox;
         }
     }
 
@@ -277,7 +312,7 @@ export default class GuiHandler {
                     input.setText(this.lastValidText);
                     return
                 }
-                if (this.onlyText && !isNaN(char)) {
+                if (this.onlyText && (!isNaN(char) && char !== " ") ) {
                     input.setText(this.lastValidText);
                     return
                 }
