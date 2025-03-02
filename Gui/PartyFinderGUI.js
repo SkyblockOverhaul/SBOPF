@@ -72,7 +72,6 @@ export default class PartyFinderGUI {
         if (this.selectedPage && this.pages[this.selectedPage]) {
             this.ContentBlock.clearChildren();
             this.pages[this.selectedPage]();
-            ChatLib.chat("Reloaded " + this.selectedPage);
         }
     }
 
@@ -94,7 +93,6 @@ export default class PartyFinderGUI {
     
         block.onMouseClick(() => {
             if (this.selectedPage === pageTitle) return;
-            ChatLib.chat("Clicked " + pageTitle);
             if (!pageContent) return;
             if (isClickable) return pageContent();
             this.ContentBlock.clearChildren();
