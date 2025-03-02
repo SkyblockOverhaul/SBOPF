@@ -29,10 +29,6 @@ export function createParty(reqs, note, type) {
     }
 }
 
-// setTimeout(() => {
-//     
-// }, 10000);
-
 export function getAllParties(callback, type) {
     request({
         url: "https://api.skyblockoverhaul.com/getAllParties?partytype=" + type,
@@ -349,7 +345,6 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             if (response.Success) {
                 let timeTaken = Date.now() - createPartyTimeStamp;
                 partyReqsObj = response.PartyReqs;
-                ChatLib.chat("&6[SBO] &eParty created successfully in " + timeTaken + "ms \n&6[SBO] &eRefresh to see the party in the list");
                 EventBus.emit("refreshPartyList");
                 inQueue = true; 
                 creatingParty = false;

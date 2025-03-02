@@ -648,9 +648,15 @@ export default class PartyFinderGUI {
                     "lvl": configState.inputs["diana"]["lvl"],
                     "kills": configState.inputs["diana"]["kills"]
                 }
+                let reqString = ""
+                Object.entries(reqs).forEach(([key, value]) => {
+                    if (value !== "") reqString += key + value + ","
+                })
                 let note = configState.inputs["diana"]["note"]
                 let partyType = "Diana"
-                this.partyCreate(reqs, note, partyType)
+                print(reqString)
+                print(note)
+                this.partyCreate(reqString, note, partyType)
                 this.closeCpWindow()
             })
             createButton.textObject.setTextScale(this.getTextScale())
