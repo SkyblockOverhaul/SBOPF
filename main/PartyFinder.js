@@ -4,6 +4,7 @@ import { HypixelModAPI } from "./../../HypixelModAPI";
 import EventBus from "../Utils/EventBus";
 import settings from "../settings";
 
+let api = "https://api.skyblockoverhaul.com";
 let creatingParty = false;
 let updateBool = false;
 let createPartyTimeStamp = 0;
@@ -29,7 +30,7 @@ export function createParty(reqs, note, type) {
 }
 
 // setTimeout(() => {
-//     EventBus.emit("refreshPartyList");
+//     
 // }, 10000);
 
 export function getAllParties(callback, type) {
@@ -349,6 +350,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
                 let timeTaken = Date.now() - createPartyTimeStamp;
                 partyReqsObj = response.PartyReqs;
                 ChatLib.chat("&6[SBO] &eParty created successfully in " + timeTaken + "ms \n&6[SBO] &eRefresh to see the party in the list");
+                EventBus.emit("refreshPartyList");
                 inQueue = true; 
                 creatingParty = false;
                 if (ghostParty) {
