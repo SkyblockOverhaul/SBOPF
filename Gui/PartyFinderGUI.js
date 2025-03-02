@@ -1,8 +1,9 @@
 import GuiHandler from "./GuiHandler";
 import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
+import { configState } from "../Main/Data";
 import { getAllParties, createParty } from "../Main/PartyFinder";
-import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, UIImage, SVGComponent, ScrollComponent } from "../../Elementa";
+import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent } from "../../Elementa";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
 //---> new SiblingConstraint() will position the element next to the previous element.
@@ -31,6 +32,7 @@ export default class PartyFinderGUI {
         this.pages = {}
         this.partyCache = {}
         this.lastRefreshTime = 0;
+        this.cpWindowOpened = false
 
         this._create()
         this._registers()
@@ -112,16 +114,38 @@ export default class PartyFinderGUI {
             });
     
         this.CategoryBlock.addChild(block)
-            .addChild((new GuiHandler.UILine(
+            .addChild(new GuiHandler.UILine(
                 new CenterConstraint(),
                 isSubPage ? new SiblingConstraint(0, true) : new SiblingConstraint(),
                 (75).percent(),
                 (0.3).percent(),
-                [0, 110, 250, 255])).Object
+                [0, 110, 250, 255]).get()
             );
     
         this.elementToHighlight.push({page: pageTitle, obj: text, type: "pageTitle"});
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
+    }
+
+    partyCreate(reqs, note, partyType) {
+        createParty(reqs, note, partyType)
+    }
+
+    openCpWindow() {
+        this.base.hide()
+        this.cpWindow.unhide(true)
+        this.cpWindowOpened = true
+    }
+
+    closeCpWindow() {
+        this.cpWindow.hide()
+        this.checkWindows()
+        this.base.unhide(true)
+        this.cpWindowOpened = false
+    }
+
+    checkWindows() {
+        if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
+        if (this.createBox) this.cpWindow.removeChild(this.createBox);
     }
 
     updateOnlineUsers(user) {
@@ -232,14 +256,6 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-        this.createPartyContainer = new UIBlock()
-            .setX((0).percent())
-            .setY((7.3).percent())
-            .setWidth((100).percent())
-            .setHeight((92.3).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 255]))
-            .setChildOf(this.ContentBlock)
-            .hide()
             
         this.partyListContainer = new ScrollComponent()
             .setX((0).percent())
@@ -250,13 +266,13 @@ export default class PartyFinderGUI {
             .setChildOf(this.ContentBlock);
         
         this.ContentBlock
-        .addChild((new GuiHandler.UILine(
+        .addChild(new GuiHandler.UILine(
             (0).percent(),
             (7).percent(),
             (100).percent(),
             (0.3).percent(),
             [0, 110, 250, 255]
-            )).Object
+            ).get()
         )
         .addChild(new UIBlock()
             .setWidth((100).percent())
@@ -351,6 +367,13 @@ export default class PartyFinderGUI {
                 setTimeout(() => {
                     this.CtGui.open()
                 }, 100)
+            }
+        });
+
+        register("guiKey", (keypressed, keycode, gui, event) => {
+            if (keycode === Keyboard.KEY_ESCAPE && this.cpWindowOpened) {
+                this.closeCpWindow()
+                cancel(event);
             }
         });
     }
@@ -456,8 +479,140 @@ export default class PartyFinderGUI {
 
     _diana() {
         function createParty() {
-            this.partyListContainer.hide()
-            this.createPartyContainer.show()
+            this.openCpWindow()
+            this.cpWindow.setWidth((20).percent())
+            this.cpWindow.setHeight((40).percent())
+            this.reqsBox = new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((68).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.cpWindow)
+            let lvlbox = new UIBlock()
+                .setX((0).percent())
+                .setY((5).pixels())
+                .setWidth((100).percent())
+                .setHeight((30).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.reqsBox)
+            let lvltext = new UIText("SbLvL")
+                .setX((5).percent())
+                .setY(new SiblingConstraint(5))
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+                .setChildOf(lvlbox)
+            let lvlinput = new GuiHandler.TextInput(
+                "diana",
+                "lvl",
+                new CenterConstraint(),
+                new SiblingConstraint(5),
+                (90).percent(),
+                (60).percent(),
+                (90).percent(),
+                [50, 50, 50, 200],
+                [255, 255, 255, 255],
+                true
+            )
+            lvlinput._create().setChildOf(lvlbox)
+            lvlinput.onlyNumbers = true
+            lvlinput.maxChars = 3
+            lvlinput.textInputText.setTextScale(this.getTextScale())
+            if (configState.inputs["diana"]["lvl"] !== "") lvlinput.textInputText.setText(configState.inputs["diana"]["lvl"]);
+
+            let killsbox = new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint(5))
+                .setWidth((100).percent())
+                .setHeight((30).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.reqsBox)
+            let killstext = new UIText("Kills ")
+                .setX((5).percent())
+                .setY(new SiblingConstraint(5))
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+                .setChildOf(killsbox)
+            
+            let killsinput = new GuiHandler.TextInput(
+                "diana",
+                "kills",
+                new CenterConstraint(),
+                new SiblingConstraint(5),
+                (90).percent(),
+                (60).percent(),
+                (90).percent(),
+                [50, 50, 50, 200],
+                [255, 255, 255, 255],
+                true
+            )
+            killsinput._create().setChildOf(killsbox)
+            killsinput.onlyNumbers = true
+            killsinput.maxChars = 6
+            killsinput.textInputText.setTextScale(this.getTextScale())
+            if (configState.inputs["diana"]["kills"] !== "") killsinput.textInputText.setText(configState.inputs["diana"]["kills"]);
+
+            let noteBox = new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint(5))
+                .setWidth((100).percent())
+                .setHeight((30).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.reqsBox)
+            let notetext = new UIText("Note ")
+                .setX((5).percent())
+                .setY(new SiblingConstraint(5))
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+                .setChildOf(noteBox)
+            let noteinput = new GuiHandler.TextInput(
+                "diana",
+                "note",
+                new CenterConstraint(),
+                new SiblingConstraint(5),
+                (90).percent(),
+                (60).percent(),
+                (90).percent(),
+                [50, 50, 50, 200],
+                [255, 255, 255, 255],
+                true
+            )
+            noteinput._create().setChildOf(noteBox)
+            noteinput.onlyText = true
+            noteinput.maxChars = 30
+            noteinput.textInputText.setTextScale(this.getTextScale())
+            if (configState.inputs["diana"]["note"] !== "") noteinput.textInputText.setText(configState.inputs["diana"]["note"]);
+            this.createBox = new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((20).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .setChildOf(this.cpWindow)
+
+            let createButton = new GuiHandler.Button(
+                "Create Party",
+                new CenterConstraint(),
+                new CenterConstraint(),
+                (70).percent(),
+                (60).percent(),
+                [50, 50, 50, 200],
+                [255, 255, 255, 255],
+                null,
+                this.createBox,
+                true
+            )
+            .addHoverEffect([50, 50, 50, 200], [100, 100, 100, 220])
+            .setOnClick(() => {
+                let reqs = {
+                    "lvl": configState.inputs["diana"]["lvl"],
+                    "kills": configState.inputs["diana"]["kills"]
+                }
+                let note = configState.inputs["diana"]["note"]
+                let partyType = "Diana"
+                this.partyCreate(reqs, note, partyType)
+                this.closeCpWindow()
+            })
         }
         function unqueueParty() {
             ChatLib.chat("Unqueue Party")
@@ -522,6 +677,35 @@ export default class PartyFinderGUI {
     }
 
     _create() {
+        this.cpWindow = new UIRoundedRectangle(10)
+            .setWidth((30).percent())
+            .setHeight((40).percent())
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setColor(GuiHandler.Color([30, 30, 30, 240]))
+            .addChild(new UIBlock()
+                .setWidth((100).percent())
+                .setHeight((12).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIText("Create Party")
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setTextScale(this.getTextScale(1.5))
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                )
+            )
+            .addChild(new GuiHandler.UILine(
+                (0).percent(),
+                new SiblingConstraint(),
+                (100).percent(),
+                (1).percent(),
+                [0, 110, 250, 255]
+            ).get())
+
+
+        this.window.addChild(this.cpWindow)
+        this.cpWindow.hide()
+
         this.base = new UIRoundedRectangle(10)
             .setWidth((60).percent())
             .setHeight((65).percent())
@@ -598,12 +782,12 @@ export default class PartyFinderGUI {
                 java.awt.Desktop.getDesktop().browse(new java.net.URI("https://discord.gg/QvM6b9jsJD"));
             })
         discord.textObject.setTextScale(this.getTextScale())
-        discord.Object.addChild((new GuiHandler.UILine(
+        discord.Object.addChild(new GuiHandler.UILine(
             new CenterConstraint(), 
             (100).percent(), 
             (discord.textObject.getWidth() + 10).pixels(), 
             (10).percent(), 
-            [0, 110, 250, 255])).Object
+            [0, 110, 250, 255]).get()
         )
         let block2 = new UIBlock()
             .setX(new SiblingConstraint())
@@ -627,12 +811,12 @@ export default class PartyFinderGUI {
                 java.awt.Desktop.getDesktop().browse(new java.net.URI("https://github.com/SkyblockOverhaul/SBOPF"));
             })
         github.textObject.setTextScale(this.getTextScale())
-        github.Object.addChild((new GuiHandler.UILine(
+        github.Object.addChild(new GuiHandler.UILine(
             new CenterConstraint(), 
             (100).percent(), 
             (github.textObject.getWidth() + 10).pixels(), 
             (10).percent(), 
-            [0, 110, 250, 255])).Object
+            [0, 110, 250, 255]).get()
         )
             
         //-----------------Category Block-----------------

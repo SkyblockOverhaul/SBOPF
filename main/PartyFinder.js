@@ -33,7 +33,6 @@ export function getAllParties(callback, type) {
         json: true
     }).then((response)=> {
         if (response.Success) {
-            print("ausgeführt");
             callback(response.Parties);
         } else {
             ChatLib.chat("&6[SBO] &4Error: " + response.Error);

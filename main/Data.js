@@ -17,15 +17,19 @@ export let configState = new PogObject("../../../config/sbopf", {
     inputs: {
         diana: {
             "kills": 0,
-            "lvl": 0
+            "lvl": 0,
+            "note": "...",
         }
     }
 }, "configState.json")
+configState.save();
 
 export let data = new PogObject("../../../config/sbopf", {
     playerStats: undefined,
     playerStatsUpdated: 0
 }, "data.json");
+
+data.save();
 
 configState.update = function(category, list, key, value) {
     if (this[category] && this[category][list] && this[category][list][key] !== undefined) {
@@ -34,5 +38,3 @@ configState.update = function(category, list, key, value) {
         this.save();
     }
 }
-
-configState.save();
