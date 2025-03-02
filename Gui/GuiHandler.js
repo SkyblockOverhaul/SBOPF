@@ -121,15 +121,16 @@ export default class GuiHandler {
     }    
 
     static UILine = class {
-        constructor(x, y, width, height, color, comp = false) {
+        constructor(x, y, width, height, color, comp = false, rounded = false, roundness = 5) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             this.color = color;
             this.comp = comp;
-
-            this.Object = new UIBlock();
+            this.roundness = roundness;
+            
+            this.Object = rounded ? new UIRoundedRectangle(this.roundness) : new UIBlock();
 
             this._create();
         }

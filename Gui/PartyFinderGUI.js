@@ -1,6 +1,7 @@
 import GuiHandler from "./GuiHandler";
 import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
+import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
 import { getAllParties, createParty } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent } from "../../Elementa";
@@ -16,6 +17,7 @@ let filterSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/f
 let partyGroupSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/users-group.svg")
 let createSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/user-plus.svg")
 let unqueueSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/user-minus.svg")
+let infoSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/info.svg")
 
 export default class PartyFinderGUI {
     constructor() {
@@ -33,6 +35,10 @@ export default class PartyFinderGUI {
         this.partyCache = {}
         this.lastRefreshTime = 0;
         this.cpWindowOpened = false
+
+        EventBus.on("refreshPartyList", () => {
+            this.refreshCurrentPartyList();
+        });
 
         this._create()
         this._registers()
@@ -324,8 +330,9 @@ export default class PartyFinderGUI {
     }
     
     refreshCurrentPartyList() {
+        print("Refreshing party list")
         let now = new Date().getTime()
-        if (this.lastRefreshTime && (now - this.lastRefreshTime) < 10000) {
+        if (this.lastRefreshTime && (now - this.lastRefreshTime) < 1000) {
             ChatLib.chat("Please wait 10 seconds before refreshing again.")
             return
         }
@@ -427,7 +434,10 @@ export default class PartyFinderGUI {
             "   ・ Enable private Messages!\n\n" +
             "   ・ /settings -> Social Settings.\n\n" +
             "・ Requirements dont update?\n\n" +
-            "   ・ Wait 10mins and do /ct reload.")
+            "   ・ Wait 10mins and do /ct reload.\n\n" +
+            "・ Text or Icons to small or to big?\n\n" +
+            "   ・ open party finder settings"
+            )
             .setX((2).percent())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
@@ -445,32 +455,64 @@ export default class PartyFinderGUI {
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
                 .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
                 .setChildOf(this.partyListContainer)
-                .addChild(new UIText("Leader: " + party.leaderName)
-                    .setX((2).percent())
-                    .setY((2).percent())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                    .setTextScale(this.getTextScale())
-                )
-                .addChild(new UIText("Members: " + party.partymembers + "/6")
-                    .setX((2).percent())
-                    .setY(new SiblingConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                    .setTextScale(this.getTextScale())
-                )
-                .addChild(new UIText("Note: " + party.note)
-                    .setX((2).percent())
-                    .setY(new SiblingConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                    .setTextScale(this.getTextScale())
-                )
-                Object.entries(party.reqs).forEach(([key, value]) => {
-                    partyBlock.addChild(new UIText(key + ": " + value)
-                        .setX((2).percent())
-                        .setY(new SiblingConstraint())
+                .addChild(new UIBlock()
+                    .setWidth((20).percent())
+                    .setHeight((100).percent())
+                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                    .addChild(new UIText(party.leaderName)
+                        .setX(new CenterConstraint())
+                        .setY(new CenterConstraint())
                         .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                        .setTextScale(this.getTextScale())
+                        .setTextScale(this.getTextScale(1.5))
                     )
-                })
+                )
+                .addChild(new GuiHandler.UILine(
+                    new SiblingConstraint(),
+                    new CenterConstraint(),
+                    (0.3).percent(),
+                    (80).percent(),
+                    [0, 110, 250, 255],
+                    null,
+                    true
+                ).get())
+                // .addChild(new UIBlock()
+                //     .setWidth((15).percent())
+                //     .setHeight((50).percent())
+                //     .setColor(GuiHandler.Color([0, 0, 0, 150]))
+                //     .addChild(new SVGComponent(crownSvg)
+                //         .setX((10).pixels())
+                //         .setY(new CenterConstraint())
+                //         .setWidth(this.getIconScale())
+                //         .setHeight(this.getIconScale())
+                //         .setColor(GuiHandler.Color([255, 215, 0, 255]))
+                //     )
+                //     .addChild(new UIText(party.leaderName)
+                //         .setX(new SiblingConstraint(5))
+                //         .setY(new CenterConstraint())
+                //         .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                //         .setTextScale(this.getTextScale(1.5))
+                //     )
+                // )
+                // .addChild(new UIText("Members: " + party.partymembers + "/6")
+                //     .setX((2).percent())
+                //     .setY(new SiblingConstraint())
+                //     .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                //     .setTextScale(this.getTextScale())
+                // )
+                // .addChild(new UIText("Note: " + party.note)
+                //     .setX((2).percent())
+                //     .setY(new SiblingConstraint())
+                //     .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                //     .setTextScale(this.getTextScale())
+                // )
+                // Object.entries(party.reqs).forEach(([key, value]) => {
+                //     partyBlock.addChild(new UIText(key + ": " + value)
+                //         .setX((2).percent())
+                //         .setY(new SiblingConstraint())
+                //         .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                //         .setTextScale(this.getTextScale())
+                //     )
+                // })
 
         });
     }
@@ -611,6 +653,7 @@ export default class PartyFinderGUI {
                 this.partyCreate(reqs, note, partyType)
                 this.closeCpWindow()
             })
+            createButton.textObject.setTextScale(this.getTextScale())
         }
         function unqueueParty() {
             ChatLib.chat("Unqueue Party")

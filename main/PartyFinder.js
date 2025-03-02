@@ -1,6 +1,7 @@
 import { request } from "../../requestV2";
 import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../utils/functions";
 import { HypixelModAPI } from "./../../HypixelModAPI";
+import EventBus from "../Utils/EventBus";
 import settings from "../settings";
 
 let creatingParty = false;
@@ -26,6 +27,10 @@ export function createParty(reqs, note, type) {
         ChatLib.chat("&6[SBO] &eYou are already in queue.");
     }
 }
+
+// setTimeout(() => {
+//     EventBus.emit("refreshPartyList");
+// }, 10000);
 
 export function getAllParties(callback, type) {
     request({
