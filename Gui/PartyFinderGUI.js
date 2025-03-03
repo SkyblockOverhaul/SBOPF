@@ -39,12 +39,61 @@ export default class PartyFinderGUI {
         this.dequeued = false
 
         EventBus.on("refreshPartyList", () => {
-            this.refreshCurrentPartyList(true);
+            this.updateCurrentPartyList(true);
         });
 
         this._create()
         this._registers()
         this._home()
+    }
+
+    getTextScale(base = 1) {
+        if (base + this.settings.scaleText <= 0) return (0.1).pixels()
+        return (base + this.settings.scaleText).pixels()
+    }
+
+    getIconScale(base = 18) {
+        if (base + this.settings.scaleIcon <= 0) return (1).pixels()
+        return (base + this.settings.scaleIcon).pixels()
+    }
+
+    openCpWindow() {
+        this.base.hide()
+        this.cpWindow.unhide(true)
+        this.cpWindowOpened = true
+    }
+
+    closeCpWindow() {
+        this.cpWindow.hide()
+        this.checkWindows()
+        this.base.unhide(true)
+        this.cpWindowOpened = false
+    }
+
+    checkWindows() {
+        if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
+        if (this.createBox) this.cpWindow.removeChild(this.createBox);
+    }
+
+    unqueueParty() {
+        if (getInQueue()) {
+            removePartyFromQueue(true, (response) => {
+                this.dequeued = response
+                if (this.dequeued) this.updateCurrentPartyList(true)
+                else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
+            });
+        }
+    }   
+
+    partyCreate(reqs, note, partyType) {
+        createParty(reqs, note, partyType)
+    }
+
+    updateSelectedPage() {
+        if (this.selectedPage && this.pages[this.selectedPage]) {
+            this.ContentBlock.clearChildren();
+            this.pages[this.selectedPage]();
+        }
     }
 
     updatePageHighlight() {
@@ -66,20 +115,38 @@ export default class PartyFinderGUI {
         })
     }
 
-    getTextScale(base = 1) {
-        if (base + this.settings.scaleText <= 0) return (0.1).pixels()
-        return (base + this.settings.scaleText).pixels()
+    updateCurrentPartyList(ignoreCooldown = false) {
+        let now = new Date().getTime()
+        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
+            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
+            return
+        }
+        this.lastRefreshTime = now
+
+        this.partyListContainer.clearChildren()
+        getAllParties((partyList) => {
+            this.partyCache[this.selectedPage] = partyList
+            this.addPartyList(partyList)
+        }, this.selectedPage)
     }
 
-    getIconScale(base = 18) {
-        if (base + this.settings.scaleIcon <= 0) return (1).pixels()
-        return (base + this.settings.scaleIcon).pixels()
+    updateOnlineUsers(user) {
+        if (!this.Onlineusers) return
+        this.Onlineusers.setText("Online: " + user)
     }
 
-    reloadSelectedPage() {
-        if (this.selectedPage && this.pages[this.selectedPage]) {
-            this.ContentBlock.clearChildren();
-            this.pages[this.selectedPage]();
+    updatePartyCount(count) {
+        if (!this.partyCount) return
+        this.partyCount.setText(" " + count)
+    }
+
+    addFilterPage(listName, x, y) {
+        switch (listName) {
+            case "Diana Party List":
+                this._addDianaFilter(x, y)
+                break;
+            default:
+                return;
         }
     }
 
@@ -132,58 +199,6 @@ export default class PartyFinderGUI {
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
-    openCpWindow() {
-        this.base.hide()
-        this.cpWindow.unhide(true)
-        this.cpWindowOpened = true
-    }
-
-    closeCpWindow() {
-        this.cpWindow.hide()
-        this.checkWindows()
-        this.base.unhide(true)
-        this.cpWindowOpened = false
-    }
-
-    checkWindows() {
-        if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
-        if (this.createBox) this.cpWindow.removeChild(this.createBox);
-    }
-
-    updateOnlineUsers(user) {
-        if (!this.Onlineusers) return
-        this.Onlineusers.setText("Online: " + user)
-    }
-
-    updatePartyCount(count) {
-        if (!this.partyCount) return
-        this.partyCount.setText(" " + count)
-    }
-
-    addFilterPage(listName, x, y) {
-        switch (listName) {
-            case "Diana Party List":
-                this._addDianaFilter(x, y)
-                break;
-            default:
-                return;
-        }
-    }
-
-    unqueueParty() {
-        if (getInQueue()) {
-            removePartyFromQueue(true, (response) => {
-                this.dequeued = response
-                if (this.dequeued) this.refreshCurrentPartyList(true)
-                else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
-            });
-        }
-    }   
-
-    partyCreate(reqs, note, partyType) {
-        createParty(reqs, note, partyType)
-    }
-
     addPartyList(partyList = null, ignoreCache = false) {
         if (!partyList) {
             if (!ignoreCache && this.partyCache[this.selectedPage]) {
@@ -206,21 +221,6 @@ export default class PartyFinderGUI {
             default:
                 return;
         }
-    }
-    
-    refreshCurrentPartyList(ignoreCooldown = false) {
-        let now = new Date().getTime()
-        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
-            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
-            return
-        }
-        this.lastRefreshTime = now
-
-        this.partyListContainer.clearChildren()
-        getAllParties((partyList) => {
-            this.partyCache[this.selectedPage] = partyList
-            this.addPartyList(partyList)
-        }, this.selectedPage)
     }
 
     addPartyListFunctions(listName, createParty = () => {}, partyCount = 0) {
@@ -269,7 +269,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.refreshSvgComp)
             .onMouseClick(() => {
-                this.refreshCurrentPartyList()
+                this.updateCurrentPartyList()
             })
             .onMouseEnter(() => {
                 this.refreshSvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -382,9 +382,11 @@ export default class PartyFinderGUI {
 
     _registers() {
         this.registers.onOpen(() => {
-            this.reloadSelectedPage();
+            this.updateSelectedPage();
             this.updateOnlineUsers(1576)
             this.updatePageHighlight();
+            //for the unlucky event that someone spams opening and closing the cp winodw
+            this.closeCpWindow()
 
             if (Client.getMinecraft().field_71474_y.field_74335_Z === 2) return
             this.GuiScale = Client.getMinecraft().field_71474_y.field_74335_Z
@@ -584,9 +586,9 @@ export default class PartyFinderGUI {
             let partyBlock = new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
-                .setHeight((15).percent())
+                .setHeight((20).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
-                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 2))
+                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
                 .setChildOf(this.partyListContainer)
                 .addChild(new UIBlock()
                     .setWidth((20).percent())
