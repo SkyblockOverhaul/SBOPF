@@ -82,11 +82,13 @@ export default class PartyFinderGUI {
     
 
     openFilterWindow() {
+        this.filterBackground.unhide(false)
         this.filterWindow.unhide(false)
         this.filterWindowOpened = true
     }
 
     closeFilterWindow() {
+        this.filterBackground.hide()
         this.filterWindow.hide()
         this.checkWindows()
         this.filterWindowOpened = false
@@ -1094,6 +1096,14 @@ export default class PartyFinderGUI {
     }
 
     _create() {
+        this.filterBackground = new UIBlock()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 100]))
+        this.window.addChild(this.filterBackground)
+        this.filterBackground.hide()
         this.filterWindow = new UIRoundedRectangle(10)
         this.window.addChild(this.filterWindow)
         this.filterWindow.hide()
