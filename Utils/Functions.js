@@ -36,6 +36,7 @@ export function getPlayerStats(useCallback = false, callback = null, forceRefres
         });
     }
 }
+getPlayerStats();
 
 export function getplayername(player) {
     let num
