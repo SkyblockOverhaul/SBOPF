@@ -141,6 +141,7 @@ export default class PartyFinderGUI {
     closeFilterWindow() {
         this.filterBackground.hide()
         this.filterWindow.hide()
+        this.base.grabWindowFocus()
         this.checkWindows()
         this.filterWindowOpened = false
     }
@@ -498,6 +499,7 @@ export default class PartyFinderGUI {
             this.updatePageHighlight();
             //for the unlucky event that someone spams opening and closing the cp winodw
             this.closeCpWindow()
+            this.closeFilterWindow()
 
             if (Client.getMinecraft().field_71474_y.field_74335_Z === 2) return
             this.GuiScale = Client.getMinecraft().field_71474_y.field_74335_Z
@@ -524,8 +526,9 @@ export default class PartyFinderGUI {
         });
 
         register("guiKey", (keypressed, keycode, gui, event) => {
-            if (keycode === Keyboard.KEY_ESCAPE && this.cpWindowOpened) {
-                this.closeCpWindow()
+            if (keycode === Keyboard.KEY_ESCAPE && (this.cpWindowOpened || this.filterWindowOpened)) {
+                if (this.cpWindowOpened) this.closeCpWindow()
+                if (this.filterWindowOpened) this.closeFilterWindow()
                 cancel(event);
             }
         });
@@ -655,6 +658,7 @@ export default class PartyFinderGUI {
         )
         eman9Filter._create().setChildOf(row1)
         eman9Filter.setBgBoxColor([25, 25, 25, 150])
+        eman9Filter.text.setTextScale(this.getTextScale())
         eman9Filter.setOnClick(() => {
             let compositeFilter = this.getFilter(this.selectedPage);
             this.filterPartyList(compositeFilter);
@@ -676,6 +680,7 @@ export default class PartyFinderGUI {
         )
         looting5Filter._create().setChildOf(row2)
         looting5Filter.setBgBoxColor([25, 25, 25, 150])
+        looting5Filter.text.setTextScale(this.getTextScale())
         looting5Filter.setOnClick(() => {
             let compositeFilter = this.getFilter(this.selectedPage);
             this.filterPartyList(compositeFilter);
@@ -697,6 +702,7 @@ export default class PartyFinderGUI {
         )
         canIjoinFilter._create().setChildOf(row3)
         canIjoinFilter.setBgBoxColor([25, 25, 25, 150])
+        canIjoinFilter.text.setTextScale(this.getTextScale())
         canIjoinFilter.setOnClick(() => {
             let compositeFilter = this.getFilter(this.selectedPage);
             this.filterPartyList(compositeFilter);
@@ -921,6 +927,7 @@ export default class PartyFinderGUI {
                 )
                 joinBlock.addChild(joinButton.get())
                 partyBlock.addChild(joinBlock)
+                joinButton.textObject.setTextScale(this.getTextScale())
                 joinButton.setOnClick(() => {
                     this.joinParty(party.leaderName, party.reqs)
                 })
@@ -1063,6 +1070,7 @@ export default class PartyFinderGUI {
             )
             eman9Checkbox._create().setChildOf(eman9box)
             eman9Checkbox.setBgBoxColor([50, 50, 50, 200])
+            eman9Checkbox.text.setTextScale(this.getTextScale())
             let looting5box = new UIBlock()
                 .setX(new SiblingConstraint())
                 .setY((0).percent())
@@ -1084,6 +1092,7 @@ export default class PartyFinderGUI {
                 5
             )
             looting5Checkbox._create().setChildOf(looting5box)
+            looting5Checkbox.text.setTextScale(this.getTextScale())
             looting5Checkbox.setBgBoxColor([50, 50, 50, 200])
             
             this.createBox = new UIBlock()

@@ -162,7 +162,7 @@ export default class GuiHandler {
             this.height = height;
             this.color = color;
             this.checkedColor = checkedColor;
-            this.text = text;
+            this.textString = text;
             this.rounded = rounded;
             this.checked = filter ? (configState.filters[list][key] || false) : (configState.checkboxes[list][key] || false);
 
@@ -207,7 +207,7 @@ export default class GuiHandler {
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .setChildOf(this.bgbox);
         
-            this.text = new UIText(this.text)
+            this.text = new UIText(this.textString)
                 .setX((0).pixels())
                 .setY(new CenterConstraint())
                 .setColor(GuiHandler.Color([255, 255, 255, 255]))
