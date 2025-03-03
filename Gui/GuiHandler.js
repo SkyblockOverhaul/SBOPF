@@ -153,7 +153,7 @@ export default class GuiHandler {
     }    
 
     static Checkbox = class {
-        constructor(list, key, x, y, width, height, color, checkedColor, text = "",rounded = false, roundness = 10) {
+        constructor(list, key, x, y, width, height, color, checkedColor, text = "", rounded = false, roundness = 10, filter = false) {
             this.list = list;
             this.key = key;
             this.x = x;
@@ -164,8 +164,9 @@ export default class GuiHandler {
             this.checkedColor = checkedColor;
             this.text = text;
             this.rounded = rounded;
-            this.checked = configState.checkboxes[list][key] || false;
+            this.checked = filter ? (configState.filters[list][key] || false) : (configState.checkboxes[list][key] || false);
 
+            this.filter = filter;
             this.bgbox = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
             this.Checkbox = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
             this.outlineBlock = rounded ? new UIRoundedRectangle(roundness) : new UIBlock();
@@ -183,6 +184,11 @@ export default class GuiHandler {
 
         setTextColor(color) {
             this.text.setColor(GuiHandler.Color(color));
+            return this;
+        }
+
+        setOnClick(callback) {
+            this.onClick = callback;
             return this;
         }
 
@@ -217,7 +223,15 @@ export default class GuiHandler {
             this.Checkbox.onMouseClick(() => {
                 this.checked = !this.checked;
                 this.Checkbox.setColor(GuiHandler.Color(this.checked ? this.checkedColor : this.color));
-                configState.update("checkboxes", this.list, this.key, this.checked);
+                if (this.filter) {
+                    configState.update("filters", this.list, this.key, this.checked);
+                }
+                else {
+                    configState.update("checkboxes", this.list, this.key, this.checked);
+                }
+                if (this.onClick) {
+                    this.onClick();
+                }
             });
         
             return this.bgbox;

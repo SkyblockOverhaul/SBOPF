@@ -35,16 +35,113 @@ export default class PartyFinderGUI {
         this.partyCache = {}
         this.lastRefreshTime = 0;
         this.cpWindowOpened = false
+        this.filterWindowOpened = false
 
         this.dequeued = false
 
         EventBus.on("refreshPartyList", () => {
-            this.refreshCurrentPartyList(true);
+            this.updateCurrentPartyList(true);
         });
 
         this._create()
         this._registers()
         this._home()
+    }
+
+    getTextScale(base = 1) {
+        if (base + this.settings.scaleText <= 0) return (0.1).pixels()
+        return (base + this.settings.scaleText).pixels()
+    }
+
+    getIconScale(base = 18) {
+        if (base + this.settings.scaleIcon <= 0) return (1).pixels()
+        return (base + this.settings.scaleIcon).pixels()
+    }
+
+    getFilter(pageType) {
+        switch(pageType) {
+            case "Diana": {
+                let isEman9Active = configState.filters["diana"]["eman9Filter"];
+                let isLooting5Active = configState.filters["diana"]["looting5Filter"];
+                let isCanIJoinActive = configState.filters["diana"]["canIjoinFilter"];
+
+                if (!isEman9Active && !isLooting5Active) return null;
+                return party => {
+                    if (isEman9Active && !(party.reqs && party.reqs.eman9)) return false;
+                    if (isLooting5Active && !(party.reqs && party.reqs.looting5)) return false;
+                    return true;
+                };
+            }
+            case "Dungeons": {
+                return null;
+            }
+            default:
+                return null;
+        }
+    }
+    
+
+    openFilterWindow() {
+        this.filterBackground.unhide(false)
+        this.filterWindow.unhide(false)
+        this.filterWindowOpened = true
+    }
+
+    closeFilterWindow() {
+        this.filterBackground.hide()
+        this.filterWindow.hide()
+        this.checkWindows()
+        this.filterWindowOpened = false
+    }
+
+    openCpWindow() {
+        this.base.hide()
+        this.cpWindow.unhide(true)
+        this.cpWindowOpened = true
+    }
+
+    closeCpWindow() {
+        this.cpWindow.hide()
+        this.checkWindows()
+        this.base.unhide(true)
+        this.cpWindowOpened = false
+    }
+
+    checkWindows() {
+        if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
+        if (this.createBox) this.cpWindow.removeChild(this.createBox);
+        if (this.filterBox) this.window.removeChild(this.filterBox);
+    }
+
+    unqueueParty() {
+        if (getInQueue()) {
+            removePartyFromQueue(true, (response) => {
+                this.dequeued = response
+                if (this.dequeued) this.updateCurrentPartyList(true)
+                else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
+            });
+        }
+    }   
+
+    partyCreate(reqs, note, partyType) {
+        createParty(reqs, note, partyType)
+    }
+
+    filterPartyList(filterPredicate = null) {
+        const partyList = this.partyCache[this.selectedPage];
+        if (!partyList) {
+            return this.updateCurrentPartyList(true);
+        }
+        const resultList = filterPredicate ? partyList.filter(filterPredicate) : partyList;
+        this.addPartyList(resultList, true);
+    }
+
+
+    updateSelectedPage() {
+        if (this.selectedPage && this.pages[this.selectedPage]) {
+            this.ContentBlock.clearChildren();
+            this.pages[this.selectedPage]();
+        }
     }
 
     updatePageHighlight() {
@@ -66,20 +163,49 @@ export default class PartyFinderGUI {
         })
     }
 
-    getTextScale(base = 1) {
-        if (base + this.settings.scaleText <= 0) return (0.1).pixels()
-        return (base + this.settings.scaleText).pixels()
+    updateCurrentPartyList(ignoreCooldown = false) {
+        let now = new Date().getTime();
+        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
+            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).");
+            return;
+        }
+        this.lastRefreshTime = now;
+        this.partyListContainer.clearChildren();
+        getAllParties((partyList) => {
+            this.partyCache[this.selectedPage] = partyList;
+            const compositeFilter = this.getFilter(this.selectedPage);
+            if (compositeFilter) {
+                this.filterPartyList(compositeFilter);
+            } else {
+                this.addPartyList(partyList);
+            }
+        }, this.selectedPage);
+    }
+    
+
+    updateOnlineUsers(user) {
+        if (!this.Onlineusers) return
+        this.Onlineusers.setText("Online: " + user)
     }
 
-    getIconScale(base = 18) {
-        if (base + this.settings.scaleIcon <= 0) return (1).pixels()
-        return (base + this.settings.scaleIcon).pixels()
+    updatePartyCount(count) {
+        if (!this.partyCount) return
+        this.partyCount.setText(" " + count)
     }
 
-    reloadSelectedPage() {
-        if (this.selectedPage && this.pages[this.selectedPage]) {
-            this.ContentBlock.clearChildren();
-            this.pages[this.selectedPage]();
+    addFilterPage(listName, x, y) {
+        if (this.filterWindowOpened) {
+            this.filterWindowOpened = false
+            return
+        }   
+        else this.openFilterWindow()
+
+        switch (listName) {
+            case "Diana Party List":
+                this._addDianaFilter(x, y)
+                break;
+            default:
+                return;
         }
     }
 
@@ -132,39 +258,38 @@ export default class PartyFinderGUI {
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
-    partyCreate(reqs, note, partyType) {
-        createParty(reqs, note, partyType)
+    addPartyList(partyList = null, ignoreCache = false) {
+        if (!partyList) {
+            if (!ignoreCache && this.partyCache[this.selectedPage]) {
+                partyList = this.partyCache[this.selectedPage];
+            } else {
+                return getAllParties((fetchedPartyList) => {
+                    this.partyCache[this.selectedPage] = fetchedPartyList;
+                    this.addPartyList(fetchedPartyList);
+                }, this.selectedPage);
+            }
+        }
+
+        this.updatePartyCount(partyList.length);
+        this.partyListContainer.clearChildren();
+    
+        switch (this.selectedPage) {
+            case "Diana":
+                this._addDianaPartyList(partyList);
+                break;
+            default:
+                return;
+        }
     }
 
-    openCpWindow() {
-        this.base.hide()
-        this.cpWindow.unhide(true)
-        this.cpWindowOpened = true
-    }
-
-    closeCpWindow() {
-        this.cpWindow.hide()
-        this.checkWindows()
-        this.base.unhide(true)
-        this.cpWindowOpened = false
-    }
-
-    checkWindows() {
-        if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
-        if (this.createBox) this.cpWindow.removeChild(this.createBox);
-    }
-
-    updateOnlineUsers(user) {
-        if (!this.Onlineusers) return
-        this.Onlineusers.setText("Online: " + user)
-    }
-
-    updatePartyCount(count) {
-        if (!this.partyCount) return
-        this.partyCount.setText(" " + count)
-    }
-
-    addPartyListFunctions(listName, createParty = () => {}, unqueueParty = () => {}, partyCount = 0) {
+    addPartyListFunctions(listName, createParty = () => {}, partyCount = 0) {
+        let line = new GuiHandler.UILine(
+            (0).percent(),
+            (7).percent(),
+            (100).percent(),
+            (0.3).percent(),
+            [0, 110, 250, 255]
+        ).get()
         this.partyCount = new UIText(" " + partyCount)
             .setX(new SiblingConstraint())
             .setY(new CenterConstraint())
@@ -184,8 +309,10 @@ export default class PartyFinderGUI {
             .setHeight((80).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.filterSvgComp)
-            .onMouseClick(() => {
-                ChatLib.chat("Filter Party List")
+        this.filter.onMouseClick(() => {
+                let x = this.filter.getLeft() + (this.filter.getWidth() / 2)
+                let y = line.getBottom()
+                this.addFilterPage(listName, x, y)
             })
             .onMouseEnter(() => {
                 this.filterSvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -208,7 +335,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.refreshSvgComp)
             .onMouseClick(() => {
-                this.refreshCurrentPartyList()
+                this.updateCurrentPartyList()
             })
             .onMouseEnter(() => {
                 this.refreshSvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -223,7 +350,7 @@ export default class PartyFinderGUI {
             .setWidth(this.getIconScale())
             .setHeight(this.getIconScale())
             .setColor(GuiHandler.Color([255, 0, 0, 255]))
-        this.unqueueParty = new UIBlock()
+        this.unqueuePartyBlock = new UIBlock()
             .setX(new SiblingConstraint(5))
             .setY(new CenterConstraint())
             .setWidth((4).percent())
@@ -231,7 +358,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.unqueuePartySvgComp)
             .onMouseClick(() => {
-                unqueueParty()
+                this.unqueueParty()
             })
             .onMouseEnter(() => {
                 this.unqueuePartySvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -270,16 +397,8 @@ export default class PartyFinderGUI {
             .setHeight((92.3).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.ContentBlock);
-        
         this.ContentBlock
-        .addChild(new GuiHandler.UILine(
-            (0).percent(),
-            (7).percent(),
-            (100).percent(),
-            (0.3).percent(),
-            [0, 110, 250, 255]
-            ).get()
-        )
+        .addChild(line)
         .addChild(new UIBlock()
             .setWidth((100).percent())
             .setHeight((7).percent())
@@ -314,43 +433,18 @@ export default class PartyFinderGUI {
             )
             .addChild(this.filter)
             .addChild(this.refresh)
-            .addChild(this.unqueueParty)
+            .addChild(this.unqueuePartyBlock)
             .addChild(this.createParty)
         )
     }
 
-    addPartyList(partyList) {
-        this.updatePartyCount(partyList.length)
-        this.partyListContainer.clearChildren()
-        switch (this.selectedPage) {
-            case "Diana":
-                this._addDianaPartyList(partyList)
-                break;
-            default:
-                return
-        }
-    }
-    
-    refreshCurrentPartyList(ignoreCooldown = false) {
-        let now = new Date().getTime()
-        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
-            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
-            return
-        }
-        this.lastRefreshTime = now
-
-        this.partyListContainer.clearChildren()
-        getAllParties((partyList) => {
-            this.partyCache[this.selectedPage] = partyList
-            this.addPartyList(partyList)
-        }, this.selectedPage)
-    }
-
     _registers() {
         this.registers.onOpen(() => {
-            this.reloadSelectedPage();
+            this.updateSelectedPage();
             this.updateOnlineUsers(1576)
             this.updatePageHighlight();
+            //for the unlucky event that someone spams opening and closing the cp winodw
+            this.closeCpWindow()
 
             if (Client.getMinecraft().field_71474_y.field_74335_Z === 2) return
             this.GuiScale = Client.getMinecraft().field_71474_y.field_74335_Z
@@ -437,7 +531,9 @@ export default class PartyFinderGUI {
             "・ Requirements dont update?\n\n" +
             "   ・ Wait 10mins and do /ct reload.\n\n" +
             "・ Text or Icons to small or to big?\n\n" +
-            "   ・ open party finder settings"
+            "   ・ open party finder settings\n\n" +
+            "・ Not seeing ur party in the list?\n\n" +
+            "   ・ Make sure you have the right filters set."
             )
             .setX((2).percent())
             .setY(new SiblingConstraint())
@@ -445,6 +541,113 @@ export default class PartyFinderGUI {
             .setTextScale(this.getTextScale())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
         )
+    }
+
+    _addDianaFilter(x, y) {
+        this.filterWindow.setX((x).pixels())
+            .setY((y).pixels())
+            .setWidth((15).percent())
+            .setHeight((20).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        this.filterWindow.setX((this.filterWindow.getLeft() - this.filterWindow.getWidth()).pixels())
+        this.filterBox = new UIRoundedRectangle(10)
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([50, 50, 50, 255]))
+            .setChildOf(this.filterWindow)
+        this.filterBox.grabWindowFocus()
+        this.filterBox.onMouseClick(() => {
+            this.filterBox.grabWindowFocus()
+        })
+        this.filterBox.onFocusLost(() => {
+            this.closeFilterWindow()
+        })
+        let row1 = new UIBlock()
+            .setX(new CenterConstraint())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((33.33).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.filterBox)
+        let row2 = new UIBlock()
+            .setX(new CenterConstraint())
+            .setY(new SiblingConstraint())
+            .setWidth((100).percent())
+            .setHeight((33.33).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.filterBox)
+        let row3 = new UIBlock()
+            .setX(new CenterConstraint())
+            .setY(new SiblingConstraint())
+            .setWidth((100).percent())
+            .setHeight((33.33).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.filterBox)
+
+        let eman9Filter= new GuiHandler.Checkbox(
+            "diana",
+            "eman9Filter",
+            new CenterConstraint(),
+            new CenterConstraint(),
+            (80).percent(),
+            (80).percent(),
+            [0, 0, 0, 150],
+            [200, 200, 200, 200],
+            "Eman9",
+            true,
+            5,
+            true
+        )
+        eman9Filter._create().setChildOf(row1)
+        eman9Filter.setBgBoxColor([25, 25, 25, 150])
+        eman9Filter.setOnClick(() => {
+            let compositeFilter = this.getFilter(this.selectedPage);
+            this.filterPartyList(compositeFilter);
+        })
+
+        let looting5Filter = new GuiHandler.Checkbox(
+            "diana",
+            "looting5Filter",
+            new CenterConstraint(),
+            new CenterConstraint(),
+            (80).percent(),
+            (80).percent(),
+            [0, 0, 0, 150],
+            [200, 200, 200, 200],
+            "Looting 5",
+            true,
+            5,
+            true
+        )
+        looting5Filter._create().setChildOf(row2)
+        looting5Filter.setBgBoxColor([25, 25, 25, 150])
+        looting5Filter.setOnClick(() => {
+            let compositeFilter = this.getFilter(this.selectedPage);
+            this.filterPartyList(compositeFilter);
+        })
+
+        let canIjoinFilter = new GuiHandler.Checkbox(
+            "diana",
+            "canIjoinFilter",
+            new CenterConstraint(),
+            new CenterConstraint(),
+            (80).percent(),
+            (80).percent(),
+            [0, 0, 0, 150],
+            [200, 200, 200, 200],
+            "Can I Join?",
+            true,
+            5,
+            true
+        )
+        canIjoinFilter._create().setChildOf(row3)
+        canIjoinFilter.setBgBoxColor([25, 25, 25, 150])
+        canIjoinFilter.setOnClick(() => {
+            let compositeFilter = this.getFilter(this.selectedPage);
+            this.filterPartyList(compositeFilter);
+        })
     }
 
     _addDianaPartyList(partyList) {
@@ -546,9 +749,9 @@ export default class PartyFinderGUI {
             let partyBlock = new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
-                .setHeight((15).percent())
+                .setHeight((20).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
-                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 2))
+                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
                 .setChildOf(this.partyListContainer)
                 .addChild(new UIBlock()
                     .setWidth((20).percent())
@@ -863,75 +1066,48 @@ export default class PartyFinderGUI {
             })
             createButton.textObject.setTextScale(this.getTextScale())
         }
-        function unqueueParty() {
-            if (getInQueue()) {
-                removePartyFromQueue(true, (response) => {
-                    this.dequeued = response
-                    if (this.dequeued) this.refreshCurrentPartyList(true)
-                    else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
-                });
-            }
-        }
-        this.addPartyListFunctions("Diana Party List", createParty.bind(this), unqueueParty.bind(this), 5)
-        if (this.partyCache["Diana"]) {
-            this.addPartyList(this.partyCache["Diana"])
-        } else {
-            getAllParties((partyList) => {
-                this.partyCache["Diana"] = partyList
-                this.addPartyList(partyList)
-            }, "Diana")
-        }
-        // this.eman9Checkbox = new GuiHandler.Checkbox(
-        //     "diana",
-        //     "eman9",
-        //     (5).percent(),
-        //     (5).percent(),
-        //     (5).percent(),
-        //     (5).percent(),
-        //     [50, 50, 50, 200],
-        //     [100, 100, 100, 200],
-        //     true,
-        //     5
-        // )
+
+        this.addPartyListFunctions("Diana Party List", createParty.bind(this), 5)
+        this.addPartyList()
     }
 
     _dungeons() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), 5)
     }
 
     _kuudra() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
-        }
-        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), 5)
     }
 
     _fishing() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
-        }
-        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), 5)
     }
 
     _create() {
+        this.filterBackground = new UIBlock()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 100]))
+        this.window.addChild(this.filterBackground)
+        this.filterBackground.hide()
+        this.filterWindow = new UIRoundedRectangle(10)
+        this.window.addChild(this.filterWindow)
+        this.filterWindow.hide()
+
         this.cpWindow = new UIRoundedRectangle(10)
             .setWidth((30).percent())
             .setHeight((40).percent())

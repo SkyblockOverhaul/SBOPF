@@ -25,7 +25,7 @@ export function createParty(reqs, note, type) {
         HypixelModAPI.requestPartyInfo();
         createPartyTimeStamp = Date.now();
     } else {
-        ChatLib.chat("&6[SBO] &eYou are already in queue.");
+        ChatLib.chat("&6[SBOPF] &eYou are already in queue.");
     }
 }
 
@@ -37,14 +37,14 @@ export function getAllParties(callback, type) {
         if (response.Success) {
             callback(response.Parties);
         } else {
-            ChatLib.chat("&6[SBO] &4Error: " + response.Error);
+            ChatLib.chat("&6[SBOPF] &4Error: " + response.Error);
         }
     }).catch((error)=> {
         if (error.detail) {
-            ChatLib.chat("&6[SBO] &4Error: " + error.detail);
+            ChatLib.chat("&6[SBOPF] &4Error: " + error.detail);
         } else {
             console.error(JSON.stringify(error));
-            ChatLib.chat("&6[SBO] &4Unexpected error occurred while getting all parties");
+            ChatLib.chat("&6[SBOPF] &4Unexpected error occurred while getting all parties");
         }
     }
     );
@@ -79,18 +79,18 @@ export function sendJoinRequest(partyLeader, partyReqs) {
     let playerInfo = getPlayerStats();
     if (checkIfPlayerMeetsReqs(playerInfo, partyReqs)) {
         let generatedUUID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        ChatLib.chat("&6[SBO] &eSending join request to " + partyLeader);
+        ChatLib.chat("&6[SBOPF] &eSending join request to " + partyLeader);
         ChatLib.command("msg " + partyLeader + " [SBO] join party request - id:" + generatedUUID + " - " + generatedUUID.length)
         playersSendRequest.push(partyLeader.toLowerCase().trim());
     } else {
-        ChatLib.chat("&6[SBO] &eYou don't meet the requirements to join this party");
+        ChatLib.chat("&6[SBOPF] &eYou don't meet the requirements to join this party");
     }
 }
 
 registerWhen(register("chat", (player) => {
     player = getplayername(player).toLowerCase().trim();
     if (playersSendRequest.includes(player)) {
-        ChatLib.chat("&6[SBO] &eJoining party: " + player);
+        ChatLib.chat("&6[SBOPF] &eJoining party: " + player);
         playersSendRequest = [];
         ChatLib.command("p accept " + player);
     }
@@ -109,10 +109,10 @@ export function removePartyFromQueue(useCallback = false, callback = null) {
             }
         }).catch((error)=> {
             if (error.detail) {
-                ChatLib.chat("&6[SBO] &4Error3: " + error.detail);
+                ChatLib.chat("&6[SBOPF] &4Error3: " + error.detail);
             } else {
                 console.error(JSON.stringify(error));
-                ChatLib.chat("&6[SBO] &4Unexpected error occurred while removing party from queue");
+                ChatLib.chat("&6[SBOPF] &4Unexpected error occurred while removing party from queue");
             }
         });
     } else if (creatingParty) {
@@ -144,7 +144,7 @@ registerWhen(register("step", () => {
                 json: true
             }).then((response)=> {
                 if (!response.Success) {
-                    ChatLib.chat("&6[SBO] &4" + response.Error);
+                    ChatLib.chat("&6[SBOPF] &4" + response.Error);
                     inQueue = false;
                     inParty = false;
                 }
@@ -152,10 +152,10 @@ registerWhen(register("step", () => {
                 inQueue = false;
                 inParty = false;
                 if (error.detail) {
-                    ChatLib.chat("&6[SBO] &4Error4: " + error.detail);
+                    ChatLib.chat("&6[SBOPF] &4Error4: " + error.detail);
                 } else {
                     console.error(JSON.stringify(error));
-                    ChatLib.chat("&6[SBO] &4Unexpected error occurred while updating queue");
+                    ChatLib.chat("&6[SBOPF] &4Unexpected error occurred while updating queue");
                 }
             });
         }
@@ -168,7 +168,7 @@ function trackMemberCount(number) {
     if (inQueue) {
         if (partyCount >= 6) {      
             setTimeout(() => {
-                ChatLib.chat("&6[SBO] &eYour party is full and removed from the queue.");
+                ChatLib.chat("&6[SBOPF] &eYour party is full and removed from the queue.");
                 removePartyFromQueue();
             }, 150);
         }
@@ -177,7 +177,7 @@ function trackMemberCount(number) {
         if (partyCount < 6 && partyReqs != "" && !requeue) {
             requeue = true;
             setTimeout(() => {
-                new TextComponent("&6[SBO] &eClick to requeue party with your last used requirements").setClick("run_command", "/sboqueue").setHover("show_text", "/sboqueue").chat();
+                new TextComponent("&6[SBOPF] &eClick to requeue party with your last used requirements").setClick("run_command", "/sboqueue").setHover("show_text", "/sboqueue").chat();
             }, 150);
         }
     }
@@ -240,7 +240,7 @@ registerWhen(register("chat", (event) => {
 }), () => settings.pfEnabled);
 
 register("command", () => {
-    ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
+    ChatLib.chat("&6[SBOPF] &eRequeuing party with last used requirements...");
     createParty(partyReqs);
 }).setName("sboqueue");
 
@@ -252,17 +252,17 @@ function invitePlayerIfMeetsReqs(player) {
         if (response.Success) {
             let playerInfo = response.PartyInfo[0];
             if (checkIfPlayerMeetsReqs(playerInfo, partyReqsObj)) {
-                ChatLib.chat("&6[SBO] &eSending invite to " + player);
+                ChatLib.chat("&6[SBOPF] &eSending invite to " + player);
                 ChatLib.command("p invite " + player);
             } 
         } else {
-            console.error("&6[SBO] &4Error: " + response.Error);
+            console.error("&6[SBOPF] &4Error: " + response.Error);
         }
     }).catch((error)=> {
         if (error.detail) {
-            console.error("&6[SBO] &4Error: " + error.detail);
+            console.error("&6[SBOPF] &4Error: " + error.detail);
         } else {
-            console.error("&6[SBO] &4Unexpected error occurred while checking player: " + player); 
+            console.error("&6[SBOPF] &4Unexpected error occurred while checking player: " + player); 
             console.error(JSON.stringify(error));
         }
     });
@@ -277,7 +277,7 @@ registerWhen(register("chat", (toFrom, player, id, event) => {
             } else {
                 ChatLib.chat(ChatLib.getChatBreak("&b-"))
                 new Message(
-                    new TextComponent(`&6[SBO] &b${player} &ewants to join your party.\n`),
+                    new TextComponent(`&6[SBOPF] &b${player} &ewants to join your party.\n`),
                     new TextComponent(`&7[&aAccept&7]`).setClick("run_command", "/p invite " + player).setHover("show_text", "&a/p invite " + player),
                     new TextComponent(` &7[&eCheck Player&7]`).setClick("run_command", "/sbocheck " + player).setHover("show_text", "&eCheck " + player)
                 ).chat();
@@ -327,12 +327,12 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
     partyCount = party.length;
     if (creatingParty) {
         if (party[0] != Player.getUUID() && party.length > 1) {
-            ChatLib.chat("&6[SBO] &eYou are not the party leader. Only party leader can queue with the party.");
+            ChatLib.chat("&6[SBOPF] &eYou are not the party leader. Only party leader can queue with the party.");
             creatingParty = false;
             return;
         }
         if (party.length > 5) {
-            ChatLib.chat("&6[SBO] &eParty members limit reached. You can only queue with up to 5 members.");
+            ChatLib.chat("&6[SBOPF] &eParty members limit reached. You can only queue with up to 5 members.");
             creatingParty = false;
             return;
         }
@@ -353,7 +353,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
                 }
                 if (inParty) ChatLib.command("pc [SBO] Party now in queue.");
             } else {
-                ChatLib.chat("&6[SBO] &4Error: " + response.Error);
+                ChatLib.chat("&6[SBOPF] &4Error: " + response.Error);
                 inQueue = false;
                 creatingParty = false;
             }
@@ -361,10 +361,10 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             inQueue = false;
             creatingParty = false;
             if (error.detail) {
-                ChatLib.chat("&6[SBO] &4Error1: " + error.detail);
+                ChatLib.chat("&6[SBOPF] &4Error1: " + error.detail);
             } else {
                 console.error(JSON.stringify(error));
-                ChatLib.chat("&6[SBO] &4Unexpected error occurred while creating party");
+                ChatLib.chat("&6[SBOPF] &4Unexpected error occurred while creating party");
             }
         });
     }
@@ -372,7 +372,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         updateBool = false;
         let updatePartyTimeStamp = Date.now();
         if (party.length > 5 || party.length < 2) return;
-        ChatLib.chat("&6[SBO] &eUpdating party members in queue...");
+        ChatLib.chat("&6[SBOPF] &eUpdating party members in queue...");
         request({
             url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType,
             json: true
@@ -380,17 +380,17 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             if (response.Success) {
                 let timeTaken = Date.now() - updatePartyTimeStamp;
                 partyReqsObj = response.PartyReqs;
-                ChatLib.chat("&6[SBO] &eParty in queue updated successfully " + timeTaken + "ms");
+                ChatLib.chat("&6[SBOPF] &eParty in queue updated successfully " + timeTaken + "ms");
             } else {
-                ChatLib.chat("&6[SBO] &4Error: " + response.Error);
+                ChatLib.chat("&6[SBOPF] &4Error: " + response.Error);
             }
         }).catch((error)=> {
             inQueue = false;
             if (error.detail) {
-                ChatLib.chat("&6[SBO] &4Error4: " + error.detail);
+                ChatLib.chat("&6[SBOPF] &4Error4: " + error.detail);
             } else {
                 console.error(JSON.stringify(error));
-                ChatLib.chat("&6[SBO] &4Unexpected error occurred while updating queue");
+                ChatLib.chat("&6[SBOPF] &4Unexpected error occurred while updating queue");
             }
         });
     }

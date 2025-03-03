@@ -20,7 +20,14 @@ export let configState = new PogObject("../../../config/sbopf", {
             "lvl": 0,
             "note": "...",
         }
-    }
+    },
+    filters: {
+        diana: {
+            "eman9Filter": false,
+            "looting5Filter": false,
+            "canIjoinFilter": false,
+        }
+    },
 }, "configState.json")
 configState.save();
 
