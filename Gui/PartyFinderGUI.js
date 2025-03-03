@@ -132,10 +132,6 @@ export default class PartyFinderGUI {
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
-    partyCreate(reqs, note, partyType) {
-        createParty(reqs, note, partyType)
-    }
-
     openCpWindow() {
         this.base.hide()
         this.cpWindow.unhide(true)
@@ -164,7 +160,70 @@ export default class PartyFinderGUI {
         this.partyCount.setText(" " + count)
     }
 
-    addPartyListFunctions(listName, createParty = () => {}, unqueueParty = () => {}, partyCount = 0) {
+    addFilterPage(listName, x, y) {
+        switch (listName) {
+            case "Diana Party List":
+                this._addDianaFilter(x, y)
+                break;
+            default:
+                return;
+        }
+    }
+
+    unqueueParty() {
+        if (getInQueue()) {
+            removePartyFromQueue(true, (response) => {
+                this.dequeued = response
+                if (this.dequeued) this.refreshCurrentPartyList(true)
+                else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
+            });
+        }
+    }   
+
+    partyCreate(reqs, note, partyType) {
+        createParty(reqs, note, partyType)
+    }
+
+    addPartyList(partyList = null, ignoreCache = false) {
+        if (!partyList) {
+            if (!ignoreCache && this.partyCache[this.selectedPage]) {
+                partyList = this.partyCache[this.selectedPage];
+            } else {
+                return getAllParties((fetchedPartyList) => {
+                    this.partyCache[this.selectedPage] = fetchedPartyList;
+                    this.addPartyList(fetchedPartyList);
+                }, this.selectedPage);
+            }
+        }
+
+        this.updatePartyCount(partyList.length);
+        this.partyListContainer.clearChildren();
+    
+        switch (this.selectedPage) {
+            case "Diana":
+                this._addDianaPartyList(partyList);
+                break;
+            default:
+                return;
+        }
+    }
+    
+    refreshCurrentPartyList(ignoreCooldown = false) {
+        let now = new Date().getTime()
+        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
+            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
+            return
+        }
+        this.lastRefreshTime = now
+
+        this.partyListContainer.clearChildren()
+        getAllParties((partyList) => {
+            this.partyCache[this.selectedPage] = partyList
+            this.addPartyList(partyList)
+        }, this.selectedPage)
+    }
+
+    addPartyListFunctions(listName, createParty = () => {}, partyCount = 0) {
         this.partyCount = new UIText(" " + partyCount)
             .setX(new SiblingConstraint())
             .setY(new CenterConstraint())
@@ -184,8 +243,10 @@ export default class PartyFinderGUI {
             .setHeight((80).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.filterSvgComp)
-            .onMouseClick(() => {
-                ChatLib.chat("Filter Party List")
+        this.filter.onMouseClick(() => {
+                let x = this.filter.getLeft() + (this.filter.getWidth() / 2)
+                let y = this.filter.getTop() + (this.filter.getHeight() / 2)
+                this.addFilterPage(listName, x, y)
             })
             .onMouseEnter(() => {
                 this.filterSvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -223,7 +284,7 @@ export default class PartyFinderGUI {
             .setWidth(this.getIconScale())
             .setHeight(this.getIconScale())
             .setColor(GuiHandler.Color([255, 0, 0, 255]))
-        this.unqueueParty = new UIBlock()
+        this.unqueuePartyBlock = new UIBlock()
             .setX(new SiblingConstraint(5))
             .setY(new CenterConstraint())
             .setWidth((4).percent())
@@ -231,7 +292,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.unqueuePartySvgComp)
             .onMouseClick(() => {
-                unqueueParty()
+                this.unqueueParty()
             })
             .onMouseEnter(() => {
                 this.unqueuePartySvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -314,36 +375,9 @@ export default class PartyFinderGUI {
             )
             .addChild(this.filter)
             .addChild(this.refresh)
-            .addChild(this.unqueueParty)
+            .addChild(this.unqueuePartyBlock)
             .addChild(this.createParty)
         )
-    }
-
-    addPartyList(partyList) {
-        this.updatePartyCount(partyList.length)
-        this.partyListContainer.clearChildren()
-        switch (this.selectedPage) {
-            case "Diana":
-                this._addDianaPartyList(partyList)
-                break;
-            default:
-                return
-        }
-    }
-    
-    refreshCurrentPartyList(ignoreCooldown = false) {
-        let now = new Date().getTime()
-        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
-            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).")
-            return
-        }
-        this.lastRefreshTime = now
-
-        this.partyListContainer.clearChildren()
-        getAllParties((partyList) => {
-            this.partyCache[this.selectedPage] = partyList
-            this.addPartyList(partyList)
-        }, this.selectedPage)
     }
 
     _registers() {
@@ -445,6 +479,10 @@ export default class PartyFinderGUI {
             .setTextScale(this.getTextScale())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
         )
+    }
+
+    _addDianaFilter(x, y) {
+
     }
 
     _addDianaPartyList(partyList) {
@@ -863,72 +901,33 @@ export default class PartyFinderGUI {
             })
             createButton.textObject.setTextScale(this.getTextScale())
         }
-        function unqueueParty() {
-            if (getInQueue()) {
-                removePartyFromQueue(true, (response) => {
-                    this.dequeued = response
-                    if (this.dequeued) this.refreshCurrentPartyList(true)
-                    else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
-                });
-            }
-        }
-        this.addPartyListFunctions("Diana Party List", createParty.bind(this), unqueueParty.bind(this), 5)
-        if (this.partyCache["Diana"]) {
-            this.addPartyList(this.partyCache["Diana"])
-        } else {
-            getAllParties((partyList) => {
-                this.partyCache["Diana"] = partyList
-                this.addPartyList(partyList)
-            }, "Diana")
-        }
-        // this.eman9Checkbox = new GuiHandler.Checkbox(
-        //     "diana",
-        //     "eman9",
-        //     (5).percent(),
-        //     (5).percent(),
-        //     (5).percent(),
-        //     (5).percent(),
-        //     [50, 50, 50, 200],
-        //     [100, 100, 100, 200],
-        //     true,
-        //     5
-        // )
+
+        this.addPartyListFunctions("Diana Party List", createParty.bind(this), 5)
+        this.addPartyList()
     }
 
     _dungeons() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), 5)
     }
 
     _kuudra() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
-        }
-        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), 5)
     }
 
     _fishing() {
         function createParty() {
             ChatLib.chat("Create Party")
         }
-        function unqueueParty() {
-            ChatLib.chat("Unqueue Party")
-        }
-        function refresh() {
-            ChatLib.chat("Refresh Party List")
-        }
-        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), unqueueParty.bind(this), 5)
+
+        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), 5)
     }
 
     _create() {
