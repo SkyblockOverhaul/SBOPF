@@ -80,7 +80,7 @@ export function sendJoinRequest(partyLeader, partyReqs) {
     if (checkIfPlayerMeetsReqs(playerInfo, partyReqs)) {
         let generatedUUID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         ChatLib.chat("&6[SBOPF] &eSending join request to " + partyLeader);
-        ChatLib.command("msg " + partyLeader + " [SBO] join party request - id:" + generatedUUID + " - " + generatedUUID.length)
+        ChatLib.command("msg " + partyLeader + " [SBOPF] join party request - id:" + generatedUUID + " - " + generatedUUID.length)
         playersSendRequest.push(partyLeader.toLowerCase().trim());
     } else {
         ChatLib.chat("&6[SBOPF] &eYou don't meet the requirements to join this party");
@@ -286,7 +286,7 @@ registerWhen(register("chat", (toFrom, player, id, event) => {
         }
     }
     cancel(event);
-}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBO] join party request - ${id}") , () => settings.pfEnabled);
+}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBOPF] join party request - ${id}") , () => settings.pfEnabled);
 
 registerWhen(register("chat", (profile, event) => {
     setTimeout(() => {
@@ -351,7 +351,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
                     removePartyFromQueue();
                     ghostParty = false;
                 }
-                if (inParty) ChatLib.command("pc [SBO] Party now in queue.");
+                if (inParty) ChatLib.command("pc [SBOPF] Party now in queue.");
             } else {
                 ChatLib.chat("&6[SBOPF] &4Error: " + response.Error);
                 inQueue = false;
