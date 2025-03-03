@@ -38,6 +38,29 @@ export function getPlayerStats(useCallback = false, callback = null, forceRefres
 }
 getPlayerStats();
 
+let activeUsers = undefined
+export function getActiveUsers(useCallback = false, callback = null) {
+    request({
+        url: "https://api.skyblockoverhaul.com/activeUsers",
+        json: true
+    }).then((response) => {
+        activeUsers = response.activeUsers;
+
+        if (activeUsers === undefined) {
+            print("active users undefined");
+            activeUsers = 0;
+        }
+
+        if (useCallback && callback) {
+            callback(activeUsers);
+        } else {
+            ChatLib.chat("&6[SBO] &aActive user: &e" + activeUsers);
+        }
+    }).catch((error) => {
+        console.error("An error occurred: " + error);
+    });
+}
+
 export function getplayername(player) {
     let num
     let name

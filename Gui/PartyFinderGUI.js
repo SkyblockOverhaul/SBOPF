@@ -3,9 +3,9 @@ import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
 import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
-import { getAllParties, createParty, getInQueue, removePartyFromQueue } from "../Main/PartyFinder";
-import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, ChildBasedSizeConstraint } from "../../Elementa";
-import { getPlayerStats } from "../utils/functions";
+import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue, sendJoinRequest } from "../Main/PartyFinder";
+import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
+import { getPlayerStats, getActiveUsers } from "../utils/functions";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
 //---> new SiblingConstraint() will position the element next to the previous element.
@@ -59,6 +59,37 @@ export default class PartyFinderGUI {
         return (base + this.settings.scaleIcon).pixels()
     }
 
+    getMemberColor(member) {
+        if (member < 4) return GuiHandler.Color([0, 255, 0, 255])
+        return GuiHandler.Color([255, 165, 0, 255])
+    }
+
+    getReqsString(type, reqs) {
+        let myReqs = getPlayerStats();
+        let reqsString = "";
+        switch (type) {
+            case "Diana":
+                if (!reqs) return "";
+                if (reqs.lvl) {
+                    reqsString += "&bLvl: " + (myReqs.sbLvl >= reqs.lvl ? "§a" : "§c") + reqs.lvl + "§r, ";
+                }
+                if (reqs.kills) {
+                    reqsString += "&bKills: " + (myReqs.mythosKills >= reqs.kills ? "§a" : "§c") + reqs.kills + "§r, ";
+                }
+                if (reqs.eman9) {
+                    reqsString += (myReqs.eman9 ? "§aEman9" : "§cEman9") + "§r, ";
+                }
+                if (reqs.looting5) {
+                    reqsString += (myReqs.looting5daxe ? "§aLooting5" : "§cLooting5") + "§r";
+                }
+                break;
+            default:
+                reqsString = "";
+                break;
+        }
+        return reqsString;
+    }
+
     getFilter(pageType) {
         let myStats = getPlayerStats();
         switch (pageType) {
@@ -86,6 +117,18 @@ export default class PartyFinderGUI {
             }
             default:
                 return null;
+        }
+    }
+
+    joinParty(leader, reqs) {
+        if (!getInQueue() && !isInParty()) {
+            sendJoinRequest(leader, reqs)
+        }
+        else {
+            let leaderCheck = leader === Player.getName()
+            if (getInQueue() && !isInParty() && !leaderCheck) ChatLib.chat("&6[SBOPF] &eYou are already in queue.")
+            if (isInParty() && !getInQueue() && !leaderCheck) ChatLib.chat("&6[SBOPF] &eYou are already in a party.")
+            if (leaderCheck) ChatLib.chat("&6[SBOPF] &eYou can't join your own party.")
         }
     }
     
@@ -193,7 +236,9 @@ export default class PartyFinderGUI {
 
     updateOnlineUsers(user) {
         if (!this.Onlineusers) return
-        this.Onlineusers.setText("Online: " + user)
+        getActiveUsers(true, (activeUsers) => {
+            this.Onlineusers.setText("Online: " + activeUsers)
+        })
     }
 
     updatePartyCount(count) {
@@ -673,7 +718,7 @@ export default class PartyFinderGUI {
                 .addChild(new UIText("Leader")
                     .setX(new CenterConstraint())
                     .setY(new CenterConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
                     .setTextScale(this.getTextScale())
                 )
             )
@@ -689,13 +734,13 @@ export default class PartyFinderGUI {
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
                 .setY(new CenterConstraint())
-                .setWidth((20).percent())
+                .setWidth((50).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                .addChild(new UIText("Reqs")
+                .addChild(new UIText("Reqs/Note")
                     .setX(new CenterConstraint())
                     .setY(new CenterConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
                     .setTextScale(this.getTextScale())
                 )
             )
@@ -711,13 +756,13 @@ export default class PartyFinderGUI {
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
                 .setY(new CenterConstraint())
-                .setWidth((20).percent())
+                .setWidth((10).percent())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                .addChild(new UIText("Note")
+                .addChild(new UIText("Member")
                     .setX(new CenterConstraint())
                     .setY(new CenterConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
                     .setTextScale(this.getTextScale())
                 )
             )
@@ -733,31 +778,22 @@ export default class PartyFinderGUI {
             .addChild(new UIBlock()
                 .setX(new SiblingConstraint())
                 .setY(new CenterConstraint())
-                .setWidth((20).percent())
+                .setWidth(new FillConstraint())
                 .setHeight((100).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                .addChild(new UIText("Members")
+                .addChild(new UIText("Button")
                     .setX(new CenterConstraint())
                     .setY(new CenterConstraint())
-                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
                     .setTextScale(this.getTextScale())
                 )
             )
-            .addChild(new GuiHandler.UILine(
-                new SiblingConstraint(),
-                new CenterConstraint(),
-                (0.3).percent(),
-                (80).percent(),
-                [0, 110, 250, 255],
-                null,
-                true
-            ).get())
             
         partyList.forEach(party => {
             let partyBlock = new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
-                .setHeight((20).percent())
+                .setHeight((22).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
                 .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
                 .setChildOf(this.partyListContainer)
@@ -768,7 +804,7 @@ export default class PartyFinderGUI {
                     .addChild(new UIText(party.leaderName)
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
-                        .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                        .setColor(GuiHandler.Color([85, 255, 255, 255]))
                         .setTextScale(this.getTextScale(1))
                     )
                 )
@@ -781,62 +817,59 @@ export default class PartyFinderGUI {
                     null,
                     true
                 ).get())
-                let reqBox = new ScrollComponent()
+
+                let reqsString = this.getReqsString("Diana", party.reqs)
+                
+                let reqsNote = new UIBlock()
                     .setX(new SiblingConstraint())
                     .setY(new CenterConstraint())
-                    .setWidth((20).percent())
+                    .setWidth((50).percent())
                     .setHeight((100).percent())
                     .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                let groupReqs = new UIBlock()
-                    .setX(new CenterConstraint())
-                    .setY(new CenterConstraint())
-                    .setWidth(new ChildBasedSizeConstraint())
-                    .setHeight(new ChildBasedSizeConstraint())
-                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                    .setChildOf(reqBox)
-                Object.entries(party.reqs).forEach(([key, value]) => {
-                    if (key === "eman9") value = "Eman9", key = null
-                    if (key === "looting5") value = "Looting 5", key = null
-                    groupReqs.addChild(new UIText(key ? key + ": " + value : value)
+                    .addChild(new UIBlock()
                         .setX(new CenterConstraint())
-                        .setY(new SiblingConstraint(1))
-                        .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                        .setTextScale(this.getTextScale())
-                    )
-                })
-                partyBlock.addChild(reqBox)
-                .addChild(new GuiHandler.UILine(
-                    new SiblingConstraint(),
-                    new CenterConstraint(),
-                    (0.3).percent(),
-                    (80).percent(),
-                    [0, 110, 250, 255],
-                    null,
-                    true
-                ).get())
-                .addChild(new UIBlock()
-                    .setX(new SiblingConstraint())
-                    .setY(new CenterConstraint())
-                    .setWidth((20).percent())
-                    .setHeight((100).percent())
-                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                    .addChild(new UIRoundedRectangle(10)
-                        .setX(new CenterConstraint())
-                        .setY(new CenterConstraint())
-                        .setWidth((80).percent())
-                        .setHeight((80).percent())
-                        .setColor(GuiHandler.Color([50, 50, 50, 200]))
-                        .addChild(new UIWrappedText(party.note)
-                            .setWidth((90).percent())
-                            .setHeight((90).percent())
+                        .setY((0).pixels())
+                        .setWidth((100).percent())
+                        .setHeight((50).percent())
+                        .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                        .addChild(new UIBlock()
                             .setX(new CenterConstraint())
-                            .setY(new CenterConstraint())
-                            .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                            .setTextScale(this.getTextScale())
+                            .setY(new SiblingConstraint())
+                            .setWidth((90).percent())
+                            .setHeight((100).percent())
+                            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                            .addChild(new UIWrappedText(reqsString)
+                                .setX((0).pixels())
+                                .setY(new CenterConstraint())
+                                .setWidth((100).percent())
+                                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                                .setTextScale(this.getTextScale())
+                            )
                         )
                     )
+                    .addChild(new UIBlock()
+                        .setX(new CenterConstraint())
+                        .setY(new SiblingConstraint())
+                        .setWidth((100).percent())
+                        .setHeight((50).percent())
+                        .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                        .addChild(new UIBlock()
+                            .setX(new CenterConstraint())
+                            .setY(new CenterConstraint())
+                            .setWidth((90).percent())
+                            .setHeight((100).percent())
+                            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                            .addChild(new UIWrappedText("&bNote: &7" + party.note)
+                                .setX((0).pixels())
+                                .setY(new CenterConstraint())
+                                .setWidth((100).percent())
+                                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                                .setTextScale(this.getTextScale())
+                            )
+                        )
 
-                )
+                    )
+                partyBlock.addChild(reqsNote)
                 .addChild(new GuiHandler.UILine(
                     new SiblingConstraint(),
                     new CenterConstraint(),
@@ -849,13 +882,13 @@ export default class PartyFinderGUI {
                 .addChild(new UIBlock()
                     .setX(new SiblingConstraint())
                     .setY(new CenterConstraint())
-                    .setWidth((20).percent())
+                    .setWidth((10).percent())
                     .setHeight((100).percent())
                     .setColor(GuiHandler.Color([0, 0, 0, 0]))
                     .addChild(new UIText(party.partymembers + "/6")
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
-                        .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                        .setColor(this.getMemberColor(party.partymembers))
                         .setTextScale(this.getTextScale(1))
                     )
                 )
@@ -868,7 +901,30 @@ export default class PartyFinderGUI {
                     null,
                     true
                 ).get())
-
+                let joinBlock = new UIBlock()
+                    .setX(new SiblingConstraint())
+                    .setY(new CenterConstraint())
+                    .setWidth(new FillConstraint())
+                    .setHeight((100).percent())
+                    .setColor(GuiHandler.Color([50, 50, 50, 0]))
+                let joinButton = new GuiHandler.Button(
+                    "Join",
+                    new CenterConstraint(),
+                    new CenterConstraint(),
+                    (80).percent(),
+                    (50).percent(),
+                    [50, 50, 50, 200],
+                    [0, 255, 0, 255],
+                    false, 
+                    null, 
+                    true
+                )
+                joinBlock.addChild(joinButton.get())
+                partyBlock.addChild(joinBlock)
+                joinButton.setOnClick(() => {
+                    this.joinParty(party.leaderName, party.reqs)
+                })
+                joinButton.addHoverEffect([50, 50, 50, 200], [70, 70, 70, 200])
 
         });
     }
@@ -975,7 +1031,7 @@ export default class PartyFinderGUI {
             )
             noteinput._create().setChildOf(noteBox)
             noteinput.onlyText = true
-            noteinput.maxChars = 30
+            noteinput.maxChars = 20
             noteinput.textInputText.setTextScale(this.getTextScale())
             if (configState.inputs["diana"]["note"] !== "") noteinput.textInputText.setText(configState.inputs["diana"]["note"]);
             let l5e9box = new UIBlock()
