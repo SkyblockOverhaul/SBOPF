@@ -5,6 +5,7 @@ import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
 import { getAllParties, createParty, getInQueue, removePartyFromQueue } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, ChildBasedSizeConstraint } from "../../Elementa";
+import { getPlayerStats } from "../utils/functions";
 
 //Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
 //---> new SiblingConstraint() will position the element next to the previous element.
@@ -59,16 +60,24 @@ export default class PartyFinderGUI {
     }
 
     getFilter(pageType) {
-        switch(pageType) {
+        let myStats = getPlayerStats();
+        switch (pageType) {
             case "Diana": {
                 let isEman9Active = configState.filters["diana"]["eman9Filter"];
                 let isLooting5Active = configState.filters["diana"]["looting5Filter"];
-                let isCanIJoinActive = configState.filters["diana"]["canIjoinFilter"];
-
-                if (!isEman9Active && !isLooting5Active) return null;
+                let isCanIjoinActive = configState.filters["diana"]["canIjoinFilter"];
+                if (!isEman9Active && !isLooting5Active && !isCanIjoinActive) return null;
                 return party => {
                     if (isEman9Active && !(party.reqs && party.reqs.eman9)) return false;
                     if (isLooting5Active && !(party.reqs && party.reqs.looting5)) return false;
+                    if (isCanIjoinActive) {
+                        if (party.reqs) {
+                            if (party.reqs.lvl && myStats.sbLvl < party.reqs.lvl) return false;
+                            if (party.reqs.kills && myStats.mythosKills < party.reqs.kills) return false;
+                            if (party.reqs.eman9 && !myStats.eman9) return false;
+                            if (party.reqs.looting5 && !myStats.looting5daxe) return false;
+                        }
+                    }
                     return true;
                 };
             }
@@ -80,7 +89,6 @@ export default class PartyFinderGUI {
         }
     }
     
-
     openFilterWindow() {
         this.filterBackground.unhide(false)
         this.filterWindow.unhide(false)
