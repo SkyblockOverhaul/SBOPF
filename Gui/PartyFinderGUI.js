@@ -1138,7 +1138,7 @@ export default class PartyFinderGUI {
         }
 
         this.addPartyListFunctions("Diana Party List", createParty.bind(this), 5)
-        this.addPartyList()
+        this.updateCurrentPartyList(true);
     }
 
     _dungeons() {
