@@ -133,3 +133,8 @@ register("guiClosed", (event) => {
         setRegisters()
     }
 });
+
+export function checkIfInSkyblock() {
+    let inSkyblockBool = Scoreboard.getTitle()?.removeFormatting().includes("SKYBLOCK");
+    return inSkyblockBool;
+}

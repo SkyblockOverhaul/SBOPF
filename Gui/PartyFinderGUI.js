@@ -23,7 +23,6 @@ export default class PartyFinderGUI {
         this.CtGui = this.gui.ctGui
         this.window = this.gui.window
         this.registers = this.gui.registers
-        this.gui.setCommand("pftest")
 
         this.settings = settings
         this.openGui = false
@@ -914,9 +913,9 @@ export default class PartyFinderGUI {
                     "Join",
                     new CenterConstraint(),
                     new CenterConstraint(),
-                    (80).percent(),
-                    (50).percent(),
-                    [50, 50, 50, 200],
+                    (70).percent(),
+                    (40).percent(),
+                    [30, 30, 30, 255],
                     [0, 255, 0, 255],
                     false, 
                     null, 
@@ -928,7 +927,23 @@ export default class PartyFinderGUI {
                 joinButton.setOnClick(() => {
                     this.joinParty(party.leaderName, party.reqs)
                 })
-                joinButton.addHoverEffect([50, 50, 50, 200], [70, 70, 70, 200])
+                joinButton.Object.onMouseEnter((comp, event) => {
+                    comp.setColor(GuiHandler.Color([70, 70, 70, 200]))
+                    partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
+                })
+                joinButton.Object.onMouseLeave((comp, event) => {
+                    comp.setColor(GuiHandler.Color([30, 30, 30, 255]))
+                    partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]))
+                })
+            partyBlock.onMouseEnter(() => {
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]))
+            })
+            .onMouseLeave(() => {
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
+            })
+            .onMouseClick(() => {
+                
+            })
 
         });
     }

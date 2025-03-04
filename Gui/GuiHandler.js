@@ -32,7 +32,7 @@ export default class GuiHandler {
             comp.setColor(GuiHandler.Color(hoverColor));
         }).onMouseLeave((comp, event) => {
             comp.setColor(GuiHandler.Color(baseColor));
-        });
+        })
     }
 
     _triggerEvent(handler, ...args) {
@@ -79,8 +79,9 @@ export default class GuiHandler {
         }
         
         setOnClick(callback) {
-            this.Object.onMouseClick(() => {
+            this.Object.onMouseClick((comp, event) => {
                 if (callback) {
+                    event.stopPropagation()
                     callback();
                 }
             });
@@ -88,8 +89,9 @@ export default class GuiHandler {
         }
 
         setTextOnClick(callback) {
-            this.textObject.onMouseClick(() => {
+            this.textObject.onMouseClick((comp, event) => {
                 if (callback) {
+                    if (event) event.stopPropagation()
                     callback();
                 }
             });
