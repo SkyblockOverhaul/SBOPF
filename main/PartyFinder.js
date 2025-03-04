@@ -307,8 +307,8 @@ register("serverDisconnect", () => {
 })
 
 function checkPartyNote() {
-    if (partyNote.length > 30) {
-        partyNote = partyNote.substring(0, 30);
+    if (partyNote.length > 20) {
+        partyNote = partyNote.substring(0, 20);
     }
     partyNote = partyNote.replaceAll(/[^a-zA-Z0-9\s,.!-_?]/g, ''); // allowed characters a-z, A-Z, 0-9, space, comma, dot, exclamation mark, hyphen, underscore, question mark
     partyNote = partyNote.replaceAll(" ", "%20");
