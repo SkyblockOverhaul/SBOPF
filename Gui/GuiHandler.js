@@ -81,7 +81,7 @@ export default class GuiHandler {
         setOnClick(callback) {
             this.Object.onMouseClick((comp, event) => {
                 if (callback) {
-                    event.stopPropagation()
+                    if (event) event.stopPropagation()
                     callback();
                 }
             });

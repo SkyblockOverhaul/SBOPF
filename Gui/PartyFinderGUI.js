@@ -942,7 +942,7 @@ export default class PartyFinderGUI {
                 partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
             })
             .onMouseClick(() => {
-                
+                ChatLib.chat("clicked")
             })
 
         });
