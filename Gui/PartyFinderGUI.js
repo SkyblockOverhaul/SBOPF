@@ -7,9 +7,6 @@ import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
 import { getPlayerStats, getActiveUsers } from "../utils/functions";
 
-//Sibling Constraint positions the element next to the previous element, but if you set the second parameter to true, it will position it on the opposite side of the previous element.
-//---> new SiblingConstraint() will position the element next to the previous element.
-//---> new SiblingConstraint(0, true) will position the element before the previous element.
 const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
 const vigilancePath = Java.type("gg.essential.vigilance");
@@ -1348,15 +1345,13 @@ export default class PartyFinderGUI {
             .setHeight((94.7).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
-        // hier eine intro seite einfügen in contentblock!!
-
         //-----------------Pages-----------------
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
         this.addPage("Settings", () => this._settings(), true, false, true)
         this.addPage("Diana", () => this._diana(), false, (0).percent())
-        this.addPage("Dungeons", () => this._dungeons())
-        this.addPage("Kuudra", () => this._kuudra())
-        this.addPage("Fishing", () => this._fishing())
+        // this.addPage("Dungeons", () => this._dungeons())
+        // this.addPage("Kuudra", () => this._kuudra())
+        // this.addPage("Fishing", () => this._fishing())
     }
 }
