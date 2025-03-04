@@ -1114,11 +1114,6 @@ export default class PartyFinderGUI {
             )
             .addHoverEffect([50, 50, 50, 200], [100, 100, 100, 220])
             .setOnClick(() => {
-                if (getInQueue()) {
-                    ChatLib.chat("&6[SBOPF] &eYou are already in queue.")
-                    this.closeCpWindow()
-                    return
-                }
                 let reqs = {
                     "lvl": configState.inputs["diana"]["lvl"],
                     "kills": configState.inputs["diana"]["kills"]
