@@ -84,9 +84,6 @@ export default class PartyFinderGUI {
                     return true;
                 };
             }
-            case "Dungeons": {
-                return null;
-            }
             default:
                 return null;
         }
