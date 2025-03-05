@@ -151,7 +151,7 @@ export default class PartyFinderGUI {
         if (this.infoBase) this.partyInfoWindow.removeChild(this.infoBase);
     }
 
-    unqueueParty() {
+    unqueueParty(type = undefined) {
         if (getInQueue()) {
             removePartyFromQueue(true, (response) => {
                 this.dequeued = response
@@ -244,6 +244,9 @@ export default class PartyFinderGUI {
             case "Diana Party List":
                 this.dianaPage._addDianaFilter(x, y);
                 break;
+            case "Custom Party List":
+                this.closeFilterWindow()
+                break;
             default:
                 return;
         }
@@ -313,16 +316,339 @@ export default class PartyFinderGUI {
         this.updatePartyCount(partyList.length);
         this.partyListContainer.clearChildren();
     
-        switch (this.selectedPage) {
-            case "Diana":
-                this.dianaPage._addDianaPartyList(partyList);
-                break;
-            default:
-                return;
-        }
+        this.renderPartyList(partyList);
     }
 
-    addPartyListFunctions(listName, createParty = () => {}, partyCount = 0) {
+    renderPartyList(partyList) {
+        this.partyShowType = new UIBlock()
+        .setX((0).percent())
+        .setY((0).percent())
+        .setWidth((100).percent())
+        .setHeight((7).percent())
+        .setColor(GuiHandler.Color([0, 0, 0, 150]))
+        .setChildOf(this.partyListContainer)
+        .addChild(new UIBlock()
+            .setWidth((20).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIText("Leader")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            )
+        )
+        .addChild(new GuiHandler.UILine(
+            new SiblingConstraint(),
+            new CenterConstraint(),
+            (0.3).percent(),
+            (80).percent(),
+            [0, 110, 250, 255],
+            null,
+            true
+        ).get())
+        .addChild(new UIBlock()
+            .setX(new SiblingConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((50).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIText("Reqs/Note")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            )
+        )
+        .addChild(new GuiHandler.UILine(
+            new SiblingConstraint(),
+            new CenterConstraint(),
+            (0.3).percent(),
+            (80).percent(),
+            [0, 110, 250, 255],
+            null,
+            true
+        ).get())
+        .addChild(new UIBlock()
+            .setX(new SiblingConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((10).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIText("Member")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            )
+        )
+        .addChild(new GuiHandler.UILine(
+            new SiblingConstraint(),
+            new CenterConstraint(),
+            (0.3).percent(),
+            (80).percent(),
+            [0, 110, 250, 255],
+            null,
+            true
+        ).get())
+        .addChild(new UIBlock()
+            .setX(new SiblingConstraint())
+            .setY(new CenterConstraint())
+            .setWidth(new FillConstraint())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIText("Button")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            )
+        );
+        
+        partyList.forEach(party => {
+            let partyBlock = new UIBlock()
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((22).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 150]))
+                .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
+                .setChildOf(this.partyListContainer)
+                .addChild(new UIBlock()
+                    .setWidth((20).percent())
+                    .setHeight((100).percent())
+                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                    .addChild(new UIText(party.leaderName)
+                        .setX(new CenterConstraint())
+                        .setY(new CenterConstraint())
+                        .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                        .setTextScale(this.getTextScale(1))
+                    )
+                )
+                .addChild(new GuiHandler.UILine(
+                    new SiblingConstraint(),
+                    new CenterConstraint(),
+                    (0.3).percent(),
+                    (80).percent(),
+                    [0, 110, 250, 255],
+                    null,
+                    true
+                    ).get()
+                );
+
+            let reqsString = ""
+            switch (this.selectedPage) {
+                case "Diana":
+                    reqsString = this.dianaPage.getReqsString(party.reqs);
+                    break;
+                default:
+                    reqsString = "No requirements";
+            }
+            
+            let reqsNote = new UIBlock()
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setWidth((50).percent())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIBlock()
+                    .setX(new CenterConstraint())
+                    .setY((0).pixels())
+                    .setWidth((100).percent())
+                    .setHeight((50).percent())
+                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                    .addChild(new UIBlock()
+                        .setX(new CenterConstraint())
+                        .setY(new SiblingConstraint())
+                        .setWidth((90).percent())
+                        .setHeight((100).percent())
+                        .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                        .addChild(new UIWrappedText(reqsString)
+                            .setX((0).pixels())
+                            .setY(new CenterConstraint())
+                            .setWidth((100).percent())
+                            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                            .setTextScale(this.getTextScale())
+                        )
+                    )
+                )
+                .addChild(new UIBlock()
+                    .setX(new CenterConstraint())
+                    .setY(new SiblingConstraint())
+                    .setWidth((100).percent())
+                    .setHeight((50).percent())
+                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                    .addChild(new UIBlock()
+                        .setX(new CenterConstraint())
+                        .setY(new CenterConstraint())
+                        .setWidth((90).percent())
+                        .setHeight((100).percent())
+                        .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                        .addChild(new UIWrappedText("&bNote: &7" + party.note)
+                            .setX((0).pixels())
+                            .setY(new CenterConstraint())
+                            .setWidth((100).percent())
+                            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                            .setTextScale(this.getTextScale())
+                        )
+                    )
+                );
+        
+            partyBlock.addChild(reqsNote)
+                .addChild(new GuiHandler.UILine(
+                    new SiblingConstraint(),
+                    new CenterConstraint(),
+                    (0.3).percent(),
+                    (80).percent(),
+                    [0, 110, 250, 255],
+                    null,
+                    true
+                ).get())
+                .addChild(new UIBlock()
+                    .setX(new SiblingConstraint())
+                    .setY(new CenterConstraint())
+                    .setWidth((10).percent())
+                    .setHeight((100).percent())
+                    .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                    .addChild(new UIText(party.partymembers + "/6")
+                        .setX(new CenterConstraint())
+                        .setY(new CenterConstraint())
+                        .setColor(this.getMemberColor(party.partymembers))
+                        .setTextScale(this.getTextScale(1))
+                    )
+                )
+                .addChild(new GuiHandler.UILine(
+                    new SiblingConstraint(),
+                    new CenterConstraint(),
+                    (0.3).percent(),
+                    (80).percent(),
+                    [0, 110, 250, 255],
+                    null,
+                    true
+                ).get());
+        
+            let joinBlock = new UIBlock()
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setWidth(new FillConstraint())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([50, 50, 50, 0]));
+            let joinButton = new GuiHandler.Button(
+                "Join",
+                new CenterConstraint(),
+                new CenterConstraint(),
+                (70).percent(),
+                (40).percent(),
+                [30, 30, 30, 255],
+                [0, 255, 0, 255],
+                false, 
+                null, 
+                true
+            );
+            joinBlock.addChild(joinButton.get());
+            partyBlock.addChild(joinBlock);
+            joinButton.textObject.setTextScale(this.getTextScale());
+            joinButton.setOnClick(() => {
+                this.joinParty(party.leaderName, party.reqs);
+            });
+            joinButton.Object.onMouseEnter((comp, event) => {
+                if (this.filterWindowOpened) return;
+                comp.setColor(GuiHandler.Color([70, 70, 70, 200]));
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]));
+            });
+            joinButton.Object.onMouseLeave((comp, event) => {
+                if (this.filterWindowOpened) return;
+                comp.setColor(GuiHandler.Color([30, 30, 30, 255]));
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]));
+            });
+            partyBlock.onMouseEnter(() => {
+                if (this.filterWindowOpened) return;
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]));
+            })
+            .onMouseLeave(() => {
+                if (this.filterWindowOpened) return;
+                partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]));
+            })
+            .onMouseClick(() => {
+                this.renderPartyInfo(party.partyinfo);
+            });
+        });
+    }
+
+    renderPartyInfo(partyInfoList) {
+        this.openPartyInfoWindow();
+        this.partyInfoWindow
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((60).percent())
+            .setHeight((65).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]));
+        this.infoBase = new UIRoundedRectangle(10)
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([30, 30, 30, 240]))
+            .setChildOf(this.partyInfoWindow);
+        let playerNameBase = new UIBlock()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((50).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]));
+        let infoDisplay = new UIRoundedRectangle(10)
+            .setX(new SiblingConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((48).percent())
+            .setHeight((95).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 150]));
+        let infoScroll = new ScrollComponent()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]));
+        this.infoBase.addChild(playerNameBase);
+        this.infoBase.addChild(infoDisplay);
+        infoDisplay.addChild(infoScroll);
+        partyInfoList.forEach(party => {
+            let height = this.infoBase.getHeight() / 6;
+            let playerBlock = new UIRoundedRectangle(10)
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setWidth((60).percent())
+                .setHeight((70).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 200]))
+                .addChild(new UIText(party.name)
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+                .onMouseEnter(() => {
+                    playerBlock.setColor(GuiHandler.Color([50, 50, 50, 255]));
+                    infoScroll.clearChildren();
+                    infoScroll.addChild(new UIWrappedText(formatDianaInfo(party))
+                        .setX((4).percent())
+                        .setY((4).percent())
+                        .setWidth((96).percent())
+                        .setTextScale(this.getTextScale())
+                    );
+                })
+                .onMouseLeave(() => {
+                    playerBlock.setColor(GuiHandler.Color([0, 0, 0, 200]));
+                });
+            playerNameBase.addChild(new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((height).pixels())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(playerBlock)
+            );
+        });
+    }
+
+    addPartyListFunctions(listName, createParty = () => {}) {
         let line = new GuiHandler.UILine(
             (0).percent(),
             (7).percent(),
@@ -330,7 +656,7 @@ export default class PartyFinderGUI {
             (0.3).percent(),
             [0, 110, 250, 255]
         ).get()
-        this.partyCount = new UIText(" " + partyCount)
+        this.partyCount = new UIText("")
             .setX(new SiblingConstraint())
             .setY(new CenterConstraint())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
@@ -421,7 +747,7 @@ export default class PartyFinderGUI {
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .addChild(this.createPartySvgComp)
             .onMouseClick(() => {
-                createParty()
+                if (typeof createParty === "function") createParty();
             })
             .onMouseEnter(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([50, 50, 255, 200]))
@@ -600,7 +926,7 @@ export default class PartyFinderGUI {
     }
 
     _customFinder() {
-        this.addPartyListFunctions("Custom Party List", null, 5)
+        this.addPartyListFunctions("Custom Party List", null)
         this.updateCurrentPartyList(true);
     }
 
@@ -791,8 +1117,7 @@ export default class PartyFinderGUI {
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
         this.addPage("Settings", () => this._settings(), true, false, true)
-        this.addPage("Custom", () => this._customFinder(), false, (0).percent())
-        this.addPage("Diana", () => this.dianaPage.render(), false)
+        this.addPage("Diana", () => this.dianaPage.render(), false, (0).percent())
         // this.addPage("Dungeons", () => this._dungeons())
         // this.addPage("Kuudra", () => this._kuudra())
         // this.addPage("Fishing", () => this._fishing())
