@@ -26,7 +26,7 @@ export default class PartyFinderGUI {
         this.settings = settings
         this.openGui = false
         this.elementToHighlight = []
-        this.selectedPage = "Diana"
+        this.selectedPage = "Home"
         this.pages = {}
         this.partyCache = {}
         this.lastRefreshTime = 0;
@@ -1017,17 +1017,21 @@ export default class PartyFinderGUI {
                     this.joinParty(party.leaderName, party.reqs)
                 })
                 joinButton.Object.onMouseEnter((comp, event) => {
+                    if (this.filterWindowOpened) return
                     comp.setColor(GuiHandler.Color([70, 70, 70, 200]))
                     partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
                 })
                 joinButton.Object.onMouseLeave((comp, event) => {
+                    if (this.filterWindowOpened) return
                     comp.setColor(GuiHandler.Color([30, 30, 30, 255]))
                     partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]))
                 })
             partyBlock.onMouseEnter(() => {
+                if (this.filterWindowOpened) return
                 partyBlock.setColor(GuiHandler.Color([0, 0, 0, 220]))
             })
             .onMouseLeave(() => {
+                if (this.filterWindowOpened) return
                 partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
             })
             .onMouseClick(() => {
@@ -1240,28 +1244,9 @@ export default class PartyFinderGUI {
         this.updateCurrentPartyList(true);
     }
 
-    _dungeons() {
-        function createParty() {
-            ChatLib.chat("Create Party")
-        }
-
-        this.addPartyListFunctions("Dungeons Party List", createParty.bind(this), 5)
-    }
-
-    _kuudra() {
-        function createParty() {
-            ChatLib.chat("Create Party")
-        }
-
-        this.addPartyListFunctions("Kuudra Party List", createParty.bind(this), 5)
-    }
-
-    _fishing() {
-        function createParty() {
-            ChatLib.chat("Create Party")
-        }
-
-        this.addPartyListFunctions("Fishing Party List", createParty.bind(this), 5)
+    _customFinder() {
+        this.addPartyListFunctions("Custom Party List", null, 5)
+        this.updateCurrentPartyList(true);
     }
 
     _create() {
@@ -1451,7 +1436,8 @@ export default class PartyFinderGUI {
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
         this.addPage("Settings", () => this._settings(), true, false, true)
-        this.addPage("Diana", () => this._diana(), false, (0).percent())
+        this.addPage("Custom", () => this._customFinder(), false, (0).percent())
+        this.addPage("Diana", () => this._diana(), false)
         // this.addPage("Dungeons", () => this._dungeons())
         // this.addPage("Kuudra", () => this._kuudra())
         // this.addPage("Fishing", () => this._fishing())
