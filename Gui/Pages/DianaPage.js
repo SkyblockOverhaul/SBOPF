@@ -1,7 +1,7 @@
 import GuiHandler from "../GuiHandler";
 import { configState } from "../../Main/Data";
-import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, ScrollComponent, FillConstraint } from "../../../Elementa";
-import { getPlayerStats, formatDianaInfo, formatNumber } from "../../utils/functions";
+import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
+import { getPlayerStats, formatNumber } from "../../utils/functions";
 
 export default class DianaPage {
     constructor(parent) {
