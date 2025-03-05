@@ -406,6 +406,15 @@ export default class PartyFinderGUI {
         );
         
         partyList.forEach(party => {
+            let reqsString = ""
+            switch (this.selectedPage) {
+                case "Diana":
+                    reqsString = this.dianaPage.getReqsString(party.reqs);
+                    break;
+                default:
+                    reqsString = "No requirements";
+            }
+
             let partyBlock = new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
@@ -435,15 +444,6 @@ export default class PartyFinderGUI {
                     ).get()
                 );
 
-            let reqsString = ""
-            switch (this.selectedPage) {
-                case "Diana":
-                    reqsString = this.dianaPage.getReqsString(party.reqs);
-                    break;
-                default:
-                    reqsString = "No requirements";
-            }
-            
             let reqsNote = new UIBlock()
                 .setX(new SiblingConstraint())
                 .setY(new CenterConstraint())
