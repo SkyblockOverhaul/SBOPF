@@ -527,7 +527,13 @@ export default class PartyFinderGUI {
     }
 
     _home() {
-        this.ContentBlock.addChild(new UIBlock()
+        this.ContentBlock.addChild(new ScrollComponent()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .addChild(new UIBlock()
             .setWidth((100).percent())
             .setHeight((9).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
@@ -539,50 +545,57 @@ export default class PartyFinderGUI {
                 .setTextScale(this.getTextScale(1.5))
             )
         )
-        .addChild(new UIWrappedText(
-            "・ Find parties with custom requirements that Hypixel doesn't offer.\n\n" +
-            "・ Create your own party or join others.\n\n" +
-            "・ Set custom requirements and wait for players to join.\n\n" +
-            "・ Made and maintained by the Skyblock Overhaul team.\n\n" +
-            "・ We rely on a server and appreciate any support to keep it running.")
-            .setX((2).percent())
-            .setY(new SiblingConstraint())
-            .setWidth((100).percent())
-            .setTextScale(this.getTextScale())
-            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .addChild(new UIWrappedText(
+                "・ Find parties with custom requirements that Hypixel doesn't offer.\n\n" +
+                "・ Create your own party or join others.\n\n" +
+                "・ Set custom requirements and wait for players to join.\n\n" +
+                "・ Made and maintained by the Skyblock Overhaul team.\n\n" +
+                "・ We rely on a server and appreciate any support to keep it running.")
+                .setX((2).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setTextScale(this.getTextScale())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            )
         )
-        
     }
 
     _help() {
-        this.ContentBlock.addChild(new UIBlock()
+        this.ContentBlock.addChild(new ScrollComponent()
+            .setX((0).percent())
+            .setY((0).percent())
             .setWidth((100).percent())
-            .setHeight((9).percent())
+            .setHeight((100).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .addChild(new UIWrappedText("Help Page!")
-                .setX((2).percent())
-                .setY(new CenterConstraint())
+            .addChild(new UIBlock()
                 .setWidth((100).percent())
+                .setHeight((9).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIWrappedText("Help Page!")
+                    .setX((2).percent())
+                    .setY(new CenterConstraint())
+                    .setWidth((100).percent())
+                    .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                    .setTextScale(this.getTextScale(1.5))
+                )
+            )
+            .addChild(new UIWrappedText(
+                "・ Not Getting any Join Requests?.\n\n" +
+                "   ・ Enable private Messages!\n\n" +
+                "   ・ /settings -> Social Settings.\n\n" +
+                "・ Requirements dont update?\n\n" +
+                "   ・ Wait 10mins and do /ct reload.\n\n" +
+                "・ Text or Icons to small or to big?\n\n" +
+                "   ・ open party finder settings\n\n" +
+                "・ Not seeing ur party in the list?\n\n" +
+                "   ・ Make sure you have the right filters set."
+                )
+                .setX((2).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setTextScale(this.getTextScale())
                 .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                .setTextScale(this.getTextScale(1.5))
             )
-        )
-        .addChild(new UIWrappedText(
-            "・ Not Getting any Join Requests?.\n\n" +
-            "   ・ Enable private Messages!\n\n" +
-            "   ・ /settings -> Social Settings.\n\n" +
-            "・ Requirements dont update?\n\n" +
-            "   ・ Wait 10mins and do /ct reload.\n\n" +
-            "・ Text or Icons to small or to big?\n\n" +
-            "   ・ open party finder settings\n\n" +
-            "・ Not seeing ur party in the list?\n\n" +
-            "   ・ Make sure you have the right filters set."
-            )
-            .setX((2).percent())
-            .setY(new SiblingConstraint())
-            .setWidth((100).percent())
-            .setTextScale(this.getTextScale())
-            .setColor(GuiHandler.Color([255, 255, 255, 255]))
         )
     }
 
