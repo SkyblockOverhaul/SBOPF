@@ -247,18 +247,18 @@ export default class DianaPage {
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
         this.parent.filterWindow.setX((this.parent.filterWindow.getLeft() - this.parent.filterWindow.getWidth()).pixels());
 
-        this.filterBox = new UIRoundedRectangle(10)
+        this.parent.filterBox = new UIRoundedRectangle(10)
             .setX((0).percent())
             .setY((0).percent())
             .setWidth((100).percent())
             .setHeight((100).percent())
             .setColor(GuiHandler.Color([50, 50, 50, 255]))
             .setChildOf(this.parent.filterWindow);
-        this.filterBox.grabWindowFocus();
-        this.filterBox.onMouseClick(() => {
-            this.filterBox.grabWindowFocus();
+        this.parent.filterBox.grabWindowFocus();
+        this.parent.filterBox.onMouseClick(() => {
+            this.parent.filterBox.grabWindowFocus();
         });
-        this.filterBox.onFocusLost(() => {
+        this.parent.filterBox.onFocusLost(() => {
             this.parent.closeFilterWindow();
         });
         
@@ -268,21 +268,21 @@ export default class DianaPage {
             .setWidth((100).percent())
             .setHeight((33.33).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.filterBox);
+            .setChildOf(this.parent.filterBox);
         let row2 = new UIBlock()
             .setX(new CenterConstraint())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
             .setHeight((33.33).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.filterBox);
+            .setChildOf(this.parent.filterBox);
         let row3 = new UIBlock()
             .setX(new CenterConstraint())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
             .setHeight((33.33).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.filterBox);
+            .setChildOf(this.parent.filterBox);
         
         let eman9Filter = new GuiHandler.Checkbox(
             "diana",
