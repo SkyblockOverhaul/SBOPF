@@ -5,7 +5,7 @@ import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
 import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue, sendJoinRequest } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
-import { getPlayerStats, getActiveUsers } from "../utils/functions";
+import { getPlayerStats, getActiveUsers, formatDianaInfo } from "../utils/functions";
 
 const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
@@ -15,7 +15,6 @@ let filterSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/f
 let partyGroupSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/users-group.svg")
 let createSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/user-plus.svg")
 let unqueueSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/user-minus.svg")
-let infoSvg = GuiHandler.svg("./config/ChatTriggers/modules/SBOPF/Gui/Images/info.svg")
 
 export default class PartyFinderGUI {
     constructor() {
@@ -33,6 +32,7 @@ export default class PartyFinderGUI {
         this.lastRefreshTime = 0;
         this.cpWindowOpened = false
         this.filterWindowOpened = false
+        this.partyInfoOpened = false
 
         this.dequeued = false
 
@@ -127,6 +127,19 @@ export default class PartyFinderGUI {
             if (leaderCheck) ChatLib.chat("&6[SBOPF] &eYou can't join your own party.")
         }
     }
+
+    openPartyInfoWindow() {
+        this.base.hide()
+        this.partyInfoWindow.unhide(false)
+        this.partyInfoOpened = true
+    }
+
+    closePartyInfoWindow() {
+        this.partyInfoWindow.hide()
+        this.checkWindows()
+        this.base.unhide(true)
+        this.partyInfoOpened = false
+    }
     
     openFilterWindow() {
         this.filterBackground.unhide(false)
@@ -159,6 +172,7 @@ export default class PartyFinderGUI {
         if (this.reqsBox) this.cpWindow.removeChild(this.reqsBox);
         if (this.createBox) this.cpWindow.removeChild(this.createBox);
         if (this.filterBox) this.window.removeChild(this.filterBox);
+        if (this.infoBase) this.partyInfoWindow.removeChild(this.infoBase);
     }
 
     unqueueParty() {
@@ -213,8 +227,8 @@ export default class PartyFinderGUI {
 
     updateCurrentPartyList(ignoreCooldown = false) {
         let now = new Date().getTime();
-        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 2000) {
-            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (2s).");
+        if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 1000) {
+            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (1s).");
             return;
         }
         this.lastRefreshTime = now;
@@ -522,9 +536,10 @@ export default class PartyFinderGUI {
         });
 
         register("guiKey", (keypressed, keycode, gui, event) => {
-            if (keycode === Keyboard.KEY_ESCAPE && (this.cpWindowOpened || this.filterWindowOpened)) {
+            if (keycode === Keyboard.KEY_ESCAPE && (this.cpWindowOpened || this.filterWindowOpened || this.partyInfoOpened)) {
                 if (this.cpWindowOpened) this.closeCpWindow()
                 if (this.filterWindowOpened) this.closeFilterWindow()
+                if (this.partyInfoOpened) this.closePartyInfoWindow()
                 cancel(event);
             }
         });
@@ -593,6 +608,80 @@ export default class PartyFinderGUI {
             .setTextScale(this.getTextScale())
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
         )
+    }
+
+    _addDianaPartyInfo(partyInfoList) {
+        this.openPartyInfoWindow()
+        this.partyInfoWindow
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((60).percent())
+            .setHeight((65).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        this.infoBase = new UIRoundedRectangle(10)
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([30, 30, 30, 240]))
+            .setChildOf(this.partyInfoWindow)
+        let playerNameBase = new UIBlock()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((50).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        let infoDisplay = new UIRoundedRectangle(10)
+            .setX(new SiblingConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((48).percent())
+            .setHeight((95).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 150]))
+        let infoScroll = new ScrollComponent()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        this.infoBase.addChild(playerNameBase)
+        this.infoBase.addChild(infoDisplay)
+        infoDisplay.addChild(infoScroll)
+        partyInfoList.forEach(party => {
+            let height = this.infoBase.getHeight() / 6
+            let playerBlock = new UIRoundedRectangle(10)
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setWidth((60).percent())
+            .setHeight((70).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 200]))
+            .addChild(new UIText(party.name)
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            )
+            .onMouseEnter(() => {
+                playerBlock.setColor(GuiHandler.Color([50, 50, 50, 255]))
+                infoScroll.clearChildren()
+                infoScroll.addChild(new UIWrappedText(formatDianaInfo(party))
+                    .setX((4).percent())
+                    .setY((4).percent())
+                    .setWidth((96).percent())
+                    .setTextScale(this.getTextScale())
+                );
+            })
+            .onMouseLeave(() => {
+                playerBlock.setColor(GuiHandler.Color([0, 0, 0, 200]))
+            })
+            playerNameBase.addChild(new UIBlock()
+                .setX((0).percent())
+                .setY(new SiblingConstraint())
+                .setWidth((100).percent())
+                .setHeight((height).pixels())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(playerBlock)
+            )
+        })
     }
 
     _addDianaFilter(x, y) {
@@ -942,7 +1031,7 @@ export default class PartyFinderGUI {
                 partyBlock.setColor(GuiHandler.Color([0, 0, 0, 150]))
             })
             .onMouseClick(() => {
-                ChatLib.chat("clicked")
+                this._addDianaPartyInfo(party.partyinfo)
             })
 
         });
@@ -1187,6 +1276,9 @@ export default class PartyFinderGUI {
         this.filterWindow = new UIRoundedRectangle(10)
         this.window.addChild(this.filterWindow)
         this.filterWindow.hide()
+        this.partyInfoWindow = new UIRoundedRectangle(10)
+        this.window.addChild(this.partyInfoWindow)
+        this.partyInfoWindow.hide()
 
         this.cpWindow = new UIRoundedRectangle(10)
             .setWidth((30).percent())

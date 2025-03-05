@@ -138,3 +138,149 @@ export function checkIfInSkyblock() {
     let inSkyblockBool = Scoreboard.getTitle()?.removeFormatting().includes("SKYBLOCK");
     return inSkyblockBool;
 }
+
+export function formatDianaInfo(info) {
+    let formattedInfo = [
+        ["&9Name: &b", info.name],
+        ["&9Skyblock Level: ", matchLvlToColor(info.sbLvl)],
+        ["&9Uuid: &7", info.uuid],
+        ["&9Eman9: ", getNumberColor(info.emanLvl, 9)],
+        ["&9Clover: ", info.clover ? "&a✔" : "&c✘"],
+        ["&9Looting 5: ", getNumberColor(info.daxeLootingLvl, 5)],
+        ["&9Chimera: ", getNumberColor(info.daxeChimLvl, 5)],
+        ["&9Griffin Item: ", getGriffinItemColor(info.griffinItem)],
+        ["&9Griffin Rarity: ", getRarity(info.griffinRarity)],
+        ["&9Diana Kills: ", matchDianaKillsToColor(info.mythosKills)],
+        ["&9Leaderboard: &b#", info.killLeaderboard],
+        ["&9Magical Power: &b", info.magicalPower],
+        ["&9Enrichments: &b", info.enrichments],
+        ["&9Missing Enrichments: &b", info.missingEnrichments],
+        ["&9Warnings: &7", info.warnings.join(", ")]
+    ]
+    let formattedInfoString = ""
+    formattedInfo.forEach((info) => {
+        formattedInfoString += info[0] + info[1] + "\n\n"
+    })
+    return formattedInfoString
+}
+
+export function getNumberColor(number, range) {
+    if (number === range) {
+        return "&c" + number;
+    }
+    else if (number === range - 1) {
+        return "&6" + number;
+    }
+    else {
+        return "&9" + number;
+    }
+}
+
+export function matchLvlToColor(lvl) {
+    if (lvl >= 480) {
+        return "&4" + lvl;
+    } else if (lvl >= 440) {
+        return "&c" + lvl;
+    } else if (lvl >= 400) {
+        return "&6" + lvl;
+    } else if (lvl >= 360) {
+        return "&5" + lvl;
+    } else if (lvl >= 320) {
+        return "&d" + lvl;
+    } else if (lvl >= 280) {
+        return "&9" + lvl;
+    } else if (lvl >= 240) {
+        return "&3" + lvl;
+    } else if (lvl >= 200) {
+        return "&b" + lvl;
+    } else {
+        return "&7" + lvl;
+    }
+}
+
+export function getGriffinItemColor(item, noColors = false) {
+    if (item != 0) {
+        if (!item) return "";
+        let name = item.replace("PET_ITEM_", "");
+        name = toTitleCase(name.replaceAll("_", " "));
+        if (noColors) return name;
+        switch (name) {
+            case "Four Eyed Fish":
+                return "&5" + name;
+            case "Dwarf Turtle Shelmet":
+                return "&a" + name;
+            case "Crochet Tiger Plushie":
+                return "&5" + name;
+            case "Antique Remedies":
+                return "&5" + name;
+            case "Lucky Clover":
+                return "&a" + name;
+            case "Minos Relic":
+                return "&5" + name;
+            default:
+                return "&7" + name;
+        }
+    }
+    return "";
+}
+
+export function getRarity(item){
+    switch (item.toLowerCase().trim()) {
+        case "common":
+            return "&f" + item;
+        case "uncommon":
+            return "&a" + item;
+        case "rare":
+            return "&9" + item;
+        case "epic":
+            return "&5" + item;
+        case "legendary":
+            return "&6" + item;
+        case "mythic":
+            return "&d" + item;
+        default:
+            return "&7";
+    }
+}
+
+export function matchDianaKillsToColor(kills) {
+    if (kills >= 200000) {
+        return "&6" + formatNumberCommas(kills);
+    }
+    else if (kills >= 150000) {
+        return "&e" + formatNumberCommas(kills);
+    }
+    else if (kills >= 100000) {
+        return "&c" + formatNumberCommas(kills);
+    }
+    else if (kills >= 75000) {
+        return "&d" + formatNumberCommas(kills);
+    }
+    else if (kills >= 50000) {
+        return "&9" + formatNumberCommas(kills);
+    }
+    else if (kills >= 25000) {
+        return "&a" + formatNumberCommas(kills);
+    }
+    else if (kills >= 10000) {
+        return "&2" + formatNumberCommas(kills);
+    }
+    else {
+        return "&7" + formatNumberCommas(kills);
+    }
+}
+
+export function toTitleCase(str) {
+    return str.replace(
+      /\w\S*/g,
+      function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }
+    );
+}
+
+export function formatNumberCommas(number) {
+    // add commas to number 1000000 -> 1,000,000
+    if(number == undefined) return 0;
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
