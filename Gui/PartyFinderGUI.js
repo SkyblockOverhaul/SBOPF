@@ -180,8 +180,8 @@ export default class PartyFinderGUI {
         }
     }   
 
-    partyCreate(reqs, note, partyType) {
-        createParty(reqs, note, partyType)
+    partyCreate(reqs, note, partyType, partySize = 6) {
+        createParty(reqs, note, partyType, partySize)
     }
 
     filterPartyList(filterPredicate = null) {
@@ -1138,8 +1138,8 @@ export default class PartyFinderGUI {
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
         this.addPage("Settings", () => this._settings(), true, false, true)
-        this.addPage("Custom", () => this.customPage.render(), false, (0).percent())
-        this.addPage("Diana", () => this.dianaPage.render(), false)
+        this.addPage("Diana", () => this.dianaPage.render(), false, (0).percent())
+        this.addPage("Custom", () => this.customPage.render(), false)
         // this.addPage("Dungeons", () => this._dungeons())
         // this.addPage("Kuudra", () => this._kuudra())
         // this.addPage("Fishing", () => this._fishing())
