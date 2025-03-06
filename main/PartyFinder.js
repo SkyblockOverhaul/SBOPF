@@ -9,17 +9,19 @@ let creatingParty = false;
 let updateBool = false;
 let createPartyTimeStamp = 0;
 let inQueue = false;
+let partySize = 0;
 let partyNote = "";
 let partyType = "";
 let partyReqs = "";
 let partyReqsObj = {};
 let requeue = false;
 let inParty = false;
-export function createParty(reqs, note, type) {
+export function createParty(reqs, note, type, size) {
     if (!creatingParty) {
         partyReqs = reqs;
         partyNote = note;
         partyType = type;
+        partySize = size;
         requeue = false;
         creatingParty = true;
         HypixelModAPI.requestPartyInfo();
@@ -167,7 +169,7 @@ let partyCount = 0;
 function trackMemberCount(number) {
     partyCount = partyCount + number;
     if (inQueue) {
-        if (partyCount >= 6) {      
+        if (partyCount >= partySize) {      
             setTimeout(() => {
                 ChatLib.chat("&6[SBOPF] &eYour party is full and removed from the queue.");
                 removePartyFromQueue();
@@ -175,7 +177,7 @@ function trackMemberCount(number) {
         }
     }
     else {
-        if (partyCount < 6 && partyReqs != "" && !requeue) {
+        if (partyCount < partySize && partyReqs != "" && !requeue) {
             requeue = true;
             setTimeout(() => {
                 new TextComponent("&6[SBOPF] &eClick to requeue party with your last used requirements").setClick("run_command", "/sboqueue").setHover("show_text", "/sboqueue").chat();
@@ -271,7 +273,7 @@ function invitePlayerIfMeetsReqs(player) {
 
 registerWhen(register("chat", (toFrom, player, id, event) => {
     if (inQueue && toFrom.includes("From")) {
-        if (partyCount < 6) {
+        if (partyCount < partySize) {
             player = getplayername(player);
             if (settings.autoInvite) {
                 invitePlayerIfMeetsReqs(player);
@@ -308,10 +310,10 @@ register("serverDisconnect", () => {
 })
 
 function checkPartyNote() {
-    if (partyNote.length > 20) {
-        partyNote = partyNote.substring(0, 20);
-    }
     partyNote = partyNote.replaceAll(/[^a-zA-Z0-9\s,.!-_?]/g, ''); // allowed characters a-z, A-Z, 0-9, space, comma, dot, exclamation mark, hyphen, underscore, question mark
+    if (partyNote.length > 30) {
+        partyNote = partyNote.substring(0, 30);
+    }
     partyNote = partyNote.replaceAll(" ", "%20");
 }
 
@@ -332,8 +334,8 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             creatingParty = false;
             return;
         }
-        if (party.length > 5) {
-            ChatLib.chat("&6[SBOPF] &eParty members limit reached. You can only queue with up to 5 members.");
+        if (party.length >= partySize) {
+            ChatLib.chat("&6[SBOPF] &eParty members limit reached. You can only queue with up to " + partySize + " members.");
             creatingParty = false;
             return;
         }
@@ -372,7 +374,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
     if (updateBool && inQueue) {
         updateBool = false;
         let updatePartyTimeStamp = Date.now();
-        if (party.length > 5 || party.length < 2) return;
+        if (party.length >= partySize || party.length < 2) return;
         ChatLib.chat("&6[SBOPF] &eUpdating party members in queue...");
         request({
             url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType,
