@@ -341,7 +341,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         }
         checkPartyNote();
         request({
-            url: api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType,
+            url: api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize,
             json: true
         }).then((response)=> {
             if (response.Success) {
