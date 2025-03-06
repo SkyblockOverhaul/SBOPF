@@ -54,7 +54,7 @@ export function getActiveUsers(useCallback = false, callback = null) {
         if (useCallback && callback) {
             callback(activeUsers);
         } else {
-            ChatLib.chat("&6[SBOPF] &aActive user: &e" + activeUsers);
+            ChatLib.chat("&6[SBO] &aActive user: &e" + activeUsers);
         }
     }).catch((error) => {
         console.error("An error occurred: " + error);
