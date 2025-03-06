@@ -7,6 +7,7 @@ import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
 import { getPlayerStats, getActiveUsers, formatDianaInfo } from "../utils/functions";
 import DianaPage from "./Pages/DianaPage";
+import CustomPage from "./Pages/CustomPage";
 
 const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
@@ -45,6 +46,7 @@ export default class PartyFinderGUI {
         this._home()
 
         this.dianaPage = new DianaPage(this)
+        this.customPage = new CustomPage(this)
     }
 
     getTextScale(base = 1) {
@@ -79,6 +81,26 @@ export default class PartyFinderGUI {
                             if (party.reqs.kills && myStats.mythosKills < party.reqs.kills) return false;
                             if (party.reqs.eman9 && !myStats.eman9) return false;
                             if (party.reqs.looting5 && !myStats.looting5daxe) return false;
+                        }
+                    }
+                    return true;
+                };
+            }
+            case "Custom": {
+                let isEman9Active = configState.filters["custom"]["eman9Filter"];
+                let noteFilter = configState.filters["custom"]["noteFilter"];
+                let canIJoinFilter = configState.filters["custom"]["canIjoinFilter"];
+                if (!isEman9Active && !noteFilter && !canIJoinFilter) return null;
+                return party => {
+                    if (isEman9Active && !(party.reqs && party.reqs.eman9)) return false;
+                    if (noteFilter) {
+                        if (party.note && party.note.toLowerCase().includes(noteFilter.toLowerCase())) return true;
+                        return false;
+                    }
+                    if (canIJoinFilter) {
+                        if (party.reqs) {
+                            if (party.reqs.lvl && myStats.sbLvl < party.reqs.lvl) return false;
+                            if (party.reqs.mp && myStats.magicalPower < party.reqs.mp) return false;
                         }
                     }
                     return true;
@@ -242,7 +264,7 @@ export default class PartyFinderGUI {
                 this.dianaPage._addDianaFilter(x, y);
                 break;
             case "Custom Party List":
-                this.closeFilterWindow()
+                this.customPage._addCustomFilter(x, y);
                 break;
             default:
                 return;
@@ -408,6 +430,9 @@ export default class PartyFinderGUI {
                 case "Diana":
                     reqsString = this.dianaPage.getReqsString(party.reqs);
                     break;
+                case "Custom":
+                    reqsString = this.customPage.getReqsString(party.reqs);
+                    break;
                 default:
                     reqsString = "No requirements";
             }
@@ -506,7 +531,7 @@ export default class PartyFinderGUI {
                     .setWidth((10).percent())
                     .setHeight((100).percent())
                     .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                    .addChild(new UIText(party.partymembers + "/6")
+                    .addChild(new UIText(party.partymembers + "/6") // ändern
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
                         .setColor(this.getMemberColor(party.partymembers))
@@ -1114,7 +1139,8 @@ export default class PartyFinderGUI {
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
         this.addPage("Settings", () => this._settings(), true, false, true)
-        this.addPage("Diana", () => this.dianaPage.render(), false, (0).percent())
+        this.addPage("Custom", () => this.customPage.render(), false, (0).percent())
+        this.addPage("Diana", () => this.dianaPage.render(), false)
         // this.addPage("Dungeons", () => this._dungeons())
         // this.addPage("Kuudra", () => this._kuudra())
         // this.addPage("Fishing", () => this._fishing())
