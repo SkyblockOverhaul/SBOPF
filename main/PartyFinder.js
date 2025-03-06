@@ -377,7 +377,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         if (party.length >= partySize || party.length < 2) return;
         ChatLib.chat("&6[SBOPF] &eUpdating party members in queue...");
         request({
-            url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType,
+            url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize,
             json: true
         }).then((response)=> {
             if (response.Success) {
