@@ -1050,9 +1050,9 @@ export default class PartyFinderGUI {
                 .addChild(this.OnlineuserBlock)
             )
             .addChild(new UIBlock()
-                .setWidth((50).percent())
+                .setWidth((35).percent())
                 .setHeight((100).percent())
-                .setX(new SiblingConstraint())
+                .setX(new CenterConstraint())
                 .setY(new CenterConstraint())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
                 .addChild(new UIText("SBO Party Finder")
@@ -1117,6 +1117,35 @@ export default class PartyFinderGUI {
             new CenterConstraint(), 
             (100).percent(), 
             (github.textObject.getWidth() + 10).pixels(), 
+            (10).percent(), 
+            [0, 110, 250, 255]).get()
+        )
+        let block3 = new UIBlock()
+            .setX(new SiblingConstraint())
+            .setWidth((11).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.titleBlock)
+        let patreon = new GuiHandler.Button(
+                "Patreon",
+                new CenterConstraint(),
+                new CenterConstraint(),
+                (80).percent(),
+                (60).percent(),
+                [0, 0, 0, 0],
+                [255, 255, 255, 255],
+                null,
+                block3
+            )
+            .addTextHoverEffect([255, 255, 255, 255], [50, 50, 255, 200])
+            .setTextOnClick(() => {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI("https://www.patreon.com/Skyblock_Overhaul"));
+            })
+        patreon.textObject.setTextScale(this.getTextScale())
+        patreon.Object.addChild(new GuiHandler.UILine(
+            new CenterConstraint(), 
+            (100).percent(), 
+            (patreon.textObject.getWidth() + 10).pixels(), 
             (10).percent(), 
             [0, 110, 250, 255]).get()
         )
