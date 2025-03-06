@@ -59,10 +59,14 @@ export default class PartyFinderGUI {
         return (base + this.settings.scaleIcon).pixels()
     }
 
-    getMemberColor(member) {
-        if (member < 4) return GuiHandler.Color([0, 255, 0, 255])
-        return GuiHandler.Color([255, 165, 0, 255])
+    getMemberColor(member, partySize) {
+        const ratio = member / partySize;
+        if (ratio <= 0.6) {
+            return GuiHandler.Color([0, 255, 0, 255]);
+        }
+        return GuiHandler.Color([255, 165, 0, 255]);
     }
+    
 
     getFilter(pageType) {
         let myStats = getPlayerStats();
@@ -544,7 +548,7 @@ export default class PartyFinderGUI {
                     .addChild(new UIText(party.partymembers + "/" + party.partySize) // ändern
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
-                        .setColor(this.getMemberColor(party.partymembers))
+                        .setColor(this.getMemberColor(party.partymembers, party.partySize))
                         .setTextScale(this.getTextScale(1))
                     )
                 )
