@@ -514,7 +514,6 @@ export default class PartyFinderGUI {
                         )
                     )
                 );
-        
             partyBlock.addChild(reqsNote)
                 .addChild(new GuiHandler.UILine(
                     new SiblingConstraint(),
@@ -531,7 +530,7 @@ export default class PartyFinderGUI {
                     .setWidth((10).percent())
                     .setHeight((100).percent())
                     .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                    .addChild(new UIText(party.partymembers + "/6") // ändern
+                    .addChild(new UIText(party.partymembers + "/" + party.partySize) // ändern
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
                         .setColor(this.getMemberColor(party.partymembers))

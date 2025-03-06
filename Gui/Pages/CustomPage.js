@@ -44,7 +44,7 @@ export default class CustomPage {
             .setX((0).percent())
             .setY((5).pixels())
             .setWidth((100).percent())
-            .setHeight((16).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let lvltext = new UIText("SbLvL")
@@ -76,7 +76,7 @@ export default class CustomPage {
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((17).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let mptext = new UIText("Mp")
@@ -108,7 +108,7 @@ export default class CustomPage {
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((17).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let partySizeText = new UIText("Party Size")
@@ -140,7 +140,7 @@ export default class CustomPage {
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((17).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let notetext = new UIText("Note")
@@ -162,7 +162,7 @@ export default class CustomPage {
             true
         );
         noteinput._create().setChildOf(notebox);
-        noteinput.maxChars = 20;
+        noteinput.maxChars = 30;
         noteinput.textInputText.setTextScale(this.parent.getTextScale())
         if (configState.inputs["custom"]["note"] !== "") {
             noteinput.textInputText.setText(configState.inputs["custom"]["note"]);
@@ -171,7 +171,7 @@ export default class CustomPage {
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((17).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let eman9Checkbox = new GuiHandler.Checkbox(
@@ -216,7 +216,6 @@ export default class CustomPage {
             let reqs = {
                 "lvl": configState.inputs["custom"]["lvl"],
                 "mp": configState.inputs["custom"]["mp"],
-                "partysize": configState.inputs["custom"]["partySize"]
             };
             let reqString = "";
             Object.entries(reqs).forEach(([key, value]) => {
@@ -225,7 +224,8 @@ export default class CustomPage {
             if (configState.checkboxes["custom"]["eman9"]) reqString += "eman9,";
             let note = configState.inputs["custom"]["note"];
             let partyType = "Custom";
-            this.parent.partyCreate(reqString, note, partyType);
+            let partysize = configState.inputs["custom"]["partySize"];
+            this.parent.partyCreate(reqString, note, partyType, partysize);
             this.parent.closeCpWindow();
         });
         createButton.textObject.setTextScale(this.parent.getTextScale());
@@ -236,7 +236,7 @@ export default class CustomPage {
             .setX((x).pixels())
             .setY((y).pixels())
             .setWidth((15).percent())
-            .setHeight((20).percent())
+            .setHeight((15).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
         this.parent.filterWindow.setX((this.parent.filterWindow.getLeft() - this.parent.filterWindow.getWidth()).pixels());
 
@@ -258,21 +258,14 @@ export default class CustomPage {
             .setX(new CenterConstraint())
             .setY((0).percent())
             .setWidth((100).percent())
-            .setHeight((33.33).percent())
+            .setHeight((50).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.filterBox);
         let row2 = new UIBlock()
             .setX(new CenterConstraint())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
-            .setHeight((33.33).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.parent.filterBox);
-        let row3 = new UIBlock()
-            .setX(new CenterConstraint())
-            .setY(new SiblingConstraint())
-            .setWidth((100).percent())
-            .setHeight((33.33).percent())
+            .setHeight((50).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.filterBox);
         let eman9Filter = new GuiHandler.Checkbox(

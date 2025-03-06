@@ -39,7 +39,7 @@ function applyDefaults() {
         filters: {
             custom: {
                 "eman9Filter": false,
-                "noteFilter": ""
+                "noteFilter": "."
             },
             diana: {
                 "eman9Filter": false,
