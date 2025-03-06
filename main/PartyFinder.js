@@ -22,7 +22,6 @@ export function createParty(reqs, note, type, size) {
         partyNote = note;
         partyType = type;
         partySize = size;
-        requeue = false;
         creatingParty = true;
         HypixelModAPI.requestPartyInfo();
         createPartyTimeStamp = Date.now();
@@ -179,9 +178,16 @@ function trackMemberCount(number) {
     else {
         if (partyCount < partySize && partyReqs != "" && !requeue) {
             requeue = true;
-            setTimeout(() => {
-                new TextComponent("&6[SBOPF] &eClick to requeue party with your last used requirements").setClick("run_command", "/sboqueue").setHover("show_text", "/sboqueue").chat();
-            }, 150);
+            if (settings.autoRequeue) {
+                setTimeout(() => {
+                    ChatLib.chat("&6[SBOPF] &eRequeuing party with last used requirements...");
+                    createParty(partyReqs);
+                }, 150);
+            } else {
+                setTimeout(() => {
+                    new TextComponent("&6[SBOPF] &eClick to requeue party with your last used requirements").setClick("run_command", "/sboqueue").setHover("show_text", "/sboqueue").chat();
+                }, 150);
+            }
         }
     }
 }
@@ -246,6 +252,10 @@ register("command", () => {
     ChatLib.chat("&6[SBOPF] &eRequeuing party with last used requirements...");
     createParty(partyReqs);
 }).setName("sboqueue");
+
+register("command", () => {
+    removePartyFromQueue();
+}).setName("sbodequeue");
 
 function invitePlayerIfMeetsReqs(player) {
     request({
@@ -354,7 +364,13 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
                     removePartyFromQueue();
                     ghostParty = false;
                 }
+                ChatLib.chat("&6[SBOPF] &eParty created and queued successfully " + timeTaken + "ms");
+                if (requeue) {
+                    requeue = false;
+                    new TextComponent("&6[SBOPF] &eClick to dequeue party").setClick("run_command", "/sbodequeue").setHover("show_text", "/sbodequeue").chat();
+                }
                 if (inParty) ChatLib.command("pc [SBOPF] Party now in queue.");
+
             } else {
                 ChatLib.chat("&6[SBOPF] &4Error: " + response.Error);
                 inQueue = false;
@@ -375,7 +391,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         updateBool = false;
         let updatePartyTimeStamp = Date.now();
         if (party.length >= partySize || party.length < 2) return;
-        ChatLib.chat("&6[SBOPF] &eUpdating party members in queue...");
+        // ChatLib.chat("&6[SBOPF] &eUpdating party members in queue...");
         request({
             url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize,
             json: true

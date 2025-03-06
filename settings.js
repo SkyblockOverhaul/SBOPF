@@ -36,8 +36,15 @@ class Settings {
         description: 'Auto invites players that send you a join request and meet the party requirements',
         category: 'Partyfinder',
     })
-    autoInvite = false;
+    autoInvite = true;
     
+    @SwitchProperty({
+        name: 'Auto Requeue',
+        description: 'Automatically requeues the party after a member leaves',
+        category: 'Partyfinder',
+    })
+    autoRequeue = false;
+
     @DecimalSliderProperty({
         name: 'Text Scale',
         description: 'Change the size of the text',
