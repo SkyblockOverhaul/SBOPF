@@ -139,30 +139,7 @@ export function checkIfInSkyblock() {
     return inSkyblockBool;
 }
 
-export function formatDianaInfo(info) {
-    let formattedInfo = [
-        ["&9Name: &b", info.name],
-        ["&9Skyblock Level: ", matchLvlToColor(info.sbLvl)],
-        ["&9Uuid: &7", info.uuid],
-        ["&9Eman9: ", getNumberColor(info.emanLvl, 9)],
-        ["&9Clover: ", info.clover ? "&a✔" : "&c✘"],
-        ["&9Looting 5: ", getNumberColor(info.daxeLootingLvl, 5)],
-        ["&9Chimera: ", getNumberColor(info.daxeChimLvl, 5)],
-        ["&9Griffin Item: ", getGriffinItemColor(info.griffinItem)],
-        ["&9Griffin Rarity: ", getRarity(info.griffinRarity)],
-        ["&9Diana Kills: ", matchDianaKillsToColor(info.mythosKills)],
-        ["&9Leaderboard: &b#", info.killLeaderboard],
-        ["&9Magical Power: &b", info.magicalPower],
-        ["&9Enrichments: &b", info.enrichments],
-        ["&9Missing Enrichments: &b", info.missingEnrichments],
-        ["&9Warnings: &7", info.warnings.join(", ")]
-    ]
-    let formattedInfoString = ""
-    formattedInfo.forEach((info) => {
-        formattedInfoString += info[0] + info[1] + "\n\n"
-    })
-    return formattedInfoString
-}
+
 
 export function getNumberColor(number, range) {
     if (number === range) {

@@ -5,7 +5,7 @@ import EventBus from "../Utils/EventBus";
 import { configState } from "../Main/Data";
 import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue, sendJoinRequest } from "../Main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
-import { getPlayerStats, getActiveUsers, formatDianaInfo } from "../utils/functions";
+import { getPlayerStats, getActiveUsers } from "../utils/functions";
 import DianaPage from "./Pages/DianaPage";
 import CustomPage from "./Pages/CustomPage";
 
@@ -106,6 +106,17 @@ export default class PartyFinderGUI {
                     return true;
                 };
             }
+            default:
+                return null;
+        }
+    }
+
+    getPartyInfo(type, list) {
+        switch (type) {
+            case "Diana":
+                return this.dianaPage.getPartyInfo(list);
+            case "Custom":
+                return this.customPage.getPartyInfo(list);
             default:
                 return null;
         }
@@ -633,6 +644,7 @@ export default class PartyFinderGUI {
         infoDisplay.addChild(infoScroll);
         partyInfoList.forEach(party => {
             let height = this.infoBase.getHeight() / 6;
+            let infoString = this.getPartyInfo(this.selectedPage, party);
             let playerBlock = new UIRoundedRectangle(10)
                 .setX(new CenterConstraint())
                 .setY(new CenterConstraint())
@@ -648,7 +660,7 @@ export default class PartyFinderGUI {
                 .onMouseEnter(() => {
                     playerBlock.setColor(GuiHandler.Color([50, 50, 50, 255]));
                     infoScroll.clearChildren();
-                    infoScroll.addChild(new UIWrappedText(formatDianaInfo(party))
+                    infoScroll.addChild(new UIWrappedText(infoString)
                         .setX((4).percent())
                         .setY((4).percent())
                         .setWidth((96).percent())

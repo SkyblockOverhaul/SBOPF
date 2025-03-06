@@ -1,11 +1,29 @@
 import GuiHandler from "../GuiHandler";
 import { configState } from "../../Main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
-import { getPlayerStats, formatNumberCommas } from "../../utils/functions";
-
+import { getPlayerStats, matchLvlToColor, getNumberColor, formatNumberCommas } from "../../utils/functions";
 export default class CustomPage {
     constructor(parent) {
         this.parent = parent;
+    }
+
+    getPartyInfo(info) {
+        let formattedInfo = [
+            ["&9Name: &b", info.name],
+            ["&9Skyblock Level: ", matchLvlToColor(info.sbLvl)],
+            ["&9Uuid: &7", info.uuid],
+            ["&9Eman9: ", getNumberColor(info.emanLvl, 9)],
+            ["&9Clover: ", info.clover ? "&a✔" : "&c✘"],
+            ["&9Magical Power: &b", info.magicalPower],
+            ["&9Enrichments: &b", info.enrichments],
+            ["&9Missing Enrichments: &b", info.missingEnrichments],
+            ["&9Warnings: &7", info.warnings.join(", ")]
+        ]
+        let formattedInfoString = ""
+        formattedInfo.forEach((info) => {
+            formattedInfoString += info[0] + info[1] + "\n\n"
+        })
+        return formattedInfoString
     }
 
     getReqsString(reqs) {
