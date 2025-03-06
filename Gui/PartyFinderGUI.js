@@ -132,9 +132,9 @@ export default class PartyFinderGUI {
         }
         else {
             let leaderCheck = leader === Player.getName()
-            if (getInQueue() && !isInParty() && !leaderCheck) ChatLib.chat("&6[SBOPF] &eYou are already in queue.")
-            if (isInParty() && !getInQueue() && !leaderCheck) ChatLib.chat("&6[SBOPF] &eYou are already in a party.")
-            if (leaderCheck) ChatLib.chat("&6[SBOPF] &eYou can't join your own party.")
+            if (getInQueue() && !isInParty() && !leaderCheck) ChatLib.chat("&6[SBO] &eYou are already in queue.")
+            if (isInParty() && !getInQueue() && !leaderCheck) ChatLib.chat("&6[SBO] &eYou are already in a party.")
+            if (leaderCheck) ChatLib.chat("&6[SBO] &eYou can't join your own party.")
         }
     }
 
@@ -190,7 +190,7 @@ export default class PartyFinderGUI {
             removePartyFromQueue(true, (response) => {
                 this.dequeued = response
                 if (this.dequeued) this.updateCurrentPartyList(true)
-                else ChatLib.chat("&6[SBOPF] &eFailed to unqueue party.")
+                else ChatLib.chat("&6[SBO] &eFailed to unqueue party.")
             });
         }
     }   
@@ -238,7 +238,7 @@ export default class PartyFinderGUI {
     updateCurrentPartyList(ignoreCooldown = false) {
         let now = new Date().getTime();
         if (!ignoreCooldown && this.lastRefreshTime && (now - this.lastRefreshTime) < 1000) {
-            ChatLib.chat("&6[SBOPF] &ePlease wait before refreshing the party list again (1s).");
+            ChatLib.chat("&6[SBO] &ePlease wait before refreshing the party list again (1s).");
             return;
         }
         this.lastRefreshTime = now;
