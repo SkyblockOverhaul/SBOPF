@@ -109,6 +109,7 @@ export function removePartyFromQueue(useCallback = false, callback = null) {
             if (useCallback && callback) {
                 callback(true);
             }
+            ChatLib.chat("&6[SBOPF] &eParty removed from queue.");
         }).catch((error)=> {
             if (error.detail) {
                 ChatLib.chat("&6[SBOPF] &4Error3: " + error.detail);

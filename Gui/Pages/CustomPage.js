@@ -1,9 +1,9 @@
 import GuiHandler from "../GuiHandler";
 import { configState } from "../../Main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
-import { getPlayerStats, formatNumber } from "../../utils/functions";
+import { getPlayerStats, formatNumberCommas } from "../../utils/functions";
 
-export default class DianaPage {
+export default class CustomPage {
     constructor(parent) {
         this.parent = parent;
     }
@@ -15,40 +15,36 @@ export default class DianaPage {
         if (reqs.lvl) {
             reqsString += "&bLvl: " + (myReqs.sbLvl >= reqs.lvl ? "§a" : "§c") + reqs.lvl + "§r, ";
         }
-        if (reqs.kills) {
-            reqsString += "&bKills: " + (myReqs.mythosKills >= reqs.kills ? "§a" : "§c") + formatNumber(reqs.kills) + "§r, ";
+        if (reqs.mp) {
+            reqsString += "&bMp: " + (myReqs.magicalPower >= reqs.mp ? "§a" : "§c") + formatNumberCommas(reqs.mp) + "§r, ";
         }
         if (reqs.eman9) {
             reqsString += (myReqs.eman9 ? "§aEman9" : "§cEman9") + "§r, ";
-        }
-        if (reqs.looting5) {
-            reqsString += (myReqs.looting5daxe ? "§aLooting5" : "§cLooting5") + "§r";
         }
         return reqsString;
     }
 
     render() {
-        this.parent.addPartyListFunctions("Diana Party List", this.createParty.bind(this));
+        this.parent.addPartyListFunctions("Custom Party List", this.createParty.bind(this));
         this.parent.updateCurrentPartyList(true);
     }
 
     createParty() {
         this.parent.openCpWindow();
         this.parent.cpWindow.setWidth((20).percent());
-        this.parent.cpWindow.setHeight((40).percent());
+        this.parent.cpWindow.setHeight((54).percent());
         this.parent.reqsBox = new UIBlock()
             .setX((0).percent())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
-            .setHeight((68).percent())
+            .setHeight((70).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.cpWindow);
-        
         let lvlbox = new UIBlock()
             .setX((0).percent())
             .setY((5).pixels())
             .setWidth((100).percent())
-            .setHeight((23).percent())
+            .setHeight((16).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
         let lvltext = new UIText("SbLvL")
@@ -58,7 +54,7 @@ export default class DianaPage {
             .setTextScale(this.parent.getTextScale())
             .setChildOf(lvlbox);
         let lvlinput = new GuiHandler.TextInput(
-            "diana",
+            "custom",
             "lvl",
             new CenterConstraint(),
             new SiblingConstraint(5),
@@ -72,27 +68,26 @@ export default class DianaPage {
         lvlinput._create().setChildOf(lvlbox);
         lvlinput.onlyNumbers = true;
         lvlinput.maxChars = 3;
-        lvlinput.textInputText.setTextScale(this.parent.getTextScale());
-        if (configState.inputs["diana"]["lvl"] !== "") {
-            lvlinput.textInputText.setText(configState.inputs["diana"]["lvl"]);
+        lvlinput.textInputText.setTextScale(this.parent.getTextScale())
+        if (configState.inputs["custom"]["lvl"] !== "") {
+            lvlinput.textInputText.setText(configState.inputs["custom"]["lvl"]);
         }
-        
-        let killsbox = new UIBlock()
+        let mpbox = new UIBlock()
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((23).percent())
+            .setHeight((17).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
-        let killstext = new UIText("Kills ")
+        let mptext = new UIText("Mp")
             .setX((5).percent())
             .setY(new SiblingConstraint(5))
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
             .setTextScale(this.parent.getTextScale())
-            .setChildOf(killsbox);
-        let killsinput = new GuiHandler.TextInput(
-            "diana",
-            "kills",
+            .setChildOf(mpbox);
+        let mpinput = new GuiHandler.TextInput(
+            "custom",
+            "mp",
             new CenterConstraint(),
             new SiblingConstraint(5),
             (90).percent(),
@@ -102,29 +97,60 @@ export default class DianaPage {
             [255, 255, 255, 255],
             true
         );
-        killsinput._create().setChildOf(killsbox);
-        killsinput.onlyNumbers = true;
-        killsinput.maxChars = 6;
-        killsinput.textInputText.setTextScale(this.parent.getTextScale());
-        if (configState.inputs["diana"]["kills"] !== "") {
-            killsinput.textInputText.setText(configState.inputs["diana"]["kills"]);
+        mpinput._create().setChildOf(mpbox);
+        mpinput.onlyNumbers = true;
+        mpinput.maxChars = 4;
+        mpinput.textInputText.setTextScale(this.parent.getTextScale())
+        if (configState.inputs["custom"]["mp"] !== "") {
+            mpinput.textInputText.setText(configState.inputs["custom"]["mp"]);
         }
-        
-        let noteBox = new UIBlock()
+        let partySizeBox = new UIBlock()
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((23).percent())
+            .setHeight((17).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
-        let notetext = new UIText("Note ")
+        let partySizeText = new UIText("Party Size")
             .setX((5).percent())
             .setY(new SiblingConstraint(5))
             .setColor(GuiHandler.Color([255, 255, 255, 255]))
             .setTextScale(this.parent.getTextScale())
-            .setChildOf(noteBox);
+            .setChildOf(partySizeBox);
+        let partySizeInput = new GuiHandler.TextInput(
+            "custom",
+            "partySize",
+            new CenterConstraint(),
+            new SiblingConstraint(5),
+            (90).percent(),
+            (60).percent(),
+            (90).percent(),
+            [50, 50, 50, 200],
+            [255, 255, 255, 255],
+            true
+        );
+        partySizeInput._create().setChildOf(partySizeBox);
+        partySizeInput.onlyNumbers = true;
+        partySizeInput.maxChars = 2;
+        partySizeInput.textInputText.setTextScale(this.parent.getTextScale())
+        if (configState.inputs["custom"]["partySize"] !== "") {
+            partySizeInput.textInputText.setText(configState.inputs["custom"]["partySize"]);
+        }
+        let notebox = new UIBlock()
+            .setX((0).percent())
+            .setY(new SiblingConstraint(5))
+            .setWidth((100).percent())
+            .setHeight((17).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.parent.reqsBox);
+        let notetext = new UIText("Note")
+            .setX((5).percent())
+            .setY(new SiblingConstraint(5))
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .setTextScale(this.parent.getTextScale())
+            .setChildOf(notebox);
         let noteinput = new GuiHandler.TextInput(
-            "diana",
+            "custom",
             "note",
             new CenterConstraint(),
             new SiblingConstraint(5),
@@ -135,30 +161,21 @@ export default class DianaPage {
             [255, 255, 255, 255],
             true
         );
-        noteinput._create().setChildOf(noteBox);
-        noteinput.onlyText = true;
+        noteinput._create().setChildOf(notebox);
         noteinput.maxChars = 20;
-        noteinput.textInputText.setTextScale(this.parent.getTextScale());
-        if (configState.inputs["diana"]["note"] !== "") {
-            noteinput.textInputText.setText(configState.inputs["diana"]["note"]);
+        noteinput.textInputText.setTextScale(this.parent.getTextScale())
+        if (configState.inputs["custom"]["note"] !== "") {
+            noteinput.textInputText.setText(configState.inputs["custom"]["note"]);
         }
-        
-        let l5e9box = new UIBlock()
+        let eman9Box = new UIBlock()
             .setX((0).percent())
             .setY(new SiblingConstraint(5))
             .setWidth((100).percent())
-            .setHeight((20).percent())
+            .setHeight((17).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.reqsBox);
-        let eman9box = new UIBlock()
-            .setX((0).percent())
-            .setY((0).percent())
-            .setWidth((50).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(l5e9box);
         let eman9Checkbox = new GuiHandler.Checkbox(
-            "diana",
+            "custom",
             "eman9",
             new CenterConstraint(),
             new CenterConstraint(),
@@ -170,39 +187,15 @@ export default class DianaPage {
             true,
             5
         );
-        eman9Checkbox._create().setChildOf(eman9box);
+        eman9Checkbox._create().setChildOf(eman9Box);
         eman9Checkbox.setBgBoxColor([50, 50, 50, 200]);
         eman9Checkbox.text.setTextScale(this.parent.getTextScale());
-        
-        let looting5box = new UIBlock()
-            .setX(new SiblingConstraint())
-            .setY((0).percent())
-            .setWidth((50).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(l5e9box);
-        let looting5Checkbox = new GuiHandler.Checkbox(
-            "diana",
-            "looting5",
-            new CenterConstraint(),
-            new CenterConstraint(),
-            (80).percent(),
-            (80).percent(),
-            [0, 0, 0, 200],
-            [200, 200, 200, 200],
-            "Looting 5",
-            true,
-            5
-        );
-        looting5Checkbox._create().setChildOf(looting5box);
-        looting5Checkbox.text.setTextScale(this.parent.getTextScale());
-        looting5Checkbox.setBgBoxColor([50, 50, 50, 200]);
-        
+
         this.parent.createBox = new UIBlock()
             .setX((0).percent())
             .setY(new SiblingConstraint())
             .setWidth((100).percent())
-            .setHeight((20).percent())
+            .setHeight((18).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.cpWindow);
         
@@ -221,24 +214,24 @@ export default class DianaPage {
         .addHoverEffect([50, 50, 50, 200], [100, 100, 100, 220])
         .setOnClick(() => {
             let reqs = {
-                "lvl": configState.inputs["diana"]["lvl"],
-                "kills": configState.inputs["diana"]["kills"]
+                "lvl": configState.inputs["custom"]["lvl"],
+                "mp": configState.inputs["custom"]["mp"],
+                "partysize": configState.inputs["custom"]["partySize"]
             };
             let reqString = "";
             Object.entries(reqs).forEach(([key, value]) => {
                 if (value !== "") reqString += key + value + ",";
             });
-            if (configState.checkboxes["diana"]["eman9"]) reqString += "eman9,";
-            if (configState.checkboxes["diana"]["looting5"]) reqString += "looting5,";
-            let note = configState.inputs["diana"]["note"];
-            let partyType = "Diana";
+            if (configState.checkboxes["custom"]["eman9"]) reqString += "eman9,";
+            let note = configState.inputs["custom"]["note"];
+            let partyType = "Custom";
             this.parent.partyCreate(reqString, note, partyType);
             this.parent.closeCpWindow();
         });
         createButton.textObject.setTextScale(this.parent.getTextScale());
     }
 
-    _addDianaFilter(x, y) {
+    _addCustomFilter(x, y) {
         this.parent.filterWindow
             .setX((x).pixels())
             .setY((y).pixels())
@@ -261,7 +254,6 @@ export default class DianaPage {
         this.parent.filterBox.onFocusLost(() => {
             this.parent.closeFilterWindow();
         });
-        
         let row1 = new UIBlock()
             .setX(new CenterConstraint())
             .setY((0).percent())
@@ -283,9 +275,8 @@ export default class DianaPage {
             .setHeight((33.33).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.parent.filterBox);
-        
         let eman9Filter = new GuiHandler.Checkbox(
-            "diana",
+            "custom",
             "eman9Filter",
             new CenterConstraint(),
             new CenterConstraint(),
@@ -305,31 +296,8 @@ export default class DianaPage {
             let compositeFilter = this.parent.getFilter(this.parent.selectedPage);
             this.parent.filterPartyList(compositeFilter);
         });
-        
-        let looting5Filter = new GuiHandler.Checkbox(
-            "diana",
-            "looting5Filter",
-            new CenterConstraint(),
-            new CenterConstraint(),
-            (80).percent(),
-            (80).percent(),
-            [0, 0, 0, 150],
-            [200, 200, 200, 200],
-            "Looting 5",
-            true,
-            5,
-            true
-        );
-        looting5Filter._create().setChildOf(row2);
-        looting5Filter.setBgBoxColor([25, 25, 25, 150]);
-        looting5Filter.text.setTextScale(this.parent.getTextScale());
-        looting5Filter.setOnClick(() => {
-            let compositeFilter = this.parent.getFilter(this.parent.selectedPage);
-            this.parent.filterPartyList(compositeFilter);
-        });
-        
         let canIjoinFilter = new GuiHandler.Checkbox(
-            "diana",
+            "custom",
             "canIjoinFilter",
             new CenterConstraint(),
             new CenterConstraint(),
@@ -342,7 +310,7 @@ export default class DianaPage {
             5,
             true
         );
-        canIjoinFilter._create().setChildOf(row3);
+        canIjoinFilter._create().setChildOf(row2);
         canIjoinFilter.setBgBoxColor([25, 25, 25, 150]);
         canIjoinFilter.text.setTextScale(this.parent.getTextScale());
         canIjoinFilter.setOnClick(() => {

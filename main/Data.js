@@ -7,41 +7,77 @@ if (!FU.exists(configFolderPath)) {
 }
 
 export let configState = new PogObject("../../../config/sbopf", {
-    checkboxes: {
-        diana: {
-            "eman9": false,
-            "looting5": false,
-            "mvpplus": false,
-        }
-    },
-    inputs: {
-        diana: {
-            "kills": 0,
-            "lvl": 0,
-            "note": "...",
-        }
-    },
-    filters: {
-        diana: {
-            "eman9Filter": false,
-            "looting5Filter": false,
-            "canIjoinFilter": false,
-        }
-    },
+    checkboxes: {},
+    inputs: {},
+    filters: {}
 }, "configState.json")
+
+function applyDefaults() {
+    let defaults = {
+        checkboxes: {
+            custom: {
+                "eman9": false
+            },
+            diana: {
+                "eman9": false,
+                "looting5": false,
+            }
+        },
+        inputs: {
+            custom: {
+                "lvl": 0,
+                "mp": 0,
+                "partySize": 0,
+                "note": "..."
+            },
+            diana: {
+                "kills": 0,
+                "lvl": 0,
+                "note": "...",
+            }
+        },
+        filters: {
+            custom: {
+                "eman9Filter": false,
+                "noteFilter": ""
+            },
+            diana: {
+                "eman9Filter": false,
+                "looting5Filter": false,
+                "canIjoinFilter": false,
+            }
+        }
+    };
+
+    for (let category in defaults) {
+        for (let list in defaults[category]) {
+            for (let key in defaults[category][list]) {
+                if (!configState[category][list]) configState[category][list] = {};
+                if (configState[category][list][key] === undefined) {
+                    configState[category][list][key] = defaults[category][list][key];
+                }
+            }
+        }
+    }
+}
+
+applyDefaults();
+
+configState.update = function (category, list, key, value) {
+    if (!this[category]) this[category] = {};
+    if (!this[category][list]) this[category][list] = {};
+
+    if (this[category][list][key] !== value) {
+        this[category][list][key] = value;
+        this.save();
+    }
+};
+
 configState.save();
 
 export let data = new PogObject("../../../config/sbopf", {
     playerStats: undefined,
-    playerStatsUpdated: 0
+    playerStatsUpdated: 0,
 }, "data.json");
 
 data.save();
-
-configState.update = function(category, list, key, value) {
-    if (this[category] && this[category][list] && this[category][list][key] !== undefined) {
-        if (this[category][list][key] === value) return;
-        this[category][list][key] = value;
-        this.save();
-    }
-}
