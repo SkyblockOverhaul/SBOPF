@@ -61,7 +61,7 @@ export default class PartyFinderGUI {
 
     getMemberColor(member, partySize) {
         const ratio = member / partySize;
-        if (ratio <= 0.6) {
+        if (ratio < 0.5) {
             return GuiHandler.Color([0, 255, 0, 255]);
         }
         return GuiHandler.Color([255, 165, 0, 255]);
