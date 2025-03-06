@@ -137,7 +137,7 @@ export default class DianaPage {
         );
         noteinput._create().setChildOf(noteBox);
         noteinput.onlyText = true;
-        noteinput.maxChars = 20;
+        noteinput.maxChars = 30;
         noteinput.textInputText.setTextScale(this.parent.getTextScale());
         if (configState.inputs["diana"]["note"] !== "") {
             noteinput.textInputText.setText(configState.inputs["diana"]["note"]);
