@@ -397,3 +397,8 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         });
     }
 })
+
+HypixelModAPI.on("error", (error) => {
+    creatingParty = false;
+    requestSend = false;
+})
