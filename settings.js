@@ -64,13 +64,6 @@ class Settings {
         increment: 1,
     })
     scaleIcon = 0;
-
-    @SwitchProperty({
-        name: 'test',
-        description: 'Show the partyfinder gui',
-        category: 'Customize',
-    })
-    showPF = true;
 }
 
 
