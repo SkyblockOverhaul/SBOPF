@@ -95,7 +95,7 @@ registerWhen(register("chat", (player) => {
         playersSendRequest = [];
         ChatLib.command("p accept " + player);
     }
-}).setCriteria("${player} &r&ehas invited you to join their party!").setContains(), "Enable Partyfinder", settings.pfEnabled);
+}).setCriteria("${player} &r&ehas invited you to join their party!").setContains(), "pfEnabled");
 
 let ghostParty = false;
 export function removePartyFromQueue(useCallback = false, callback = null) {
@@ -162,7 +162,7 @@ registerWhen(register("step", () => {
             });
         }
     }
-}).setFps(1), "Enable Partyfinder", settings.pfEnabled);
+}).setFps(1), "pfEnabled");
 
 let partyCount = 0;
 function trackMemberCount(number) {
@@ -246,7 +246,7 @@ registerWhen(register("chat", (event) => {
             inParty = true;
         }
     })
-}), "Enable Partyfinder", settings.pfEnabled);
+}), "pfEnabled");
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
@@ -299,13 +299,13 @@ registerWhen(register("chat", (toFrom, player, id, event) => {
         }
     }
     cancel(event);
-}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBO] join party request - ${id}") , "Enable Partyfinder", settings.pfEnabled);
+}).setCriteria("&d${toFrom} ${player}&r&7: &r&7[SBO] join party request - ${id}") , "pfEnabled");
 
 registerWhen(register("chat", (profile, event) => {
     setTimeout(() => {
         getPlayerStats(false, null, true);
     }, 10000);
-}).setCriteria("&r&7Switching to profile ${profile}&r"), "Enable Partyfinder", settings.pfEnabled);
+}).setCriteria("&r&7Switching to profile ${profile}&r"), "pfEnabled");
 
 register("gameUnload", () => {
     if (inQueue) {

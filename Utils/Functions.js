@@ -101,35 +101,34 @@ export function cancelTimeout(timer) {
     timer.cancel(true);
 }
 
+function getPropertyName(name) {
+    if (settings.__config_props__[name]) {
+        return { fieldname: name, propName: settings.__config_props__[name].getName() };
+    }
+}
+
 let registers = {};
 let propertyListeners = {};
-export function registerWhen(trigger, propertyName, fieldName) {
+export function registerWhen(trigger, fieldName) {
+    let propertyName = getPropertyName(fieldName).propName;
+    if (!propertyName) return;
 
-    if (!registers[propertyName]) {
-        registers[propertyName] = [];
-    }
+    if (!registers[propertyName]) registers[propertyName] = [];
+
     registers[propertyName].push({
         trigger: trigger,
         active: fieldName
     });
 
-    if (fieldName) {
-        trigger.register();
-    } else { 
-        trigger.unregister();
-    }
+    if (fieldName) trigger.register();
+    else trigger.unregister();
 
     if (!propertyListeners[propertyName]) {
         propertyListeners[propertyName] = true;
         settings.registerListener(propertyName, bool => {
             registers[propertyName].forEach(reg => {
-                if (bool && !reg.active) {
-                    reg.trigger.register();
-                    reg.active = true;
-                } else if (!bool && reg.active) {
-                    reg.trigger.unregister();
-                    reg.active = false;
-                }
+                if (bool) reg.trigger.register();
+                else reg.trigger.unregister();
             });
             ChatLib.chat(`${propertyName} is now ${bool ? 'enabled' : 'disabled'}`);
         });
