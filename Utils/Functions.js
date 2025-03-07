@@ -1,6 +1,7 @@
 import { request } from "../../requestV2";
 import { data } from "../Main/Data";
 import { delay } from "./threads";
+import settings from "../settings";
 
 let playerStats = undefined;
 let loadingPlayerStats = false;
@@ -76,6 +77,7 @@ export function getplayername(player) {
     return name
 }
 
+
 const Runnable = Java.type("java.lang.Runnable");
 const Executors = Java.type("java.util.concurrent.Executors");
 const TimeUnit = Java.type("java.util.concurrent.TimeUnit");
@@ -100,39 +102,39 @@ export function cancelTimeout(timer) {
 }
 
 let registers = [];
-let openVA = false;
-/**
- * Adds a trigger with its associated dependency to the list of registered triggers.
- *
- * @param {Trigger} trigger - The trigger to be added.
- * @param {function} dependency - The function representing the dependency of the trigger.
- */
-export function registerWhen(trigger, dependency) {
-    registers.push([trigger.unregister(), dependency, false]);
-}
+let propertyListeners = {};
+export function registerWhen(trigger, propertyName, fieldName) {
 
-export function setRegisters() {
-    registers.forEach(trigger => {
-        if ((!trigger[1]() && trigger[2]) || !Scoreboard.getTitle().removeFormatting().includes("SKYBLOCK")) {
-            trigger[0].unregister();
-            trigger[2] = false;
-        } else if (trigger[1]() && !trigger[2]) {
-            trigger[0].register();
-            trigger[2] = true;
-        }
+    registers.push({
+        trigger: trigger,
+        propertyName: propertyName,
+        active: fieldName
     });
-}
-delay(() => setRegisters(), 1000);
 
-export function opened() {
-    openVA = true;
-}
-
-register("guiClosed", (event) => {
-    if (event.toString().includes("vigilance")) {
-        setRegisters()
+    if (fieldName) {
+        trigger.register();
+    } else { 
+        trigger.unregister();
     }
-});
+
+    if (!propertyListeners[propertyName]) {
+        propertyListeners[propertyName] = true;
+        settings.registerListener(propertyName, bool => {
+            registers
+                .filter(reg => reg.propertyName === propertyName)
+                .forEach(reg => {
+                    if (bool) {
+                        reg.trigger.register();
+                    } else {
+                        reg.trigger.unregister();
+                    }
+                });
+            ChatLib.chat(`${propertyName} is now ${bool ? 'enabled' : 'disabled'}`);
+        });
+    }
+}
+
+
 
 export function checkIfInSkyblock() {
     let inSkyblockBool = Scoreboard.getTitle()?.removeFormatting().includes("SKYBLOCK");
