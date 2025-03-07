@@ -135,7 +135,7 @@ export function registerWhen(trigger, fieldName) {
                 if (bool) reg.trigger.register();
                 else reg.trigger.unregister();
             });
-            ChatLib.chat(`${propertyName} is now ${bool ? 'enabled' : 'disabled'}`);
+            // ChatLib.chat(`${propertyName} is now ${bool ? 'enabled' : 'disabled'}`);
         });
     }
 }
