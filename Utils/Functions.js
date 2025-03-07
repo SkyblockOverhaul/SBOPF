@@ -103,7 +103,12 @@ export function cancelTimeout(timer) {
 
 function getPropertyName(name) {
     if (settings.__config_props__[name]) {
-        return { fieldname: name, propName: settings.__config_props__[name].getName() };
+        try {
+            return { fieldname: name, propName: settings.__config_props__[name].getName() };
+        }
+        catch (e) {
+            return { fieldname: name, propName: null };
+        }
     }
 }
 
