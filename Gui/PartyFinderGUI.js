@@ -545,7 +545,7 @@ export default class PartyFinderGUI {
                     .setWidth((10).percent())
                     .setHeight((100).percent())
                     .setColor(GuiHandler.Color([0, 0, 0, 0]))
-                    .addChild(new UIText(party.partymembers + "/" + party.partySize) // ändern
+                    .addChild(new UIText(party.partymembers + "/" + party.partySize)
                         .setX(new CenterConstraint())
                         .setY(new CenterConstraint())
                         .setColor(this.getMemberColor(party.partymembers, party.partySize))
