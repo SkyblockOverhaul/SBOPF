@@ -951,7 +951,9 @@ export default class PartyFinderGUI {
                 "・ Text or Icons to small or to big?\n\n" +
                 "   ・ open party finder settings\n\n" +
                 "・ Not seeing ur party in the list?\n\n" +
-                "   ・ Make sure you have the right filters set."
+                "   ・ Make sure you have the right filters set.\n\n" +
+                "・ Still having issues?\n\n" +
+                "   ・ Join our discord and ask for help."
                 )
                 .setX((2).percent())
                 .setY(new SiblingConstraint())
