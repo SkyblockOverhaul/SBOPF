@@ -10,6 +10,7 @@
     "PogData",
     "HypixelModAPI",
     "FileUtilities",
-    "DocGuiLib"
+    "DocGuiLib",
+    "Elementa"
   ]
 }
