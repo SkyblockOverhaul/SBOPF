@@ -116,7 +116,7 @@ let registers = {};
 let propertyListeners = {};
 export function registerWhen(trigger, fieldName) {
     let propertyName = getPropertyName(fieldName).propName;
-    if (!propertyName) return print(`PropertyName for ${fieldName} not found`);
+    if (!propertyName) throw new Error(`PropertyName for ${fieldName} not found`);
 
     if (!registers[propertyName]) registers[propertyName] = [];
 
