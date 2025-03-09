@@ -6,4 +6,4 @@ let PartyFinder = new PartyFinderGUI()
 register("command", () => {
     if (!checkIfInSkyblock()) return;
     PartyFinder.CtGui.open()
-}).setName("pftest").setAliases("pf")
+}).setName("sbopf")
