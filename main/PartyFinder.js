@@ -420,3 +420,27 @@ HypixelModAPI.on("error", (error) => {
     creatingParty = false;
     requestSend = false;
 })
+
+function countActivePlayers() {
+    request({
+        url: "https://api.skyblockoverhaul.com/countActiveUsers",
+        json: true
+    }).catch((error) => {
+        console.error("An error occurred while counting active players: " + error.toString());
+    });
+}
+
+let updateing = false;
+let lastUpdate = 0;
+register("step", () => {
+    // update every 5 minutes
+    if (updateing) return;
+    if (Date.now() - lastUpdate > 300000 || lastUpdate == 0) {
+        updateing = true;
+        lastUpdate = Date.now();
+        countActivePlayers();
+        setTimeout(() => {
+            updateing = false;
+        }, 300000);
+    }
+}).setFps(1);
