@@ -185,7 +185,7 @@ export default class PartyFinderGUI {
         if (this.infoBase) this.partyInfoWindow.removeChild(this.infoBase);
     }
 
-    unqueueParty(type = undefined) {
+    unqueueParty() {
         if (getInQueue()) {
             removePartyFromQueue(true, (response) => {
                 this.dequeued = response
