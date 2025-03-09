@@ -255,7 +255,7 @@ export default class PartyFinderGUI {
     }
     
 
-    updateOnlineUsers(user) {
+    updateOnlineUsers() {
         if (!this.Onlineusers) return
         getActiveUsers(true, (activeUsers) => {
             this.Onlineusers.setText("Online: " + activeUsers)
@@ -844,7 +844,7 @@ export default class PartyFinderGUI {
     _registers() {
         this.registers.onOpen(() => {
             this.updateSelectedPage();
-            this.updateOnlineUsers(1576)
+            this.updateOnlineUsers()
             this.updatePageHighlight();
             //for the unlucky event that someone spams opening and closing the cp winodw
             this.closeCpWindow()
