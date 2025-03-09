@@ -185,7 +185,7 @@ export default class PartyFinderGUI {
         if (this.infoBase) this.partyInfoWindow.removeChild(this.infoBase);
     }
 
-    unqueueParty(type = undefined) {
+    unqueueParty() {
         if (getInQueue()) {
             removePartyFromQueue(true, (response) => {
                 this.dequeued = response
@@ -255,7 +255,7 @@ export default class PartyFinderGUI {
     }
     
 
-    updateOnlineUsers(user) {
+    updateOnlineUsers() {
         if (!this.Onlineusers) return
         getActiveUsers(true, (activeUsers) => {
             this.Onlineusers.setText("Online: " + activeUsers)
@@ -844,7 +844,7 @@ export default class PartyFinderGUI {
     _registers() {
         this.registers.onOpen(() => {
             this.updateSelectedPage();
-            this.updateOnlineUsers(1576)
+            this.updateOnlineUsers()
             this.updatePageHighlight();
             //for the unlucky event that someone spams opening and closing the cp winodw
             this.closeCpWindow()
@@ -951,7 +951,9 @@ export default class PartyFinderGUI {
                 "・ Text or Icons to small or to big?\n\n" +
                 "   ・ open party finder settings\n\n" +
                 "・ Not seeing ur party in the list?\n\n" +
-                "   ・ Make sure you have the right filters set."
+                "   ・ Make sure you have the right filters set.\n\n" +
+                "・ Still having issues?\n\n" +
+                "   ・ Join our discord and ask for help."
                 )
                 .setX((2).percent())
                 .setY(new SiblingConstraint())
