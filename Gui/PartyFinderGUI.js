@@ -97,10 +97,10 @@ export default class PartyFinderGUI {
                 if (!isEman9Active && !noteFilter && !canIJoinFilter) return null;
                 return party => {
                     if (isEman9Active && !(party.reqs && party.reqs.eman9)) return false;
-                    if (noteFilter) {
-                        if (party.note && party.note.toLowerCase().includes(noteFilter.toLowerCase())) return true;
-                        return false;
-                    }
+                    // if (noteFilter) {
+                    //     if (party.note && party.note.toLowerCase().includes(noteFilter.toLowerCase())) return true;
+                    //     return false;
+                    // }
                     if (canIJoinFilter) {
                         if (party.reqs) {
                             if (party.reqs.lvl && myStats.sbLvl < party.reqs.lvl) return false;
