@@ -92,7 +92,7 @@ export default class PartyFinderGUI {
             }
             case "Custom": {
                 let isEman9Active = configState.filters["custom"]["eman9Filter"];
-                // let noteFilter = configState.filters["custom"]["noteFilter"];
+                let noteFilter = configState.filters["custom"]["noteFilter"];
                 let canIJoinFilter = configState.filters["custom"]["canIjoinFilter"];
                 if (!isEman9Active && !noteFilter && !canIJoinFilter) return null;
                 return party => {
