@@ -92,15 +92,15 @@ export default class PartyFinderGUI {
             }
             case "Custom": {
                 let isEman9Active = configState.filters["custom"]["eman9Filter"];
-                let noteFilter = configState.filters["custom"]["noteFilter"];
+                // let noteFilter = configState.filters["custom"]["noteFilter"];
                 let canIJoinFilter = configState.filters["custom"]["canIjoinFilter"];
                 if (!isEman9Active && !noteFilter && !canIJoinFilter) return null;
                 return party => {
                     if (isEman9Active && !(party.reqs && party.reqs.eman9)) return false;
-                    if (noteFilter) {
-                        if (party.note && party.note.toLowerCase().includes(noteFilter.toLowerCase())) return true;
-                        return false;
-                    }
+                    // if (noteFilter) {
+                    //     if (party.note && party.note.toLowerCase().includes(noteFilter.toLowerCase())) return true;
+                    //     return false;
+                    // }
                     if (canIJoinFilter) {
                         if (party.reqs) {
                             if (party.reqs.lvl && myStats.sbLvl < party.reqs.lvl) return false;
