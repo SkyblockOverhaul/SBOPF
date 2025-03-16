@@ -1,6 +1,5 @@
 import { request } from "../../requestV2";
-import { data } from "../Main/Data";
-import { delay } from "./threads";
+import { data } from "../main/Data";
 import settings from "../settings";
 
 let playerStats = undefined;

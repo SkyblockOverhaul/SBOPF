@@ -1,7 +1,7 @@
 import GuiHandler from "../GuiHandler";
-import { configState } from "../../Main/Data";
+import { configState } from "../../main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
-import { getPlayerStats, matchLvlToColor, getNumberColor, formatNumberCommas } from "../../utils/functions";
+import { getPlayerStats, matchLvlToColor, getNumberColor, formatNumberCommas } from "../../Utils/Functions";
 export default class CustomPage {
     constructor(parent) {
         this.parent = parent;
