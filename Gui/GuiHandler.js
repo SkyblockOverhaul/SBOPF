@@ -1,5 +1,5 @@
 import { CenterConstraint, UIBlock, UIText, UIWrappedText, UIRoundedRectangle, SVGParser, UITextInput, SiblingConstraint, ChildBasedSizeConstraint } from "../../Elementa";
-import { configState } from "../Main/Data";
+import { configState } from "../main/Data";
 
 
 export default class GuiHandler {

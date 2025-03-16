@@ -1,7 +1,7 @@
 import GuiHandler from "../GuiHandler";
-import { configState } from "../../Main/Data";
+import { configState } from "../../main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
-import { getPlayerStats, formatNumber, matchLvlToColor, getNumberColor, getGriffinItemColor, getRarity, matchDianaKillsToColor } from "../../utils/functions";
+import { getPlayerStats, formatNumber, matchLvlToColor, getNumberColor, getGriffinItemColor, getRarity, matchDianaKillsToColor } from "../../Utils/Functions";
 
 export default class DianaPage {
     constructor(parent) {

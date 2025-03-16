@@ -1,6 +1,6 @@
 import { request } from "../../requestV2";
-import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../utils/functions";
-import { HypixelModAPI } from "./../../HypixelModAPI";
+import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../Utils/Functions";
+import { HypixelModAPI } from "../../HypixelModAPI";
 import EventBus from "../Utils/EventBus";
 import settings from "../settings";
 

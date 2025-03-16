@@ -2,10 +2,10 @@ import GuiHandler from "./GuiHandler";
 import settings from "../settings";
 import HandleGui from "../../DocGuiLib/core/Gui";
 import EventBus from "../Utils/EventBus";
-import { configState } from "../Main/Data";
-import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue, sendJoinRequest } from "../Main/PartyFinder";
+import { configState } from "../main/Data";
+import { getAllParties, createParty, getInQueue, isInParty, removePartyFromQueue, sendJoinRequest } from "../main/PartyFinder";
 import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoundedRectangle, SiblingConstraint, SVGComponent, ScrollComponent, FillConstraint } from "../../Elementa";
-import { getPlayerStats, getActiveUsers } from "../utils/functions";
+import { getPlayerStats, getActiveUsers } from "../Utils/Functions";
 import DianaPage from "./Pages/DianaPage";
 import CustomPage from "./Pages/CustomPage";
 
@@ -962,11 +962,6 @@ export default class PartyFinderGUI {
                 .setColor(GuiHandler.Color([255, 255, 255, 255]))
             )
         )
-    }
-
-    _customFinder() {
-        this.addPartyListFunctions("Custom Party List", null)
-        this.updateCurrentPartyList(true);
     }
 
     _create() {

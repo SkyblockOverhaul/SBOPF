@@ -1,6 +1,6 @@
 /// <reference types="../CTAutocomplete" />
 import PartyFinderGUI from "./Gui/PartyFinderGUI";
-import { checkIfInSkyblock } from "./utils/functions";
+import { checkIfInSkyblock } from "./Utils/Functions";
 
 let PartyFinder = new PartyFinderGUI()
 register("command", () => {
