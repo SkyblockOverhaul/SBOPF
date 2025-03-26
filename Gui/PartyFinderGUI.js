@@ -160,7 +160,6 @@ export default class PartyFinderGUI {
     closeFilterWindow() {
         this.filterBackground.hide()
         this.filterWindow.hide()
-        this.base.grabWindowFocus()
         this.checkWindows()
         this.filterWindowOpened = false
     }
@@ -348,97 +347,13 @@ export default class PartyFinderGUI {
         }
 
         this.updatePartyCount(partyList.length);
-        this.partyListContainer.clearChildren();
-    
         this.renderPartyList(partyList);
     }
 
     renderPartyList(partyList) {
-        this.partyShowType = new UIBlock()
-        .setX((0).percent())
-        .setY((0).percent())
-        .setWidth((100).percent())
-        .setHeight((7).percent())
-        .setColor(GuiHandler.Color([0, 0, 0, 150]))
-        .setChildOf(this.partyListContainer)
-        .addChild(new UIBlock()
-            .setWidth((20).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .addChild(new UIText("Leader")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([85, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            )
-        )
-        .addChild(new GuiHandler.UILine(
-            new SiblingConstraint(),
-            new CenterConstraint(),
-            (0.3).percent(),
-            (80).percent(),
-            [0, 110, 250, 255],
-            null,
-            true
-        ).get())
-        .addChild(new UIBlock()
-            .setX(new SiblingConstraint())
-            .setY(new CenterConstraint())
-            .setWidth((50).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .addChild(new UIText("Reqs/Note")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([85, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            )
-        )
-        .addChild(new GuiHandler.UILine(
-            new SiblingConstraint(),
-            new CenterConstraint(),
-            (0.3).percent(),
-            (80).percent(),
-            [0, 110, 250, 255],
-            null,
-            true
-        ).get())
-        .addChild(new UIBlock()
-            .setX(new SiblingConstraint())
-            .setY(new CenterConstraint())
-            .setWidth((10).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .addChild(new UIText("Member")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([85, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            )
-        )
-        .addChild(new GuiHandler.UILine(
-            new SiblingConstraint(),
-            new CenterConstraint(),
-            (0.3).percent(),
-            (80).percent(),
-            [0, 110, 250, 255],
-            null,
-            true
-        ).get())
-        .addChild(new UIBlock()
-            .setX(new SiblingConstraint())
-            .setY(new CenterConstraint())
-            .setWidth(new FillConstraint())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .addChild(new UIText("Button")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([85, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            )
-        );
-        
+        this.partyListContainer.clearChildren();
+
+        let partyBlocks = [];
         partyList.forEach(party => {
             let reqsString = ""
             switch (this.selectedPage) {
@@ -452,13 +367,12 @@ export default class PartyFinderGUI {
                     reqsString = "No requirements";
             }
 
-            let partyBlock = new UIBlock()
+            const partyBlock = new UIBlock()
                 .setY(new SiblingConstraint())
                 .setWidth((100).percent())
                 .setHeight((22).percent())
                 .setColor(GuiHandler.Color([0, 0, 0, 150]))
                 .enableEffect(new OutlineEffect(GuiHandler.Color([0, 110, 250, 255]), 1))
-                .setChildOf(this.partyListContainer)
                 .addChild(new UIBlock()
                     .setWidth((20).percent())
                     .setHeight((100).percent())
@@ -607,7 +521,14 @@ export default class PartyFinderGUI {
             .onMouseClick(() => {
                 this.renderPartyInfo(party.partyinfo);
             });
+            partyBlocks.push(partyBlock);
         });
+        this.ContentBlock.addChild(this.partyListContainer);
+        this.partyListContainer.addChild(this.partyShowType);
+        partyBlocks.forEach(partyBlock => {
+            this.partyListContainer.addChild(partyBlock);
+        });
+
     }
 
     renderPartyInfo(partyInfoList) {
@@ -792,14 +713,7 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-            
-        this.partyListContainer = new ScrollComponent()
-            .setX((0).percent())
-            .setY((7.3).percent())
-            .setWidth((100).percent())
-            .setHeight((92.3).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.ContentBlock);
+        
         this.ContentBlock
         .addChild(line)
         .addChild(new UIBlock()
@@ -1176,6 +1090,100 @@ export default class PartyFinderGUI {
             .setHeight((94.7).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
+        //-----------------PartyList-----------------
+        this.partyListContainer = new ScrollComponent()
+            .setX((0).percent())
+            .setY((7.3).percent())
+            .setWidth((100).percent())
+            .setHeight((92.3).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        const initialContainer = new UIBlock()
+            .setWidth((100).percent())
+            .setHeight((0).pixels());
+        this.partyListContainer.addChild(initialContainer);
+        this.partyShowType = new UIBlock()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((100).percent())
+            .setHeight((7).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 150]))
+            .addChild(new UIBlock()
+                .setWidth((20).percent())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIText("Leader")
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+            )
+            .addChild(new GuiHandler.UILine(
+                new SiblingConstraint(),
+                new CenterConstraint(),
+                (0.3).percent(),
+                (80).percent(),
+                [0, 110, 250, 255],
+                null,
+                true
+            ).get())
+            .addChild(new UIBlock()
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setWidth((50).percent())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIText("Reqs/Note")
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+            )
+            .addChild(new GuiHandler.UILine(
+                new SiblingConstraint(),
+                new CenterConstraint(),
+                (0.3).percent(),
+                (80).percent(),
+                [0, 110, 250, 255],
+                null,
+                true
+            ).get())
+            .addChild(new UIBlock()
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setWidth((10).percent())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIText("Member")
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+            )
+            .addChild(new GuiHandler.UILine(
+                new SiblingConstraint(),
+                new CenterConstraint(),
+                (0.3).percent(),
+                (80).percent(),
+                [0, 110, 250, 255],
+                null,
+                true
+            ).get())
+            .addChild(new UIBlock()
+                .setX(new SiblingConstraint())
+                .setY(new CenterConstraint())
+                .setWidth(new FillConstraint())
+                .setHeight((100).percent())
+                .setColor(GuiHandler.Color([0, 0, 0, 0]))
+                .addChild(new UIText("Button")
+                    .setX(new CenterConstraint())
+                    .setY(new CenterConstraint())
+                    .setColor(GuiHandler.Color([85, 255, 255, 255]))
+                    .setTextScale(this.getTextScale())
+                )
+            )
         //-----------------Pages-----------------
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
