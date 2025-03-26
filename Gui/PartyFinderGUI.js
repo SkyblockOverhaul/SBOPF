@@ -160,7 +160,6 @@ export default class PartyFinderGUI {
     closeFilterWindow() {
         this.filterBackground.hide()
         this.filterWindow.hide()
-        this.base.grabWindowFocus()
         this.checkWindows()
         this.filterWindowOpened = false
     }
@@ -348,19 +347,18 @@ export default class PartyFinderGUI {
         }
 
         this.updatePartyCount(partyList.length);
-        this.partyListContainer.clearChildren();
-    
         this.renderPartyList(partyList);
     }
 
     renderPartyList(partyList) {
+        this.partyListContainer.clearChildren();
+        this.ContentBlock.addChild(this.partyListContainer)
         this.partyShowType = new UIBlock()
         .setX((0).percent())
         .setY((0).percent())
         .setWidth((100).percent())
         .setHeight((7).percent())
         .setColor(GuiHandler.Color([0, 0, 0, 150]))
-        .setChildOf(this.partyListContainer)
         .addChild(new UIBlock()
             .setWidth((20).percent())
             .setHeight((100).percent())
@@ -437,7 +435,8 @@ export default class PartyFinderGUI {
                 .setColor(GuiHandler.Color([85, 255, 255, 255]))
                 .setTextScale(this.getTextScale())
             )
-        );
+        )
+        .setChildOf(this.partyListContainer)
         
         partyList.forEach(party => {
             let reqsString = ""
@@ -792,14 +791,7 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-            
-        this.partyListContainer = new ScrollComponent()
-            .setX((0).percent())
-            .setY((7.3).percent())
-            .setWidth((100).percent())
-            .setHeight((92.3).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]))
-            .setChildOf(this.ContentBlock);
+        
         this.ContentBlock
         .addChild(line)
         .addChild(new UIBlock()
@@ -1176,6 +1168,14 @@ export default class PartyFinderGUI {
             .setHeight((94.7).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
+        //-----------------PartyList-----------------
+        this.partyListContainer = new ScrollComponent()
+            .setX((0).percent())
+            .setY((7.3).percent())
+            .setWidth((100).percent())
+            .setHeight((92.3).percent())
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+            .setChildOf(this.ContentBlock);
         //-----------------Pages-----------------
         this.addPage("Home", () => this._home(), true, (93).percent())
         this.addPage("Help", () => this._help(), true)
