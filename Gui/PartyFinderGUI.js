@@ -798,7 +798,7 @@ export default class PartyFinderGUI {
     }
 
     _home() {
-        this.ContentBlock.addChild(new UIBlock()
+        this.ContentBlock.addChild(new ScrollComponent()
             .setX((0).percent())
             .setY((0).percent())
             .setWidth((100).percent())
@@ -832,7 +832,7 @@ export default class PartyFinderGUI {
     }
 
     _help() {
-        this.ContentBlock.addChild(new UIBlock()
+        this.ContentBlock.addChild(new ScrollComponent()
             .setX((0).percent())
             .setY((0).percent())
             .setWidth((100).percent())
@@ -1091,11 +1091,6 @@ export default class PartyFinderGUI {
             .setWidth((100).percent())
             .setHeight((92.3).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-        const initialContainer = new UIBlock()
-            .setWidth((100).percent())
-            .setHeight((0).pixels());
-        this.partyListContainer.addChild(initialContainer);
-        this.ContentBlock.addChild(this.partyListContainer);
         this.partyShowType = new UIBlock()
             .setX((0).percent())
             .setY((0).percent())
