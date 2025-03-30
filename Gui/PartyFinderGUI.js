@@ -41,9 +41,8 @@ export default class PartyFinderGUI {
             this.updateCurrentPartyList(true);
         });
 
-        this._create()
         this._registers()
-        this._home()
+        this._create()
 
         this.dianaPage = new DianaPage(this)
         this.customPage = new CustomPage(this)
@@ -211,6 +210,8 @@ export default class PartyFinderGUI {
     updateSelectedPage() {
         if (this.selectedPage && this.pages[this.selectedPage]) {
             this.ContentBlock.clearChildren();
+            this.partyListContainer.clearChildren();
+            this.ContentBlock.addChild(this.partyListContainer);
             this.pages[this.selectedPage]();
         }
     }
@@ -241,7 +242,6 @@ export default class PartyFinderGUI {
             return;
         }
         this.lastRefreshTime = now;
-        this.partyListContainer.clearChildren();
         getAllParties((partyList) => {
             this.partyCache[this.selectedPage] = partyList;
             const compositeFilter = this.getFilter(this.selectedPage);
@@ -306,6 +306,8 @@ export default class PartyFinderGUI {
             if (!pageContent) return;
             if (isClickable) return pageContent();
             this.ContentBlock.clearChildren();
+            this.partyListContainer.clearChildren();
+            this.ContentBlock.addChild(this.partyListContainer);
             this.selectedPage = pageTitle;
             this.updatePageHighlight();
             pageContent();
@@ -334,25 +336,16 @@ export default class PartyFinderGUI {
         this.elementToHighlight.push({page: pageTitle, obj: block, type: "pageBlock"});
     }
 
-    addPartyList(partyList = null, ignoreCache = false) {
-        if (!partyList) {
-            if (!ignoreCache && this.partyCache[this.selectedPage]) {
-                partyList = this.partyCache[this.selectedPage];
-            } else {
-                return getAllParties((fetchedPartyList) => {
-                    this.partyCache[this.selectedPage] = fetchedPartyList;
-                    this.addPartyList(fetchedPartyList);
-                }, this.selectedPage);
-            }
+    addPartyList(partyList, ignoreCache = false) {
+        if (!ignoreCache && this.partyCache[this.selectedPage]) {
+            partyList = this.partyCache[this.selectedPage];
         }
-
         this.updatePartyCount(partyList.length);
         this.renderPartyList(partyList);
     }
 
     renderPartyList(partyList) {
-        this.partyListContainer.clearChildren();
-
+        this.partyListContainer.clearChildren()
         let partyBlocks = [];
         partyList.forEach(party => {
             let reqsString = ""
@@ -523,7 +516,7 @@ export default class PartyFinderGUI {
             });
             partyBlocks.push(partyBlock);
         });
-        this.ContentBlock.addChild(this.partyListContainer);
+        if (partyBlocks.length === 0) return;
         this.partyListContainer.addChild(this.partyShowType);
         partyBlocks.forEach(partyBlock => {
             this.partyListContainer.addChild(partyBlock);
@@ -597,7 +590,7 @@ export default class PartyFinderGUI {
                 });
             playerNameBase.addChild(new UIBlock()
                 .setX((0).percent())
-                .setY(new SiblingConstraint())
+                .setY((0).percent())
                 .setWidth((100).percent())
                 .setHeight((height).pixels())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
@@ -1097,10 +1090,6 @@ export default class PartyFinderGUI {
             .setWidth((100).percent())
             .setHeight((92.3).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
-        const initialContainer = new UIBlock()
-            .setWidth((100).percent())
-            .setHeight((0).pixels());
-        this.partyListContainer.addChild(initialContainer);
         this.partyShowType = new UIBlock()
             .setX((0).percent())
             .setY((0).percent())
