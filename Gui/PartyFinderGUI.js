@@ -41,9 +41,8 @@ export default class PartyFinderGUI {
             this.updateCurrentPartyList(true);
         });
 
-        this._create()
         this._registers()
-        this._home()
+        this._create()
 
         this.dianaPage = new DianaPage(this)
         this.customPage = new CustomPage(this)
