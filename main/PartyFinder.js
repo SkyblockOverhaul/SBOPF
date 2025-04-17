@@ -31,10 +31,6 @@ export function createParty(reqs, note, type, size) {
     }
 }
 
-export function getParty() {
-    return party;
-}
-
 export function getAllParties(callback, type) {
     request({
         url: "https://api.skyblockoverhaul.com/getAllParties?partytype=" + type,
@@ -129,7 +125,6 @@ export function removePartyFromQueue(useCallback = false, callback = null) {
 
 let requestSend = false;
 function updateParty() {
-    updateBool = true;
     requestSend = true;
     setTimeout(() => {
         if (requestSend) { // because skytils sends request to mod api after every party member join/leave
@@ -230,12 +225,13 @@ register("chat", (event) => {
             removePartyFromQueue()
             partyCount = 0;
             inParty = false;
-            party = [];
+            updateParty()
         }
     })
     memberJoined.forEach(regex => {
         let match = formatted.match(regex)
         if (match) {
+            updateBool = true;
             updateParty()
             trackMemberCount(1);
             inParty = true;
@@ -244,6 +240,7 @@ register("chat", (event) => {
     memberLeft.forEach(regex => {
         let match = formatted.match(regex)
         if (match) {
+            updateBool = true;
             updateParty()
             trackMemberCount(-1);
             inParty = true;
