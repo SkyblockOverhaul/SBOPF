@@ -16,6 +16,7 @@ let partyReqs = "";
 let partyReqsObj = {};
 let requeue = false;
 let inParty = false;
+let party = [];
 export function createParty(reqs, note, type, size) {
     if (!creatingParty) {
         partyReqs = reqs;
@@ -28,6 +29,10 @@ export function createParty(reqs, note, type, size) {
     } else {
         ChatLib.chat("&6[SBO] &eYou are already in queue.");
     }
+}
+
+export function getParty() {
+    return party;
 }
 
 export function getAllParties(callback, type) {
@@ -123,17 +128,14 @@ export function removePartyFromQueue(useCallback = false, callback = null) {
 }
 
 let requestSend = false;
-function updatePartyInQueue() {
-    if (inQueue) {
-        updateBool = true;
-        requestSend = false;
-        setTimeout(() => {
-            if (updateBool && !requestSend) { // because skytils sends request to mod api after every party member join/leave
-                requestSend = true;
-                HypixelModAPI.requestPartyInfo();
-            }
-        }, 500);
-    }
+function updateParty() {
+    updateBool = true;
+    requestSend = true;
+    setTimeout(() => {
+        if (requestSend) { // because skytils sends request to mod api after every party member join/leave
+            HypixelModAPI.requestPartyInfo();
+        }
+    }, 500);
 }
 
 let lastUpdated = 0;
@@ -214,7 +216,7 @@ const memberLeft = [
     /^(.+) &r&ewas removed from your party because they disconnected.&r$/,
     /^&eKicked (.+) because they were offline.&r$/
 ] 
-registerWhen(register("chat", (event) => {
+register("chat", (event) => {
     let formatted = ChatLib.getChatMessage(event, true)
     leaderMessages.forEach(regex => {
         let match = formatted.match(regex)
@@ -228,12 +230,13 @@ registerWhen(register("chat", (event) => {
             removePartyFromQueue()
             partyCount = 0;
             inParty = false;
+            party = [];
         }
     })
     memberJoined.forEach(regex => {
         let match = formatted.match(regex)
         if (match) {
-            updatePartyInQueue()
+            updateParty()
             trackMemberCount(1);
             inParty = true;
         }
@@ -241,12 +244,12 @@ registerWhen(register("chat", (event) => {
     memberLeft.forEach(regex => {
         let match = formatted.match(regex)
         if (match) {
-            updatePartyInQueue()
+            updateParty()
             trackMemberCount(-1);
             inParty = true;
         }
     })
-}), "pfEnabled");
+})
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
@@ -328,7 +331,8 @@ function checkPartyNote() {
 }
 
 HypixelModAPI.on("partyInfo", (partyInfo) => {
-    let party = [];
+    requestSend = false;
+    party = [];
     Object.keys(partyInfo).forEach(key => {
         inParty = true;
         if (partyInfo[key] == "LEADER") {
