@@ -1085,7 +1085,7 @@ export default class PartyFinderGUI {
             .setY((0).percent())
             .setWidth((50).percent())
             .setHeight((100).percent())
-            .setColor(GuiHandler.Color([50, 0, 0, 255]));
+            .setColor(GuiHandler.Color([0, 0, 0, 0]));
         //-----------------PartyList-----------------
         this.partyListContainer = new ScrollComponent()
             .setX((0).percent())
