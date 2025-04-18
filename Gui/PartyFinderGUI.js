@@ -525,6 +525,7 @@ export default class PartyFinderGUI {
     }
 
     renderPartyInfo(partyInfoList) {
+        this.playerNameBase.clearChildren();
         this.openPartyInfoWindow();
         this.partyInfoWindow
             .setX(new CenterConstraint())
@@ -539,12 +540,7 @@ export default class PartyFinderGUI {
             .setHeight((100).percent())
             .setColor(GuiHandler.Color([30, 30, 30, 240]))
             .setChildOf(this.partyInfoWindow);
-        let playerNameBase = new UIBlock()
-            .setX((0).percent())
-            .setY((0).percent())
-            .setWidth((50).percent())
-            .setHeight((100).percent())
-            .setColor(GuiHandler.Color([0, 0, 0, 0]));
+
         let infoDisplay = new UIRoundedRectangle(10)
             .setX(new SiblingConstraint())
             .setY(new CenterConstraint())
@@ -557,7 +553,7 @@ export default class PartyFinderGUI {
             .setWidth((100).percent())
             .setHeight((100).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]));
-        this.infoBase.addChild(playerNameBase);
+        this.infoBase.addChild(this.playerNameBase);
         this.infoBase.addChild(infoDisplay);
         infoDisplay.addChild(infoScroll);
         partyInfoList.forEach(party => {
@@ -588,9 +584,9 @@ export default class PartyFinderGUI {
                 .onMouseLeave(() => {
                     playerBlock.setColor(GuiHandler.Color([0, 0, 0, 200]));
                 });
-            playerNameBase.addChild(new UIBlock()
+            this.playerNameBase.addChild(new UIBlock()
                 .setX((0).percent())
-                .setY((0).percent())
+                .setY(new SiblingConstraint(0))
                 .setWidth((100).percent())
                 .setHeight((height).pixels())
                 .setColor(GuiHandler.Color([0, 0, 0, 0]))
@@ -1083,6 +1079,13 @@ export default class PartyFinderGUI {
             .setHeight((94.7).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
             .setChildOf(this.base)
+        //-----------------Party Info-----------------
+        this.playerNameBase = new ScrollComponent()
+            .setX((0).percent())
+            .setY((0).percent())
+            .setWidth((50).percent())
+            .setHeight((100).percent())
+            .setColor(GuiHandler.Color([50, 0, 0, 255]));
         //-----------------PartyList-----------------
         this.partyListContainer = new ScrollComponent()
             .setX((0).percent())
