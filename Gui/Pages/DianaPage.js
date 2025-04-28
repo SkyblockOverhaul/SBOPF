@@ -1,5 +1,5 @@
 import GuiHandler from "../GuiHandler";
-import { configState } from "../../main/Data";
+import { configState, data } from "../../main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
 import { getPlayerStats, formatNumber, matchLvlToColor, getNumberColor, getGriffinItemColor, getRarity, matchDianaKillsToColor } from "../../Utils/Functions";
 
@@ -256,7 +256,9 @@ export default class DianaPage {
             if (configState.checkboxes["diana"]["looting5"]) reqString += "looting5,";
             let note = configState.inputs["diana"]["note"];
             let partyType = "Diana";
-            this.parent.partyCreate(reqString, note, partyType);
+            let sboKey = data.sboKey;
+            if (!sboKey || !sboKey.startsWith("sbo")) ChatLib.chat("&cPlease set your SBO key with /sbosetkey  <key>, if you don't have one, get it in our discord.");
+            this.parent.partyCreate(sboKey, reqString, note, partyType);
             this.parent.closeCpWindow();
         });
         createButton.textObject.setTextScale(this.parent.getTextScale());

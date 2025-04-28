@@ -193,8 +193,8 @@ export default class PartyFinderGUI {
         }
     }   
 
-    partyCreate(reqs, note, partyType, partySize = 6) {
-        createParty(reqs, note, partyType, partySize)
+    partyCreate(sboKey, reqs, note, partyType, partySize = 6) {
+        createParty(sboKey, reqs, note, partyType, partySize)
     }
 
     filterPartyList(filterPredicate = null) {

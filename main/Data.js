@@ -78,6 +78,22 @@ configState.save();
 export let data = new PogObject("../../../config/sbopf", {
     playerStats: undefined,
     playerStatsUpdated: 0,
+    sboKey: ""
 }, "data.json");
 
 data.save();
+
+
+register("command", (arg) => {
+    if (!arg) return ChatLib.chat("&6[SBO] &cPlease provide a key");
+    if (!arg.startsWith("sbo")) return ChatLib.chat("&6[SBO] &cInvalid key format! get one in our Discord");
+    data.sboKey = arg;
+    data.save();
+    ChatLib.chat("&6[SBO] &aKey has been set");
+}).setName("sboKey");
+
+register("command", () => {
+    data.sboKey = ""
+    data.save();
+    ChatLib.chat("&6[SBO] &aKey has been reset");
+}).setName("sboClearKey");
