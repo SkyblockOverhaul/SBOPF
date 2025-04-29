@@ -173,6 +173,8 @@ function trackMemberCount(number) {
         }
     }
     else {
+        if (party.length != 0) return;
+        if (party[0] != Player.getUUID()) return;
         if (partyCount < partySize && partyReqs != "" && !requeue) {
             requeue = true;
             if (settings.autoRequeue) {
@@ -250,7 +252,7 @@ register("chat", (event) => {
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
-    createParty(partyReqs);
+    createParty(partyReqs, partyNote, partyType, partySize);
 }).setName("sboqueue");
 
 register("command", () => {
@@ -399,10 +401,12 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             json: true
         }).then((response)=> {
             if (response.Success) {
+                inQueue = true;
                 let timeTaken = Date.now() - updatePartyTimeStamp;
                 partyReqsObj = response.PartyReqs;
                 ChatLib.chat("&6[SBO] &eParty in queue updated successfully " + timeTaken + "ms");
             } else {
+                inQueue = false;
                 ChatLib.chat("&6[SBO] &4Error: " + response.Error);
             }
         }).catch((error)=> {
