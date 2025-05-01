@@ -347,6 +347,16 @@ export default class PartyFinderGUI {
 
     renderPartyList(partyList) {
         if (this.selectedPage !== "Diana" && this.selectedPage !== "Custom") return;
+        if (!partyList || partyList.length === 0) {
+            this.partyListContainer.clearChildren();
+            this.partyListContainer.addChild(new UIText("No parties found.")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            );
+            return;
+        }
         this.partyListContainer.clearChildren()
         let partyBlocks = [];
         partyList.forEach(party => {
@@ -518,15 +528,7 @@ export default class PartyFinderGUI {
             });
             partyBlocks.push(partyBlock);
         });
-        if (!partyList || partyBlocks.length === 0) {
-            this.partyListContainer.addChild(new UIText("No parties found.")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            );
-            return;
-        }
+        if (partyBlocks.length === 0) return;
         this.partyListContainer.addChild(this.partyShowType);
         partyBlocks.forEach(partyBlock => {
             this.partyListContainer.addChild(partyBlock);
