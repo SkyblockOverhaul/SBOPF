@@ -8,6 +8,7 @@ import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoun
 import { getPlayerStats, getActiveUsers } from "../Utils/Functions";
 import DianaPage from "./Pages/DianaPage";
 import CustomPage from "./Pages/CustomPage";
+import sleep from "../Utils/Sleep";
 
 const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
@@ -212,7 +213,7 @@ export default class PartyFinderGUI {
             this.ContentBlock.clearChildren();
             this.partyListContainer.clearChildren();
             this.ContentBlock.addChild(this.partyListContainer);
-            this.pages[this.selectedPage]();
+            sleep(100, () => { this.pages[this.selectedPage](); });
         }
     }
 
@@ -345,6 +346,7 @@ export default class PartyFinderGUI {
     }
 
     renderPartyList(partyList) {
+        if (this.selectedPage !== "Diana" && this.selectedPage !== "Custom") return;
         this.partyListContainer.clearChildren()
         let partyBlocks = [];
         partyList.forEach(party => {
@@ -516,7 +518,15 @@ export default class PartyFinderGUI {
             });
             partyBlocks.push(partyBlock);
         });
-        if (partyBlocks.length === 0) return;
+        if (!partyList || partyBlocks.length === 0) {
+            this.partyListContainer.addChild(new UIText("No parties found.")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            );
+            return;
+        }
         this.partyListContainer.addChild(this.partyShowType);
         partyBlocks.forEach(partyBlock => {
             this.partyListContainer.addChild(partyBlock);
