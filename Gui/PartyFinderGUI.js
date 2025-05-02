@@ -714,6 +714,7 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
+        //hopefully fixes greenscrenn for some people cause its now the last rendered svg wich was createSVG before and its green no idea if it works
         this.svgFix = new SVGComponent(createSvg)
             .setX(new CenterConstraint())
             .setY(new CenterConstraint())
@@ -759,6 +760,7 @@ export default class PartyFinderGUI {
             .addChild(this.refresh)
             .addChild(this.unqueuePartyBlock)
             .addChild(this.createParty)
+            //this prob fixes the green screen for some ppl that happens of some elemtna bullshit (we cant test this i hope it works)
             .addChild(this.svgFix)
         )
     }
