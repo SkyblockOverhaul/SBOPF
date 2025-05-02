@@ -714,7 +714,13 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-        
+        this.svgFix = new SVGComponent(createSvg)
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setWidth(this.getIconScale(0))
+            .setHeight(this.getIconScale(0))
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+
         this.ContentBlock
         .addChild(line)
         .addChild(new UIBlock()
@@ -753,6 +759,7 @@ export default class PartyFinderGUI {
             .addChild(this.refresh)
             .addChild(this.unqueuePartyBlock)
             .addChild(this.createParty)
+            .addChild(this.svgFix)
         )
     }
 
