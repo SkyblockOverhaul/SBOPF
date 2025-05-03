@@ -244,7 +244,7 @@ export default class CustomPage {
             let partyType = "Custom";
             let partysize = configState.inputs["custom"]["partySize"];
             let sboKey = data.sboKey;
-            if (!sboKey || !sboKey.startsWith("sbo")) ChatLib.chat("&cPlease set your SBO key with /sbosetkey  <key>, if you don't have one, get it in our discord.");
+            if (!sboKey || !sboKey.startsWith("sbo")) ChatLib.chat("&cPlease set your SBO key with /sboKey <key>, if you don't have one, get it in our discord.");
             this.parent.partyCreate(sboKey, reqString, note, partyType, partysize);
             this.parent.closeCpWindow();
         });
