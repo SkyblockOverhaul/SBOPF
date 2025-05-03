@@ -211,7 +211,6 @@ export default class PartyFinderGUI {
     updateSelectedPage() {
         if (this.selectedPage && this.pages[this.selectedPage]) {
             this.ContentBlock.clearChildren();
-            this.partyListContainer.clearChildren();
             this.ContentBlock.addChild(this.partyListContainer);
             sleep(100, () => { this.pages[this.selectedPage](); });
         }
@@ -307,7 +306,6 @@ export default class PartyFinderGUI {
             if (!pageContent) return;
             if (isClickable) return pageContent();
             this.ContentBlock.clearChildren();
-            this.partyListContainer.clearChildren();
             this.ContentBlock.addChild(this.partyListContainer);
             this.selectedPage = pageTitle;
             this.updatePageHighlight();
