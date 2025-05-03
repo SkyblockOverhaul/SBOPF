@@ -1,5 +1,5 @@
 import GuiHandler from "../GuiHandler";
-import { configState } from "../../main/Data";
+import { configState, data } from "../../main/Data";
 import { UIBlock, UIText, CenterConstraint, UIRoundedRectangle, SiblingConstraint } from "../../../Elementa";
 import { getPlayerStats, matchLvlToColor, getNumberColor, formatNumberCommas } from "../../Utils/Functions";
 export default class CustomPage {
@@ -243,7 +243,9 @@ export default class CustomPage {
             let note = configState.inputs["custom"]["note"];
             let partyType = "Custom";
             let partysize = configState.inputs["custom"]["partySize"];
-            this.parent.partyCreate(reqString, note, partyType, partysize);
+            let sboKey = data.sboKey;
+            if (!sboKey || !sboKey.startsWith("sbo")) ChatLib.chat("&cPlease set your SBO key with /sboKey <key>, if you don't have one, get it in our discord.");
+            this.parent.partyCreate(sboKey, reqString, note, partyType, partysize);
             this.parent.closeCpWindow();
         });
         createButton.textObject.setTextScale(this.parent.getTextScale());

@@ -13,12 +13,14 @@ let partySize = 0;
 let partyNote = "";
 let partyType = "";
 let partyReqs = "";
+let partyKey = "";
 let partyReqsObj = {};
 let requeue = false;
 let inParty = false;
 let party = [];
-export function createParty(reqs, note, type, size) {
+export function createParty(sbokey, reqs, note, type, size) {
     if (!creatingParty) {
+        partyKey = sbokey;
         partyReqs = reqs;
         partyNote = note;
         partyType = type;
@@ -173,12 +175,14 @@ function trackMemberCount(number) {
         }
     }
     else {
+        if (party.length != 0) return;
+        if (party[0] != Player.getUUID()) return;
         if (partyCount < partySize && partyReqs != "" && !requeue) {
             requeue = true;
             if (settings.autoRequeue) {
                 setTimeout(() => {
                     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
-                    createParty(partyReqs, partyNote, partyType, partySize);
+                    createParty(partyKey, partyReqs, partyNote, partyType, partySize);
                 }, 150);
             } else {
                 setTimeout(() => {
@@ -250,7 +254,7 @@ register("chat", (event) => {
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
-    createParty(partyReqs);
+    createParty(partyReqs, partyNote, partyType, partySize);
 }).setName("sboqueue");
 
 register("command", () => {
@@ -353,7 +357,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         }
         checkPartyNote();
         request({
-            url: api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize,
+            url: api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey,
             json: true
         }).then((response)=> {
             if (response.Success) {
@@ -395,14 +399,16 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         if (party.length >= partySize || party.length < 2) return;
         // ChatLib.chat("&6[SBO] &eUpdating party members in queue...");
         request({
-            url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize,
+            url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey,
             json: true
         }).then((response)=> {
             if (response.Success) {
+                inQueue = true;
                 let timeTaken = Date.now() - updatePartyTimeStamp;
                 partyReqsObj = response.PartyReqs;
                 ChatLib.chat("&6[SBO] &eParty in queue updated successfully " + timeTaken + "ms");
             } else {
+                inQueue = false;
                 ChatLib.chat("&6[SBO] &4Error: " + response.Error);
             }
         }).catch((error)=> {

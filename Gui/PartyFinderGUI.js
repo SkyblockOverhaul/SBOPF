@@ -8,6 +8,7 @@ import { UIBlock, UIText, UIWrappedText, OutlineEffect, CenterConstraint, UIRoun
 import { getPlayerStats, getActiveUsers } from "../Utils/Functions";
 import DianaPage from "./Pages/DianaPage";
 import CustomPage from "./Pages/CustomPage";
+import sleep from "../Utils/Sleep";
 
 const File = Java.type("java.io.File");
 const elementaPath = Java.type("gg.essential.elementa");
@@ -193,8 +194,8 @@ export default class PartyFinderGUI {
         }
     }   
 
-    partyCreate(reqs, note, partyType, partySize = 6) {
-        createParty(reqs, note, partyType, partySize)
+    partyCreate(sboKey, reqs, note, partyType, partySize = 6) {
+        createParty(sboKey, reqs, note, partyType, partySize)
     }
 
     filterPartyList(filterPredicate = null) {
@@ -210,9 +211,8 @@ export default class PartyFinderGUI {
     updateSelectedPage() {
         if (this.selectedPage && this.pages[this.selectedPage]) {
             this.ContentBlock.clearChildren();
-            this.partyListContainer.clearChildren();
             this.ContentBlock.addChild(this.partyListContainer);
-            this.pages[this.selectedPage]();
+            sleep(100, () => { this.pages[this.selectedPage](); });
         }
     }
 
@@ -306,7 +306,6 @@ export default class PartyFinderGUI {
             if (!pageContent) return;
             if (isClickable) return pageContent();
             this.ContentBlock.clearChildren();
-            this.partyListContainer.clearChildren();
             this.ContentBlock.addChild(this.partyListContainer);
             this.selectedPage = pageTitle;
             this.updatePageHighlight();
@@ -345,7 +344,17 @@ export default class PartyFinderGUI {
     }
 
     renderPartyList(partyList) {
-        this.partyListContainer.clearChildren()
+        if (this.selectedPage !== "Diana" && this.selectedPage !== "Custom") return;
+        if (!partyList || partyList.length === 0) {
+            this.partyListContainer.clearChildren();
+            this.partyListContainer.addChild(new UIText("No parties found.")
+                .setX(new CenterConstraint())
+                .setY(new CenterConstraint())
+                .setColor(GuiHandler.Color([255, 255, 255, 255]))
+                .setTextScale(this.getTextScale())
+            );
+            return;
+        }
         let partyBlocks = [];
         partyList.forEach(party => {
             let reqsString = ""
@@ -517,11 +526,13 @@ export default class PartyFinderGUI {
             partyBlocks.push(partyBlock);
         });
         if (partyBlocks.length === 0) return;
-        this.partyListContainer.addChild(this.partyShowType);
-        partyBlocks.forEach(partyBlock => {
-            this.partyListContainer.addChild(partyBlock);
-        });
-
+        this.partyListContainer.clearChildren()
+        sleep(100, () => {
+            this.partyListContainer.addChild(this.partyShowType);
+            partyBlocks.forEach(partyBlock => {
+                this.partyListContainer.addChild(partyBlock);
+            });
+        })
     }
 
     renderPartyInfo(partyInfoList) {
@@ -702,7 +713,14 @@ export default class PartyFinderGUI {
             .onMouseLeave(() => {
                 this.createPartySvgComp.setColor(GuiHandler.Color([0, 255, 0, 255]))
             })
-        
+        //hopefully fixes greenscrenn for some people cause its now the last rendered svg wich was createSVG before and its green no idea if it works
+        this.svgFix = new SVGComponent(createSvg)
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setWidth(this.getIconScale(0))
+            .setHeight(this.getIconScale(0))
+            .setColor(GuiHandler.Color([0, 0, 0, 0]))
+
         this.ContentBlock
         .addChild(line)
         .addChild(new UIBlock()
@@ -741,6 +759,8 @@ export default class PartyFinderGUI {
             .addChild(this.refresh)
             .addChild(this.unqueuePartyBlock)
             .addChild(this.createParty)
+            //this prob fixes the green screen for some ppl that happens of some elemtna bullshit (we cant test this i hope it works)
+            .addChild(this.svgFix)
         )
     }
 
