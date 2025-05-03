@@ -355,7 +355,6 @@ export default class PartyFinderGUI {
             );
             return;
         }
-        this.partyListContainer.clearChildren()
         let partyBlocks = [];
         partyList.forEach(party => {
             let reqsString = ""
@@ -527,11 +526,13 @@ export default class PartyFinderGUI {
             partyBlocks.push(partyBlock);
         });
         if (partyBlocks.length === 0) return;
-        this.partyListContainer.addChild(this.partyShowType);
-        partyBlocks.forEach(partyBlock => {
-            this.partyListContainer.addChild(partyBlock);
-        });
-
+        this.partyListContainer.clearChildren()
+        sleep(100, () => {
+            this.partyListContainer.addChild(this.partyShowType);
+            partyBlocks.forEach(partyBlock => {
+                this.partyListContainer.addChild(partyBlock);
+            });
+        })
     }
 
     renderPartyInfo(partyInfoList) {
