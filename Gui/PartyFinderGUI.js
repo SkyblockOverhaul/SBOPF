@@ -347,12 +347,7 @@ export default class PartyFinderGUI {
         if (this.selectedPage !== "Diana" && this.selectedPage !== "Custom") return;
         if (!partyList || partyList.length === 0) {
             this.partyListContainer.clearChildren();
-            this.partyListContainer.addChild(new UIText("No parties found.")
-                .setX(new CenterConstraint())
-                .setY(new CenterConstraint())
-                .setColor(GuiHandler.Color([255, 255, 255, 255]))
-                .setTextScale(this.getTextScale())
-            );
+            this.noParties.unhide(true)
             return;
         }
         let partyBlocks = [];
@@ -813,6 +808,7 @@ export default class PartyFinderGUI {
     }
 
     _home() {
+        this.noParties.hide()
         this.ContentBlock.addChild(new ScrollComponent()
             .setX((0).percent())
             .setY((0).percent())
@@ -847,6 +843,7 @@ export default class PartyFinderGUI {
     }
 
     _help() {
+        this.noParties.hide()
         this.ContentBlock.addChild(new ScrollComponent()
             .setX((0).percent())
             .setY((0).percent())
@@ -1113,6 +1110,13 @@ export default class PartyFinderGUI {
             .setWidth((100).percent())
             .setHeight((92.3).percent())
             .setColor(GuiHandler.Color([0, 0, 0, 0]))
+        this.noParties = new UIText("No parties found.")
+            .setX(new CenterConstraint())
+            .setY(new CenterConstraint())
+            .setColor(GuiHandler.Color([255, 255, 255, 255]))
+            .setTextScale(this.getTextScale())
+        this.partyListContainer.addChild(this.noParties)
+        this.noParties.hide()
         this.partyShowType = new UIBlock()
             .setX((0).percent())
             .setY((0).percent())
