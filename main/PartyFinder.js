@@ -1,6 +1,6 @@
-import { request } from "../../requestV2";
+import { fetch } from "../../tska/polyfill/Fetch";
 import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../Utils/Functions";
-import { HypixelModAPI } from "../../HypixelModAPI";
+import HypixelModAPI from "../../tska/api/ModAPI";
 import EventBus from "../Utils/EventBus";
 import settings from "../settings";
 
@@ -34,8 +34,7 @@ export function createParty(sbokey, reqs, note, type, size) {
 }
 
 export function getAllParties(callback, type) {
-    request({
-        url: "https://api.skyblockoverhaul.com/getAllParties?partytype=" + type,
+    fetch("https://api.skyblockoverhaul.com/getAllParties?partytype=" + type, {
         json: true
     }).then((response)=> {
         if (response.Success) {
@@ -104,8 +103,7 @@ let ghostParty = false;
 export function removePartyFromQueue(useCallback = false, callback = null) {
     if (inQueue) {
         inQueue = false;
-        request({
-            url: api + "/unqueueParty?leaderId=" + Player.getUUID().replaceAll("-", ""),
+        fetch(api + "/unqueueParty?leaderId=" + Player.getUUID().replaceAll("-", ""), {
             json: true
         }).then((response)=> {
             if (useCallback && callback) {
@@ -140,8 +138,7 @@ registerWhen(register("step", () => {
     if (inQueue) {
         if (Date.now() - lastUpdated > 240000) {
             lastUpdated = Date.now();
-            request({
-                url: api + "/queueUpdate?leaderId=" + Player.getUUID().replaceAll("-", ""),
+            fetch(api + "/queueUpdate?leaderId=" + Player.getUUID().replaceAll("-", ""), {
                 json: true
             }).then((response)=> {
                 if (!response.Success) {
@@ -262,8 +259,7 @@ register("command", () => {
 }).setName("sbodequeue");
 
 function invitePlayerIfMeetsReqs(player) {
-    request({
-        url: api + "/partyInfo?party=" + player,
+    fetch(api + "/partyInfo?party=" + player, {
         json: true
     }).then((response)=> {
         if (response.Success) {
@@ -331,7 +327,7 @@ function checkPartyNote() {
     partyNote = partyNote.replaceAll(" ", "%20");
 }
 
-HypixelModAPI.on("partyInfo", (partyInfo) => {
+HypixelModAPI.on("partyinfo", (partyInfo) => {
     requestSend = false;
     party = [];
     Object.keys(partyInfo).forEach(key => {
@@ -356,8 +352,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
             return;
         }
         checkPartyNote();
-        request({
-            url: api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey,
+        fetch(api + "/createParty?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey, {
             json: true
         }).then((response)=> {
             if (response.Success) {
@@ -398,8 +393,7 @@ HypixelModAPI.on("partyInfo", (partyInfo) => {
         let updatePartyTimeStamp = Date.now();
         if (party.length >= partySize || party.length < 2) return;
         // ChatLib.chat("&6[SBO] &eUpdating party members in queue...");
-        request({
-            url: api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey,
+        fetch(api + "/queuePartyUpdate?uuids=" + party.join(",").replaceAll("-", "") + "&reqs=" + partyReqs + "&note=" + partyNote + "&partytype=" + partyType + "&partysize=" + partySize + "&key=" + partyKey, {
             json: true
         }).then((response)=> {
             if (response.Success) {
@@ -429,8 +423,7 @@ HypixelModAPI.on("error", (error) => {
 })
 
 function countActivePlayers() {
-    request({
-        url: "https://api.skyblockoverhaul.com/countActiveUsers",
+    fetch("https://api.skyblockoverhaul.com/countActiveUsers", {
         json: true
     }).catch((error) => {
         console.error("An error occurred while counting active players: " + error.toString());
