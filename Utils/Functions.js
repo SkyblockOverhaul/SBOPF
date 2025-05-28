@@ -1,4 +1,4 @@
-import { request } from "../../requestV2";
+import { fetch } from "../../tska/polyfill/Fetch";
 import { data } from "../main/Data";
 import settings from "../settings";
 
@@ -19,8 +19,7 @@ export function getPlayerStats(useCallback = false, callback = null, forceRefres
             }
             return;
         }
-        request({
-            url: "https://api.skyblockoverhaul.com/partyInfoByUuids?uuids=" + Player.getUUID().replaceAll("-", "") + "&readcache=false",
+        fetch("https://api.skyblockoverhaul.com/partyInfoByUuids?uuids=" + Player.getUUID().replaceAll("-", "") + "&readcache=false", {
             json: true
         }).then((response) => {
             playerStats = response.PartyInfo[0];
@@ -40,8 +39,7 @@ getPlayerStats();
 
 let activeUsers = undefined
 export function getActiveUsers(useCallback = false, callback = null) {
-    request({
-        url: "https://api.skyblockoverhaul.com/activeUsers",
+    fetch("https://api.skyblockoverhaul.com/activeUsers", {
         json: true
     }).then((response) => {
         activeUsers = response.activeUsers;

@@ -305,9 +305,9 @@ export default class PartyFinderGUI {
             if (this.selectedPage === pageTitle) return;
             if (!pageContent) return;
             if (isClickable) return pageContent();
-            this.ContentBlock.clearChildren();
-            this.ContentBlock.addChild(this.partyListContainer);
             this.selectedPage = pageTitle;
+            this.ContentBlock.clearChildren();
+            if (this.selectedPage != "Home" && this.selectedPage !== "Help" && this.selectedPage !== "Settings") this.ContentBlock.addChild(this.partyListContainer);
             this.updatePageHighlight();
             pageContent();
         });
