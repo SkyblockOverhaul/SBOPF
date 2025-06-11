@@ -10,7 +10,6 @@
     "FileUtilities",
     "DocGuiLib",
     "Elementa",
-    "tska",
-    "HypixelModApi"
+    "tska"
   ]
 }

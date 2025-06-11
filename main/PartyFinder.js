@@ -1,6 +1,6 @@
 import { fetch } from "../../tska/polyfill/Fetch";
 import { getplayername, getPlayerStats, registerWhen, setTimeout } from "../Utils/Functions";
-import { HypixelModAPI } from "../../HypixelModAPI";
+import HypixelModAPI from "../../tska/api/ModAPI";
 import EventBus from "../Utils/EventBus";
 import settings from "../settings";
 
@@ -327,7 +327,7 @@ function checkPartyNote() {
     partyNote = partyNote.replaceAll(" ", "%20");
 }
 
-HypixelModAPI.on("partyInfo", (partyInfo) => {
+HypixelModAPI.on("partyinfo", (inparty, partyInfo) => {
     requestSend = false;
     party = [];
     Object.keys(partyInfo).forEach(key => {
