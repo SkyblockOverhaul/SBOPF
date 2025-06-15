@@ -172,7 +172,11 @@ function trackMemberCount(number) {
         }
     }
     else {
-        if (party.length != 0) return;
+        if (partyCount == 0) return;
+        if (sbokey == "") {
+            ChatLib.chat("&6[SBO] &eYou need to set your sboKey to create a party. Use /sbo setkey <key>");
+            return;
+        }
         if (party[0] != Player.getUUID()) return;
         if (partyCount < partySize && partyReqs != "" && !requeue) {
             requeue = true;
@@ -251,7 +255,7 @@ register("chat", (event) => {
 
 register("command", () => {
     ChatLib.chat("&6[SBO] &eRequeuing party with last used requirements...");
-    createParty(partyReqs, partyNote, partyType, partySize);
+    createParty(partyKey, partyReqs, partyNote, partyType, partySize);
 }).setName("sboqueue");
 
 register("command", () => {
