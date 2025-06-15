@@ -173,7 +173,7 @@ function trackMemberCount(number) {
     }
     else {
         if (partyCount == 0) return;
-        if (sbokey == "") {
+        if (partyKey == "") {
             ChatLib.chat("&6[SBO] &eYou need to set your sboKey to create a party. Use /sbo setkey <key>");
             return;
         }
