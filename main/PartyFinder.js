@@ -173,12 +173,8 @@ function trackMemberCount(number) {
     }
     else {
         if (partyCount == 0) return;
-        if (partyKey == "") {
-            ChatLib.chat("&6[SBO] &eYou need to set your sboKey to create a party. Use /sbo setkey <key>");
-            return;
-        }
         if (party[0] != Player.getUUID()) return;
-        if (partyCount < partySize && partyReqs != "" && !requeue) {
+        if (partyCount < partySize && partyReqs != "" && !requeue && partyKey != "") {
             requeue = true;
             if (settings.autoRequeue) {
                 setTimeout(() => {
