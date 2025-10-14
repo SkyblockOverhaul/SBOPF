@@ -8,7 +8,5 @@ SBOPF is a sub module of SBO wich adds an ingame party finder for many diffrent 
 For help, bug reports, or feature requests, please join our [Discord](https://discord.gg/QvM6b9jsJD).
 
 ---
-
-This mod is actively maintained—your feedback and contributions are welcome!
-
+This mod is not being maintained anymore pls use the more modern version wich is 1.21.5+ [SBO-Kotln](https://github.com/SkyblockOverhaul/SBO-Kotlin)
 ---
